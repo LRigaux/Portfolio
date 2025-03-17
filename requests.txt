@@ -1,0 +1,41 @@
+Je vais vous aider à créer un portfolio moderne et responsive pour vos projets de data science et d'IA. Je vais utiliser les technologies les plus récentes et les meilleures pratiques pour créer un site web performant et élégant.
+
+Pour ce projet, je vais utiliser :
+- Next.js 14 (React framework) pour des performances optimales et le SSR
+- Tailwind CSS pour un design responsive et moderne
+- Framer Motion pour des animations fluides
+- TypeScript pour la sécurité du type
+- Vercel pour le déploiement
+
+Commençons par créer la structure du projet :
+
+
+```bash
+npx create-next-app@latest portfolio --typescript --tailwind --eslint --app --src-dir --import-alias "@/*"
+```
+Je vois que nous devons d'abord installer Node.js et npm. Installons-les :
+
+
+```bash
+winget install OpenJS.NodeJS.LTS
+```
+Je vois que nous avons des problèmes avec l'installation via winget. Je vous suggère de :
+
+1. Télécharger et installer Node.js manuellement depuis le site officiel : https://nodejs.org/
+2. Choisir la version LTS (Long Term Support)
+3. Une fois l'installation terminée, redémarrer votre terminal
+
+Une fois que vous aurez installé Node.js, nous pourrons continuer avec la création du projet. Voici ce que nous allons faire ensuite :
+
+1. Créer le projet Next.js avec TypeScript et Tailwind CSS
+2. Mettre en place la structure du portfolio avec :
+   - Une page d'accueil moderne avec une présentation de vous
+   - Une section projets avec des cartes interactives
+   - Une section compétences avec des visualisations
+   - Une section contact
+   - Un design responsive qui s'adapte à tous les écrans
+3. Ajouter des animations fluides avec Framer Motion
+4. Optimiser les performances et le SEO
+5. Déployer sur Vercel
+
+Pouvez-vous installer Node.js et me confirmer une fois que c'est fait ? Je pourrai alors continuer avec la création du projet.

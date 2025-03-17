@@ -1,0 +1,223 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Modèles principaux
+model Project {
+  id            String   @id @default(cuid())
+  title         String
+  slug          String   @unique
+  description   String
+  content       String?
+  imageUrl      String?
+  githubUrl     String?
+  liveUrl       String?
+  rank          String   // S, A, B, C
+  featured      Boolean  @default(false)
+  status        String   @default("draft") // draft, published
+  viewCount     Int      @default(0)
+  
+  // Relations
+  technologies  ProjectTechnology[]
+  categories    ProjectCategory[]
+  
+  // Métadonnées
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([rank])
+  @@index([status])
+  @@index([featured])
+}
+
+model Technology {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  slug        String   @unique
+  iconUrl     String?
+  
+  // Relations
+  projects    ProjectTechnology[]
+  skills      Skill[]
+  
+  // Métadonnées
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ProjectTechnology {
+  project       Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId     String
+  technology    Technology @relation(fields: [technologyId], references: [id], onDelete: Cascade)
+  technologyId  String
+
+  @@id([projectId, technologyId])
+}
+
+model Category {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  slug        String   @unique
+  description String?
+  
+  // Relations
+  projects    ProjectCategory[]
+  
+  // Métadonnées
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ProjectCategory {
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId   String
+  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categoryId  String
+
+  @@id([projectId, categoryId])
+}
+
+model Skill {
+  id          String   @id @default(cuid())
+  name        String
+  level       Int      // 0-100
+  rank        String   // S, A, B, C
+  category    String   // Frontend, Backend, Data Science, etc.
+  iconUrl     String?
+  
+  // Relations
+  technology  Technology? @relation(fields: [technologyId], references: [id])
+  technologyId String?
+  
+  // Métadonnées
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([rank])
+  @@index([category])
+}
+
+model Experience {
+  id          String   @id @default(cuid())
+  company     String
+  position    String
+  location    String?
+  startDate   DateTime
+  endDate     DateTime?
+  current     Boolean  @default(false)
+  description String
+  
+  // Relations
+  skills      ExperienceSkill[]
+  
+  // Métadonnées
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([current])
+}
+
+model ExperienceSkill {
+  experience   Experience @relation(fields: [experienceId], references: [id], onDelete: Cascade)
+  experienceId String
+  skillName    String
+
+  @@id([experienceId, skillName])
+}
+
+model Education {
+  id          String   @id @default(cuid())
+  institution String
+  degree      String
+  field       String
+  startDate   DateTime
+  endDate     DateTime?
+  current     Boolean  @default(false)
+  description String?
+  
+  // Métadonnées
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model BlogPost {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  excerpt     String?
+  content     String
+  imageUrl    String?
+  published   Boolean  @default(false)
+  viewCount   Int      @default(0)
+  
+  // Relations
+  tags        BlogPostTag[]
+  
+  // Métadonnées
+  publishedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([published])
+}
+
+model Tag {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  slug        String   @unique
+  
+  // Relations
+  blogPosts   BlogPostTag[]
+  
+  // Métadonnées
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model BlogPostTag {
+  blogPost    BlogPost @relation(fields: [blogPostId], references: [id], onDelete: Cascade)
+  blogPostId  String
+  tag         Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  tagId       String
+
+  @@id([blogPostId, tagId])
+}
+
+model Contact {
+  id          String   @id @default(cuid())
+  name        String
+  email       String
+  message     String
+  status      String   @default("unread") // unread, read, replied
+  
+  // Métadonnées
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([status])
+}
+
+model SiteVisit {
+  id          String   @id @default(cuid())
+  page        String
+  referrer    String?
+  userAgent   String?
+  ip          String?
+  
+  // Métadonnées
+  visitedAt   DateTime @default(now())
+
+  @@index([page])
+  @@index([visitedAt])
+}

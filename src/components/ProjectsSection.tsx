@@ -1,0 +1,164 @@
+'use client';
+import { useProjects } from '@/hooks/useProjects';
+import ProjectCard from './ProjectCard';
+import { useTheme } from '@/context/ThemeContext';
+import { motion } from 'framer-motion';
+import { Project } from '@/types';
+
+const ProjectsSection = () => {
+  const { projects, loading, pagination, filters, setFilter } = useProjects();
+  const { theme } = useTheme();
+
+  const ranks = ['S', 'A', 'B', 'C'];
+  
+  // Projets de secours correctement typés avec toutes les propriétés requises
+  const fallbackProjects: Project[] = [
+    {
+      id: 'fallback-1',
+      title: 'Système de Recommandation IA',
+      slug: 'systeme-de-recommandation-ia',
+      description: 'Un système de recommandation basé sur l\'apprentissage profond',
+      rank: 'S',
+      featured: true,
+      status: 'published',
+      imageUrl: '/images/projects/ai-recommendation.jpg',
+      technologies: ['Python', 'TensorFlow', 'Pandas'],
+      categories: ['Machine Learning', 'Deep Learning'],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    },
+    {
+      id: 'fallback-2',
+      title: 'Portfolio Solo Leveling',
+      slug: 'portfolio-solo-leveling',
+      description: 'Portfolio inspiré de l\'univers Solo Leveling',
+      rank: 'A',
+      featured: true,
+      status: 'published',
+      imageUrl: '/images/projects/portfolio.jpg',
+      technologies: ['React', 'Next.js', 'TypeScript', 'Tailwind CSS', 'Framer Motion'],
+      categories: ['Web Development'],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    },
+    {
+      id: 'fallback-3',
+      title: 'Analyse de Données Climatiques',
+      slug: 'analyse-de-donnees-climatiques',
+      description: 'Visualisation et analyse de données climatiques',
+      rank: 'B',
+      featured: false,
+      status: 'published',
+      imageUrl: '/images/projects/climate-data.jpg',
+      technologies: ['Python', 'Pandas', 'Matplotlib'],
+      categories: ['Data Science', 'Data Visualization'],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    }
+  ];
+  
+  // Utiliser les projets de secours si aucun projet n'est disponible
+  const displayProjects = projects && projects.length > 0 ? projects : fallbackProjects;
+
+  return (
+    <section id="projects" className={`py-20 ${
+      theme === 'light' ? 'bg-light-surface/50' : 'bg-shadow-surface/50'
+    }`}>
+      <div className="container mx-auto px-4">
+        <motion.h2
+          initial={{ opacity: 0, y: -20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className={`text-3xl font-bold mb-8 text-center ${
+            theme === 'light' ? 'text-light-text' : 'text-shadow-text'
+          }`}
+        >
+          Mes Projets
+        </motion.h2>
+
+        {/* Filtres - afficher uniquement si des projets réels sont disponibles */}
+        {projects && projects.length > 0 && (
+          <div className="flex flex-wrap gap-4 mb-8 justify-center">
+            <div className="flex gap-2">
+              <button
+                onClick={() => setFilter('rank', null)}
+                className={`px-4 py-2 rounded-md transition-all ${
+                  !filters.rank
+                    ? theme === 'light'
+                      ? 'bg-light-primary text-white'
+                      : 'bg-shadow-primary text-white'
+                    : theme === 'light'
+                    ? 'bg-light-surface text-light-text'
+                    : 'bg-shadow-surface text-shadow-text'
+                }`}
+              >
+                Tous
+              </button>
+              {ranks.map((rank) => (
+                <button
+                  key={rank}
+                  onClick={() => setFilter('rank', rank)}
+                  className={`px-4 py-2 rounded-md transition-all ${
+                    filters.rank === rank
+                      ? theme === 'light'
+                        ? 'bg-light-primary text-white'
+                        : 'bg-shadow-primary text-white'
+                      : theme === 'light'
+                      ? 'bg-light-surface text-light-text'
+                      : 'bg-shadow-surface text-shadow-text'
+                  }`}
+                >
+                  Rang {rank}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Projets */}
+        {loading ? (
+          <div className="flex justify-center">
+            <div className={`animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 ${
+              theme === 'light' ? 'border-light-primary' : 'border-shadow-primary'
+            }`}></div>
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {displayProjects.map((project, index) => (
+                <ProjectCard key={project.id} project={project} index={index} />
+              ))}
+            </div>
+
+            {/* Pagination - afficher uniquement si des projets réels sont disponibles */}
+            {projects && projects.length > 0 && pagination && pagination.pages > 1 && (
+              <div className="flex justify-center mt-12">
+                <div className="flex gap-2">
+                  {Array.from({ length: pagination.pages }, (_, i) => i + 1).map((page) => (
+                    <button
+                      key={page}
+                      onClick={() => setFilter('page', page.toString())}
+                      className={`w-10 h-10 rounded-md flex items-center justify-center transition-all ${
+                        pagination.page === page
+                          ? theme === 'light'
+                            ? 'bg-light-primary text-white'
+                            : 'bg-shadow-primary text-white'
+                          : theme === 'light'
+                          ? 'bg-light-surface text-light-text'
+                          : 'bg-shadow-surface text-shadow-text'
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    </section>
+  );
+};
+
+export default ProjectsSection; 
