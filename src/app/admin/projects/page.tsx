@@ -3,6 +3,17 @@ import { prisma } from '@/lib/prisma';
 import { PlusIcon } from '@heroicons/react/24/outline';
 import ProjectSearchBar from '@/components/admin/ProjectSearchBar';
 
+interface Project {
+  id: string;
+  title: string;
+  description: string;
+  status: string;
+  rank: string;
+  featured: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export default async function ProjectsPage({
   searchParams
 }: {
@@ -86,7 +97,7 @@ export default async function ProjectsPage({
               </tr>
             </thead>
             <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-              {projects.map((project) => (
+              {projects.map((project: Project) => (
                 <tr key={project.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900 dark:text-white">

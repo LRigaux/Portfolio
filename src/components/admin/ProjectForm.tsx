@@ -2,7 +2,24 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Project } from '@/types';
+
+interface Project {
+  id: string;
+  title: string;
+  description: string;
+  content?: string | null;
+  rank: 'S' | 'A' | 'B' | 'C';
+  featured: boolean;
+  status: 'draft' | 'published';
+  imageUrl?: string | null;
+  githubUrl?: string | null;
+  liveUrl?: string | null;
+  technologies: string[];
+  categories: string[];
+  slug?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
 
 interface ProjectFormProps {
   project?: Project;

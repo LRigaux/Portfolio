@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers';
 import { NextRequest } from 'next/server';
-import { SignJWT, jwtVerify } from 'jose';
+import * as jose from 'jose';
 
 // Clé secrète pour signer les JWT
 const JWT_SECRET = new TextEncoder().encode(
@@ -8,7 +8,7 @@ const JWT_SECRET = new TextEncoder().encode(
 );
 
 export async function signJWT(payload: any) {
-  return await new SignJWT(payload)
+  return await new jose.SignJWT(payload)
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setExpirationTime('24h') // Expire après 24 heures
@@ -17,7 +17,7 @@ export async function signJWT(payload: any) {
 
 export async function verifyJWT(token: string) {
   try {
-    const { payload } = await jwtVerify(token, JWT_SECRET);
+    const { payload } = await jose.jwtVerify(token, JWT_SECRET);
     return payload;
   } catch (error) {
     return null;

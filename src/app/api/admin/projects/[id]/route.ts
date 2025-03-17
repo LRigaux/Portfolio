@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
 import { slugify } from '@/lib/utils';
+import { PrismaClient, Prisma } from '@prisma/client';
 
 // Schéma de validation
 const ProjectSchema = z.object({
@@ -53,8 +54,8 @@ export async function GET(
     // Formater les données pour le client
     const formattedProject = {
       ...project,
-      technologies: project.technologies.map(t => t.technology.name),
-      categories: project.categories.map(c => c.category.name)
+      technologies: project.technologies.map((t: { technology: { name: string } }) => t.technology.name),
+      categories: project.categories.map((c: { category: { name: string } }) => c.category.name)
     };
     
     return NextResponse.json({ project: formattedProject });

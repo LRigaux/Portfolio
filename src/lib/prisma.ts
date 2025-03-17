@@ -1,18 +1,14 @@
 import { PrismaClient } from '@prisma/client';
 
-// Vérifier que nous ne sommes pas dans un environnement navigateur
-const isServer = typeof window === 'undefined';
+// Éviter de créer plusieurs instances de Prisma Client en développement
+// https://www.prisma.io/docs/guides/performance-and-optimization/connection-management#prevent-multiple-instances-in-development
 
-// Éviter les instances multiples en développement
-const globalForPrisma = isServer ? (global as unknown as { prisma: PrismaClient }) : undefined;
+declare global {
+  var prisma: PrismaClient | undefined;
+}
 
-// Ne créer PrismaClient que côté serveur
-export const prisma = isServer 
-  ? globalForPrisma?.prisma || new PrismaClient({
-      log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
-    })
-  : undefined;
+export const prisma = global.prisma || new PrismaClient();
 
-if (isServer && process.env.NODE_ENV !== 'production') {
-  globalForPrisma!.prisma = prisma;
+if (process.env.NODE_ENV !== 'production') {
+  global.prisma = prisma;
 } 

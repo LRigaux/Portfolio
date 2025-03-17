@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
 import { slugify } from '@/lib/utils';
+import { PrismaClient, Prisma } from '@prisma/client';
 
 // Schéma de validation
 const ProjectSchema = z.object({
@@ -24,6 +25,10 @@ const ProjectSchema = z.object({
 
 export async function GET(request: NextRequest) {
   try {
+    if (!prisma) {
+      throw new Error("Prisma client is not initialized");
+    }
+    
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
@@ -89,6 +94,10 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    if (!prisma) {
+      throw new Error("Prisma client is not initialized");
+    }
+    
     const data = await request.json();
     
     // Valider les données
