@@ -4,7 +4,8 @@ import ProjectCard from './ProjectCard';
 import { useTheme } from '@/context/ThemeContext';
 import { motion } from 'framer-motion';
 import { Project } from '@/types';
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
+import ParticlesBackground from './ParticlesBackground';
 
 const ProjectsSection = () => {
   const { projects, loading, pagination, filters, setFilter } = useProjects();
@@ -62,6 +63,12 @@ const ProjectsSection = () => {
   // Utiliser les projets de secours si aucun projet n'est disponible
   const displayProjects = projects && projects.length > 0 ? projects : fallbackProjects;
 
+  // Function to truncate description to maintain same card height
+  const truncateDescription = (description: string, maxLength: number = 100) => {
+    if (description.length <= maxLength) return description;
+    return description.substring(0, maxLength) + '...';
+  };
+
   // Fonction pour faire défiler les projets horizontalement
   const scrollProjects = (direction: 'left' | 'right') => {
     if (projectsContainerRef.current) {
@@ -76,11 +83,37 @@ const ProjectsSection = () => {
     }
   };
 
+  // Automatic scrolling
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (projectsContainerRef.current) {
+        const container = projectsContainerRef.current;
+        const isAtEnd = container.scrollLeft + container.clientWidth >= container.scrollWidth;
+        
+        if (isAtEnd) {
+          container.scrollTo({ left: 0, behavior: 'smooth' });
+        } else {
+          scrollProjects('right');
+        }
+      }
+    }, 8000); // Scroll every 8 seconds
+    
+    return () => clearInterval(interval);
+  }, []);
+
+  // Apply filter function that correctly updates the filter state
+  const applyFilter = (filterType: string, value: string | null) => {
+    setFilter(filterType as any, value);
+  };
+
   return (
-    <section id="projects" className={`py-20 ${
-      theme === 'light' ? 'bg-light-surface/50' : 'bg-shadow-surface/50'
-    }`}>
-      <div className="container mx-auto px-4">
+    <section id="projects" className={`
+      relative py-20 
+      ${theme === 'light' ? 'bg-light-secondary' : 'bg-shadow-secondary'}
+    `}>
+      <ParticlesBackground />
+      
+      <div className="container mx-auto px-4 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -128,7 +161,7 @@ const ProjectsSection = () => {
           <div className="flex flex-wrap gap-4 mb-8 justify-center">
             <div className="flex gap-2">
               <button
-                onClick={() => setFilter('rank', null)}
+                onClick={() => applyFilter('rank', null)}
                 className={`px-4 py-2 rounded-md transition-all ${
                   !filters.rank
                     ? theme === 'light'
@@ -144,7 +177,7 @@ const ProjectsSection = () => {
               {ranks.map((rank) => (
                 <button
                   key={rank}
-                  onClick={() => setFilter('rank', rank)}
+                  onClick={() => applyFilter('rank', rank)}
                   className={`px-4 py-2 rounded-md transition-all ${
                     filters.rank === rank
                       ? theme === 'light'
@@ -173,15 +206,15 @@ const ProjectsSection = () => {
           <>
             <div 
               ref={projectsContainerRef}
-              className="flex space-x-6 overflow-x-auto pb-8 scrollbar-hide"
+              className="flex space-x-6 overflow-x-auto pb-8 scrollbar-hide snap-x snap-mandatory"
               style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
             >
               {displayProjects.map((project, index) => (
-                <div key={project.id} className="flex-shrink-0 w-80">
+                <div key={project.id} className="flex-shrink-0 w-80 snap-start">
                   <ProjectCard 
                     id={project.id} 
                     title={project.title}
-                    description={project.description}
+                    description={truncateDescription(project.description, 100)}
                     image={project.imageUrl || '/projects/default.jpg'}
                     tags={Array.isArray(project.technologies) 
                       ? project.technologies.map((tech: any) => 
@@ -204,7 +237,7 @@ const ProjectsSection = () => {
                   {Array.from({ length: pagination.pages }, (_, i) => i + 1).map((page) => (
                     <button
                       key={page}
-                      onClick={() => setFilter('page', page.toString())}
+                      onClick={() => applyFilter('page', page.toString())}
                       className={`w-10 h-10 rounded-md flex items-center justify-center transition-all ${
                         pagination.page === page
                           ? theme === 'light'

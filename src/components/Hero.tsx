@@ -2,6 +2,7 @@
 import { motion } from 'framer-motion';
 import { useTheme } from '@/context/ThemeContext';
 import { useState, useEffect } from 'react';
+import ParticlesBackground from './ParticlesBackground';
 
 const Hero = () => {
   const { theme } = useTheme();
@@ -18,6 +19,14 @@ const Hero = () => {
     'Deep Learning Expert',
     'NLP Developer'
   ];
+
+  // Scroll to section function
+  const scrollToSection = (sectionId: string) => {
+    const section = document.getElementById(sectionId);
+    if (section) {
+      section.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   // Effet de typing
   useEffect(() => {
@@ -83,12 +92,15 @@ const Hero = () => {
   const isDark = theme === 'dark';
 
   return (
-    <div className={`
+    <div id="hero" className={`
       relative min-h-screen flex items-center justify-center
       ${isDark 
-        ? 'bg-shadow-secondary bg-opacity-80' 
-        : 'bg-light-secondary bg-opacity-90'}
+        ? 'bg-shadow-secondary' 
+        : 'bg-light-secondary'}
     `}>
+      {/* Particles Background */}
+      <ParticlesBackground />
+      
       {/* Effet lumineux de système Solo Leveling */}
       <div className="absolute inset-0 z-0">
         <div className={`
@@ -117,7 +129,7 @@ const Hero = () => {
                   : 'text-light-text'}
               `}
             >
-              <div className="h-20">
+              <div className="h-24 mb-4">
                 <span className={`
                   ${isDark 
                     ? 'text-shadow-blue' 
@@ -159,6 +171,7 @@ const Hero = () => {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
+                onClick={() => scrollToSection('projects')}
                 className={`
                   px-8 py-3 rounded-lg font-medium
                   ${isDark 
@@ -172,6 +185,7 @@ const Hero = () => {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
+                onClick={() => scrollToSection('contact')}
                 className={`
                   px-8 py-3 rounded-lg font-medium border-2
                   ${isDark 

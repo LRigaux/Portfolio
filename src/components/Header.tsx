@@ -20,6 +20,7 @@ const Header = () => {
     const section = document.getElementById(sectionId);
     if (section) {
       section.scrollIntoView({ behavior: 'smooth' });
+      setIsOpen(false);
     }
   };
 
@@ -35,7 +36,7 @@ const Header = () => {
         <div className="flex items-center justify-between">
           <motion.button
             whileHover={{ scale: 1.05 }}
-            onClick={() => navigate('/')}
+            onClick={() => scrollToSection('hero')}
             className={`
               text-2xl font-bold 
               ${theme === 'dark'
@@ -43,13 +44,18 @@ const Header = () => {
                 : 'text-light-primary'}
             `}
           >
-            Portfolio
+            LRigaux
           </motion.button>
 
           <div className="hidden md:flex items-center space-x-8">
-            {['Dashboard', 'Projets', 'Compétences', 'Contact'].map((item) => (
+            {[
+              { name: 'Dashboard', section: 'hero' },
+              { name: 'Projets', section: 'projects' },
+              { name: 'Compétences', section: 'skills' },
+              { name: 'Contact', section: 'contact' }
+            ].map((item) => (
               <motion.button
-                key={item}
+                key={item.name}
                 whileHover={{ scale: 1.1 }}
                 className={`
                   relative group px-4 py-2
@@ -57,9 +63,9 @@ const Header = () => {
                     ? 'text-shadow-text hover:text-shadow-accent' 
                     : 'text-light-text hover:text-light-primary'}
                 `}
-                onClick={() => navigate(`/${item.toLowerCase()}`)}
+                onClick={() => scrollToSection(item.section)}
               >
-                {item}
+                {item.name}
                 <motion.span
                   className={`
                     absolute bottom-0 left-0 w-full h-0.5 transform scale-x-0 
@@ -103,13 +109,18 @@ const Header = () => {
       {isOpen && (
         <div className="md:hidden bg-white border-t border-gray-200">
           <div className="px-4 py-2 space-y-1">
-            {['Dashboard', 'Projets', 'Compétences', 'Contact'].map((item) => (
+            {[
+              { name: 'Dashboard', section: 'hero' },
+              { name: 'Projets', section: 'projects' },
+              { name: 'Compétences', section: 'skills' },
+              { name: 'Contact', section: 'contact' }
+            ].map((item) => (
               <button
-                key={item}
-                onClick={() => navigate(`/${item.toLowerCase()}`)}
+                key={item.name}
+                onClick={() => scrollToSection(item.section)}
                 className="block w-full text-left px-4 py-2 text-gray-700 hover:text-strava-orange font-medium"
               >
-                {item}
+                {item.name}
               </button>
             ))}
           </div>

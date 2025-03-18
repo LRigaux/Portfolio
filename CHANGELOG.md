@@ -8,6 +8,7 @@ Ce document retrace les modifications et améliorations apportées au projet, ai
 - [Développement initial](#développement-initial)
 - [Corrections et améliorations](#corrections-et-améliorations)
 - [Fonctionnalités avancées](#fonctionnalités-avancées)
+- [Refonte de l'interface utilisateur](#refonte-de-linterface-utilisateur)
 
 ## Introduction
 
@@ -103,6 +104,72 @@ tags={Array.isArray(project.technologies)
 - Créer une expérience plus dynamique et immersive
 - S'aligner avec le style de la `SystemInterface`
 - Maintenir la fonctionnalité de filtrage tout en améliorant la présentation
+
+## Refonte de l'interface utilisateur
+
+### Refonte du Header
+
+**Problème identifié** : Navigation non fonctionnelle et branding non personnalisé
+
+**Modifications** :
+- Remplacement de "Portfolio" par "LRigaux" pour personnaliser le branding
+- Correction des boutons de navigation pour utiliser `scrollToSection` plutôt que `navigate`
+- Ajout de la fermeture du menu mobile après sélection d'une section
+
+**Raisonnement** :
+- Améliorer l'expérience utilisateur en assurant une navigation fluide au sein de la page
+- Personnaliser l'identité visuelle avec le nom du développeur
+- Éviter les erreurs 404 lors de la navigation
+
+### Amélioration de la Hero section
+
+**Problème identifié** : Problèmes d'affichage avec l'effet de typing et les boutons non fonctionnels
+
+**Modifications** :
+- Ajout d'un id "hero" pour permettre la navigation par ancre
+- Augmentation de la hauteur de la zone de typing pour éviter les chevauchements
+- Liaison des boutons aux sections correspondantes
+- Intégration du composant ParticlesBackground pour maintenir la cohérence visuelle
+
+**Raisonnement** :
+- Résoudre les problèmes d'affichage du texte avec effet de typing
+- Assurer la cohérence visuelle avec les autres sections
+- Améliorer la navigation interne du site
+
+### Refonte des ProjectCards et de la ProjectsSection
+
+**Problème identifié** : Cartes de projets de tailles inégales et navigation horizontale non fonctionnelle
+
+**Modifications** :
+- Standardisation de la hauteur des cartes à 450px
+- Limitation du nombre de tags affichés à 4 avec compteur pour les tags supplémentaires
+- Implémentation d'un défilement automatique avec intervalle de 8 secondes
+- Ajout du défilement snap pour une meilleure expérience sur mobile
+- Intégration du composant ParticlesBackground pour la cohérence visuelle
+- Correction du système de filtrage par rang
+
+**Raisonnement** :
+- Améliorer l'esthétique avec des cartes de taille uniforme
+- Rendre la section projets plus interactive avec le défilement automatique
+- Faciliter la navigation tactile avec le snap scrolling
+- Maintenir la cohérence visuelle de l'application
+
+### Refonte de la section Compétences
+
+**Problème identifié** : Interaction limitée au survol sans affichage de projets liés
+
+**Modifications** :
+- Ajout d'effets de brillance et d'agrandissement au survol
+- Implémentation d'un système de modal pour afficher les détails des compétences
+- Création d'un composant SkillInfo pour présenter la description et les projets associés
+- Restructuration des données des compétences pour inclure descriptions et projets liés
+- Intégration du composant ParticlesBackground pour la cohérence visuelle
+
+**Raisonnement** :
+- Créer une expérience plus interactive et informative pour les compétences
+- Établir des liens visuels entre les compétences et projets concrets
+- Renforcer l'immersion dans le thème Solo Leveling avec des effets visuels cohérents
+- Permettre aux visiteurs d'explorer le portfolio de manière plus approfondie
 
 ---
 
