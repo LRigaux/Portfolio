@@ -21,6 +21,11 @@ export async function GET() {
     // Récupérer le nombre de contacts
     const contactCount = await prisma.contact.count();
     
+    // Récupérer le nombre de messages non lus
+    const unreadMessages = await prisma.contact.count({
+      where: { status: 'unread' }
+    });
+    
     // Récupérer le nombre de compétences
     const skillCount = await prisma.skill.count();
     
@@ -46,16 +51,26 @@ export async function GET() {
       }
     });
     
+    // Récupérer les messages récents
+    const recentMessages = await prisma.contact.findMany({
+      take: 3,
+      orderBy: {
+        createdAt: 'desc'
+      }
+    });
+    
     return NextResponse.json({
       projectCount,
       draftProjects,
       publishedProjects,
       visitCount,
       contactCount,
+      unreadMessages,
       skillCount,
       techCount,
       highestRankedProject,
-      recentProjects
+      recentProjects,
+      recentMessages
     });
     
   } catch (error) {

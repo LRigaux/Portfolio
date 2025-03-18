@@ -365,7 +365,7 @@ const ProjectCard = ({ id, title, description, image, tags, link, liveLink, inde
                       </svg>
                       Voir la démo
                     </a>
-                  )}
+          )}
         </div>
       </div>
     </motion.div>

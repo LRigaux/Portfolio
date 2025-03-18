@@ -21,10 +21,19 @@ interface AdminStats {
   publishedProjects: number;
   visitCount: number;
   contactCount: number;
+  unreadMessages: number;
   skillCount: number;
   techCount: number;
   highestRankedProject: Project | null;
   recentProjects: Project[];
+  recentMessages: {
+    id: string;
+    name: string;
+    email: string;
+    subject: string;
+    status: string;
+    createdAt: string;
+  }[];
 }
 
 export default function AdminDashboard() {
@@ -34,10 +43,12 @@ export default function AdminDashboard() {
     publishedProjects: 0,
     visitCount: 0,
     contactCount: 0,
+    unreadMessages: 0,
     skillCount: 0,
     techCount: 0,
     highestRankedProject: null,
-    recentProjects: []
+    recentProjects: [],
+    recentMessages: []
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -286,7 +297,7 @@ export default function AdminDashboard() {
             ) : (
               <div className="text-shadow-text/70 text-center py-2">
                 Aucun projet trouvé
-      </div>
+              </div>
             )}
           </motion.div>
         </motion.div>
@@ -371,7 +382,7 @@ export default function AdminDashboard() {
                               </svg>
                             </Link>
                           </div>
-                        </td>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -394,6 +405,96 @@ export default function AdminDashboard() {
           </div>
         </motion.div>
       )}
+      
+      {/* Messages */}
+      <div className={`
+        bg-shadow-system border border-shadow-system
+        rounded-lg p-6 transition-transform hover:scale-105
+      `}>
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h3 className="text-shadow-text text-lg font-semibold">Messages</h3>
+            <p className="text-shadow-text/60 text-sm">
+              {stats.contactCount} au total
+            </p>
+          </div>
+          <div className="p-3 bg-shadow-primary/10 rounded-full">
+            <svg className="w-7 h-7 text-shadow-primary" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M8 12H8.01M12 12H12.01M16 12H16.01M21 12C21 16.4183 16.9706 20 12 20C10.4607 20 9.01172 19.6565 7.74467 19.0511L3 20L4.39499 16.28C3.51156 15.0423 3 13.5743 3 12C3 7.58172 7.02944 4 12 4C16.9706 4 21 7.58172 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </div>
+        </div>
+        
+        <div className="flex items-baseline">
+          <h2 className="text-3xl font-bold text-shadow-text mr-2">{stats.unreadMessages}</h2>
+          <p className="text-shadow-text/70">non lus</p>
+        </div>
+        
+        <Link href="/admin/messages" className={`
+          mt-4 inline-flex items-center text-sm text-shadow-accent
+          hover:text-shadow-blue transition-colors
+        `}>
+          <span>Gérer les messages</span>
+          <svg className="ml-1 w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+          </svg>
+        </Link>
+      </div>,
+      
+      {/* Messages récents */}
+      <div className="mt-8">
+        <h2 className="text-shadow-text text-xl font-semibold mb-4">Messages récents</h2>
+        
+        {stats.recentMessages.length > 0 ? (
+          <div className={`
+            grid grid-cols-1 gap-4
+            bg-shadow-system/50 rounded-lg p-4
+          `}>
+            {stats.recentMessages.map(message => (
+              <div key={message.id} className={`
+                p-4 rounded-md
+                ${message.status === 'unread' 
+                  ? 'bg-shadow-blue/10 border-l-4 border-shadow-blue'
+                  : 'bg-shadow-surface'}
+              `}>
+                <div className="flex justify-between items-center mb-2">
+                  <h3 className="font-medium text-shadow-text">{message.name}</h3>
+                  <span className="text-xs text-shadow-text/60">
+                    {new Date(message.createdAt).toLocaleDateString()}
+                  </span>
+                </div>
+                <p className="text-sm text-shadow-text/80 mb-2">{message.subject}</p>
+                <div className="flex justify-between items-center">
+                  <span className="text-xs text-shadow-text/60">{message.email}</span>
+                  <span className={`
+                    px-2 py-0.5 text-xs rounded-full
+                    ${message.status === 'unread'
+                      ? 'bg-shadow-blue/20 text-shadow-blue'
+                      : message.status === 'replied'
+                        ? 'bg-shadow-accent/20 text-shadow-accent'
+                        : 'bg-shadow-text/20 text-shadow-text'}
+                  `}>
+                    {message.status === 'unread' 
+                      ? 'Non lu' 
+                      : message.status === 'replied'
+                        ? 'Répondu'
+                        : 'Lu'}
+                  </span>
+                </div>
+              </div>
+            )}
+            
+            <Link href="/admin/messages" className={`
+              mt-2 text-center py-2 text-sm text-shadow-accent
+              hover:text-shadow-blue transition-colors
+            `}>
+              Voir tous les messages
+            </Link>
+          </div>
+        ) : (
+          <p className="text-shadow-text/60">Aucun message récent</p>
+        )}
+      </div>
       
       {/* Raccourcis rapides */}
       <motion.div 

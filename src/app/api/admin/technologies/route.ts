@@ -14,14 +14,12 @@ const technologySchema = z.object({
 // Utilisé pour l'auto-complétion dans le formulaire de projet
 export async function GET() {
   try {
-    // Récupérer toutes les technologies distinctes
     const technologies = await prisma.technology.findMany({
       orderBy: {
-        name: 'asc',
-      },
-      distinct: ['name'],
+        name: 'asc'
+      }
     });
-
+    
     return NextResponse.json(technologies);
   } catch (error) {
     console.error('Erreur lors de la récupération des technologies:', error);
@@ -36,40 +34,40 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+    const { name, iconUrl, rank, category } = body;
     
-    // Valider les données
-    const validation = technologySchema.safeParse(body);
-    if (!validation.success) {
+    if (!name) {
       return NextResponse.json(
-        { error: 'Données invalides', details: validation.error.format() },
+        { error: 'Le nom est requis' },
         { status: 400 }
       );
     }
     
-    const { name, iconUrl, category } = validation.data;
+    const slug = slugify(name);
     
-    // Vérifier si une technologie avec ce nom existe déjà
-    const existingTechnology = await prisma.technology.findUnique({
+    // Vérifier que le nom n'existe pas déjà
+    const existing = await prisma.technology.findUnique({
       where: { name }
     });
     
-    if (existingTechnology) {
+    if (existing) {
       return NextResponse.json(
         { error: 'Une technologie avec ce nom existe déjà' },
-        { status: 409 }
+        { status: 400 }
       );
     }
     
-    // Créer la nouvelle technologie
     const technology = await prisma.technology.create({
       data: {
         name,
-        slug: slugify(name),
-        iconUrl: iconUrl || null
+        slug,
+        iconUrl,
+        rank,
+        category
       }
     });
     
-    return NextResponse.json(technology, { status: 201 });
+    return NextResponse.json(technology);
   } catch (error) {
     console.error('Erreur lors de la création de la technologie:', error);
     return NextResponse.json(

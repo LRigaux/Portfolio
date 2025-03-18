@@ -1,6 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+export async function GET(
+  _request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const { id } = params;
+    
+    // Récupérer le message
+    const message = await prisma.contact.findUnique({
+      where: { id }
+    });
+    
+    if (!message) {
+      return NextResponse.json(
+        { error: 'Message non trouvé' },
+        { status: 404 }
+      );
+    }
+    
+    return NextResponse.json(message);
+  } catch (error) {
+    console.error('Erreur lors de la récupération du message:', error);
+    return NextResponse.json(
+      { error: 'Erreur lors de la récupération du message' },
+      { status: 500 }
+    );
+  }
+}
+
 export async function PATCH(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -8,6 +37,14 @@ export async function PATCH(
   try {
     const { id } = params;
     const body = await request.json();
+    
+    // Vérifier que le statut est valide
+    if (body.status && !['unread', 'read', 'replied'].includes(body.status)) {
+      return NextResponse.json(
+        { error: 'Statut invalide' },
+        { status: 400 }
+      );
+    }
     
     // Vérifier que le message existe
     const message = await prisma.contact.findUnique({
@@ -25,7 +62,7 @@ export async function PATCH(
     const updatedMessage = await prisma.contact.update({
       where: { id },
       data: {
-        isRead: body.isRead
+        status: body.status
       }
     });
     

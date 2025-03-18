@@ -2,11 +2,17 @@
 import { useState, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
+import Link from 'next/link';
+import { useTheme } from '@/context/ThemeContext';
 
 export default function AdminHeader() {
   const pathname = usePathname();
   const router = useRouter();
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [unreadMessages, setUnreadMessages] = useState(0);
+  const { theme, toggleTheme } = useTheme();
+  const isDark = theme === 'dark';
   
   // Mettre à jour l'heure toutes les secondes
   useEffect(() => {
@@ -15,6 +21,27 @@ export default function AdminHeader() {
     }, 1000);
     
     return () => clearInterval(timer);
+  }, []);
+  
+  // Récupérer les messages non lus
+  useEffect(() => {
+    const fetchUnreadMessages = async () => {
+      try {
+        const res = await fetch('/api/admin/stats');
+        if (res.ok) {
+          const data = await res.json();
+          setUnreadMessages(data.unreadMessages || 0);
+        }
+      } catch (error) {
+        console.error('Erreur de récupération des messages non lus:', error);
+      }
+    };
+
+    fetchUnreadMessages();
+    
+    // Actualiser toutes les 5 minutes
+    const interval = setInterval(fetchUnreadMessages, 5 * 60 * 1000);
+    return () => clearInterval(interval);
   }, []);
   
   // Fonction pour obtenir le titre de la page actuelle
@@ -46,6 +73,14 @@ export default function AdminHeader() {
           transition={{ duration: 0.3 }}
           className="flex items-center"
         >
+          <button
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="md:hidden mr-4 text-shadow-text hover:text-shadow-accent"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+          </button>
           <h1 className="text-lg font-medium text-shadow-text">
             {getPageTitle()}
           </h1>
@@ -57,15 +92,34 @@ export default function AdminHeader() {
         </motion.div>
         
         <div className="flex items-center space-x-4">
-          {/* Horloge */}
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2 }}
-            className="hidden md:block px-3 py-1 rounded-lg bg-shadow-system text-shadow-text text-sm"
+          {/* Bouton de messages */}
+          <Link href="/admin/messages" className="relative p-1.5 text-shadow-text hover:text-shadow-accent">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+            </svg>
+            
+            {unreadMessages > 0 && (
+              <span className="absolute -top-1 -right-1 bg-shadow-monarch text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                {unreadMessages > 9 ? '9+' : unreadMessages}
+              </span>
+            )}
+          </Link>
+          
+          {/* Bouton de thème */}
+          <button
+            onClick={toggleTheme}
+            className="p-1.5 text-shadow-text hover:text-shadow-accent"
           >
-            {currentTime.toLocaleTimeString()}
-          </motion.div>
+            {isDark ? (
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+              </svg>
+            ) : (
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+              </svg>
+            )}
+          </button>
           
           {/* Bouton de déconnexion rapide */}
           <motion.button

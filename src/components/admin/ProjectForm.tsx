@@ -88,7 +88,7 @@ export default function ProjectForm({ project, isEdit = false }: ProjectFormProp
     technologies: [],
     categories: []
   });
-
+  
   // États pour la gestion des technologies et catégories
   const [techInput, setTechInput] = useState('');
   const [catInput, setCatInput] = useState('');
@@ -104,7 +104,7 @@ export default function ProjectForm({ project, isEdit = false }: ProjectFormProp
   const [error, setError] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
   const [success, setSuccess] = useState(false);
-
+  
   // Charger les technologies et catégories existantes
   useEffect(() => {
     const fetchTaxonomies = async () => {
@@ -146,7 +146,7 @@ export default function ProjectForm({ project, isEdit = false }: ProjectFormProp
       });
     }
   }, [isEdit, project]);
-
+  
   // Gérer les changements dans les champs du formulaire
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -187,7 +187,7 @@ export default function ProjectForm({ project, isEdit = false }: ProjectFormProp
     const { name, checked } = e.target;
     setFormData(prev => ({ ...prev, [name]: checked }));
   };
-
+  
   // Gérer les suggestions de technologies
   const handleTechInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -255,7 +255,7 @@ export default function ProjectForm({ project, isEdit = false }: ProjectFormProp
       technologies: prev.technologies.filter(t => t !== tech)
     }));
   };
-
+  
   // Supprimer une catégorie
   const removeCategory = (cat: string) => {
     setFormData(prev => ({
@@ -263,7 +263,7 @@ export default function ProjectForm({ project, isEdit = false }: ProjectFormProp
       categories: prev.categories.filter(c => c !== cat)
     }));
   };
-
+  
   // Valider le formulaire
   const validateForm = (): boolean => {
     const errors: ValidationErrors = {};
@@ -312,7 +312,7 @@ export default function ProjectForm({ project, isEdit = false }: ProjectFormProp
     
     try {
       const endpoint = isEdit 
-        ? `/api/admin/projects/${project?.id}` 
+        ? `/api/admin/projects/${project?.id}`
         : '/api/admin/projects';
       
       const method = isEdit ? 'PUT' : 'POST';
@@ -358,7 +358,7 @@ export default function ProjectForm({ project, isEdit = false }: ProjectFormProp
       setLoading(false);
     }
   };
-
+  
   return (
     <div className="bg-shadow-dark border-2 border-shadow-system rounded-lg p-6">
       {error && (
@@ -471,11 +471,11 @@ export default function ProjectForm({ project, isEdit = false }: ProjectFormProp
           
           <div className="flex items-center">
             <label className="inline-flex items-center text-shadow-text font-medium cursor-pointer">
-              <input
-                type="checkbox"
-                name="featured"
-                checked={formData.featured}
-                onChange={handleCheckboxChange}
+            <input
+              type="checkbox"
+              name="featured"
+              checked={formData.featured}
+              onChange={handleCheckboxChange}
                 className="sr-only"
               />
               <div className={`w-10 h-5 rounded-full transition-colors ${formData.featured ? 'bg-shadow-blue' : 'bg-gray-600'} mr-2 relative`}>
@@ -512,8 +512,8 @@ export default function ProjectForm({ project, isEdit = false }: ProjectFormProp
           <p className="text-xs text-shadow-text/60 mt-1">
             La description doit contenir au moins 10 caractères.
           </p>
-        </div>
-        
+      </div>
+      
         {/* Contenu */}
         <div>
           <label 
@@ -547,12 +547,12 @@ export default function ProjectForm({ project, isEdit = false }: ProjectFormProp
               URL de l'image
             </label>
             <div className="space-y-2">
-              <input
+            <input
                 type="text"
-                id="imageUrl"
-                name="imageUrl"
+              id="imageUrl"
+              name="imageUrl"
                 value={formData.imageUrl || ''}
-                onChange={handleChange}
+              onChange={handleChange}
                 className={`w-full p-2 rounded bg-shadow-surface border ${validationErrors.imageUrl ? 'border-red-500' : 'border-shadow-system'} focus:border-shadow-blue outline-none text-shadow-text`}
                 placeholder="https://example.com/image.jpg ou images/projects/monimage.jpg"
               />
@@ -650,13 +650,13 @@ export default function ProjectForm({ project, isEdit = false }: ProjectFormProp
         </div>
         
         {/* Technologies */}
-        <div>
+          <div>
           <label 
             className="block text-shadow-text font-medium mb-2 flex items-center"
           >
             <span className="w-1 h-4 bg-shadow-blue mr-2 rounded"></span>
-            Technologies
-          </label>
+              Technologies
+            </label>
           
           <div className="flex flex-wrap gap-2 mb-2">
             {formData.technologies.map((tech) => (
@@ -677,9 +677,9 @@ export default function ProjectForm({ project, isEdit = false }: ProjectFormProp
           </div>
           
           <div className="flex relative">
-            <input
-              type="text"
-              value={techInput}
+              <input
+                type="text"
+                value={techInput}
               onChange={handleTechInputChange}
               className="flex-1 p-2 rounded-l bg-shadow-surface border border-shadow-system focus:border-shadow-blue outline-none text-shadow-text"
               placeholder="Ajouter une technologie"
@@ -691,24 +691,24 @@ export default function ProjectForm({ project, isEdit = false }: ProjectFormProp
               }}
               onFocus={() => techInput.trim() && setShowTechSuggestions(true)}
               onBlur={() => setTimeout(() => setShowTechSuggestions(false), 100)}
-            />
-            <button
-              type="button"
+              />
+              <button
+                type="button"
               onClick={() => addTechnology()}
               className="px-4 py-2 bg-shadow-blue text-white rounded-r hover:bg-opacity-90"
-            >
-              Ajouter
-            </button>
+              >
+                Ajouter
+              </button>
             
             {showTechSuggestions && suggestedTechs.length > 0 && (
               <div className="absolute top-full left-0 right-0 mt-1 bg-shadow-surface border border-shadow-system rounded-md z-10">
                 {suggestedTechs.map(tech => (
                   <div 
-                    key={tech}
+                  key={tech}
                     className="p-2 hover:bg-shadow-system/30 cursor-pointer text-shadow-text"
                     onClick={() => addTechnology(tech)}
-                  >
-                    {tech}
+                >
+                  {tech}
                   </div>
                 ))}
               </div>
@@ -732,21 +732,21 @@ export default function ProjectForm({ project, isEdit = false }: ProjectFormProp
                 className="flex items-center bg-shadow-monarch/20 text-shadow-text px-2 py-1 rounded"
               >
                 <span>{cat}</span>
-                <button
-                  type="button"
+                  <button
+                    type="button"
                   onClick={() => removeCategory(cat)}
                   className="ml-2 text-shadow-text hover:text-shadow-monarch"
-                >
-                  &times;
-                </button>
+                  >
+                    &times;
+                  </button>
               </div>
-            ))}
+              ))}
           </div>
           
           <div className="flex relative">
-            <input
-              type="text"
-              value={catInput}
+              <input
+                type="text"
+                value={catInput}
               onChange={handleCatInputChange}
               className="flex-1 p-2 rounded-l bg-shadow-surface border border-shadow-system focus:border-shadow-blue outline-none text-shadow-text"
               placeholder="Ajouter une catégorie"
@@ -758,43 +758,43 @@ export default function ProjectForm({ project, isEdit = false }: ProjectFormProp
               }}
               onFocus={() => catInput.trim() && setShowCatSuggestions(true)}
               onBlur={() => setTimeout(() => setShowCatSuggestions(false), 100)}
-            />
-            <button
-              type="button"
+              />
+              <button
+                type="button"
               onClick={() => addCategory()}
               className="px-4 py-2 bg-shadow-monarch text-white rounded-r hover:bg-opacity-90"
-            >
-              Ajouter
-            </button>
+              >
+                Ajouter
+              </button>
             
             {showCatSuggestions && suggestedCats.length > 0 && (
               <div className="absolute top-full left-0 right-0 mt-1 bg-shadow-surface border border-shadow-system rounded-md z-10">
                 {suggestedCats.map(cat => (
                   <div 
-                    key={cat}
+                  key={cat}
                     className="p-2 hover:bg-shadow-system/30 cursor-pointer text-shadow-text"
                     onClick={() => addCategory(cat)}
                   >
                     {cat}
                   </div>
-                ))}
-              </div>
+              ))}
+            </div>
             )}
-          </div>
         </div>
-        
+      </div>
+      
         {/* Boutons */}
         <div className="flex justify-end gap-4 pt-4 border-t border-shadow-system">
           <Link
             href="/admin/projects"
             className="px-6 py-2 border border-shadow-system text-shadow-text hover:bg-shadow-system/20 rounded"
-          >
-            Annuler
+        >
+          Annuler
           </Link>
-          
-          <button
-            type="submit"
-            disabled={loading}
+        
+        <button
+          type="submit"
+          disabled={loading}
             className={`px-6 py-2 bg-double-awakening text-white rounded hover:opacity-90 
               ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
           >
@@ -809,9 +809,9 @@ export default function ProjectForm({ project, isEdit = false }: ProjectFormProp
             ) : (
               <span>{isEdit ? 'Mettre à jour' : 'Créer le projet'}</span>
             )}
-          </button>
-        </div>
-      </form>
+        </button>
+      </div>
+    </form>
     </div>
   );
 }

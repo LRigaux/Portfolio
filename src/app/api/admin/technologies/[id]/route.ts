@@ -12,44 +12,24 @@ const technologyUpdateSchema = z.object({
 
 // GET - Récupérer une technologie spécifique
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
+    const { id } = params;
+    
     const technology = await prisma.technology.findUnique({
-      where: { id: params.id },
-      include: {
-        // Inclure les projets utilisant cette technologie
-        projects: {
-          include: {
-            project: {
-              select: {
-                id: true,
-                title: true,
-                slug: true,
-                rank: true,
-                imageUrl: true
-              }
-            }
-          }
-        }
-      }
+      where: { id }
     });
-
+    
     if (!technology) {
       return NextResponse.json(
         { error: 'Technologie non trouvée' },
         { status: 404 }
       );
     }
-
-    // Transformer les données pour une meilleure utilisation côté client
-    const formattedTechnology = {
-      ...technology,
-      projects: technology.projects.map(p => p.project)
-    };
-
-    return NextResponse.json(formattedTechnology);
+    
+    return NextResponse.json(technology);
   } catch (error) {
     console.error('Erreur lors de la récupération de la technologie:', error);
     return NextResponse.json(
@@ -65,50 +45,56 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
+    const { id } = params;
     const body = await request.json();
+    const { name, iconUrl, rank, category } = body;
     
-    // Valider les données
-    const validation = technologyUpdateSchema.safeParse(body);
-    if (!validation.success) {
+    if (!name) {
       return NextResponse.json(
-        { error: 'Données invalides', details: validation.error.format() },
+        { error: 'Le nom est requis' },
         { status: 400 }
       );
     }
     
-    const data = validation.data;
-    
-    // Vérifier si la technologie existe
-    const existingTechnology = await prisma.technology.findUnique({
-      where: { id: params.id }
+    // Vérifier que la technologie existe
+    const technology = await prisma.technology.findUnique({
+      where: { id }
     });
     
-    if (!existingTechnology) {
+    if (!technology) {
       return NextResponse.json(
         { error: 'Technologie non trouvée' },
         { status: 404 }
       );
     }
     
-    // Préparer les données de mise à jour
-    const updateData: any = {};
-    
-    if (data.name) {
-      updateData.name = data.name;
-      updateData.slug = slugify(data.name);
-    }
-    
-    if (data.iconUrl !== undefined) {
-      updateData.iconUrl = data.iconUrl;
+    // Vérifier si le nouveau nom n'est pas déjà utilisé par une autre technologie
+    if (name !== technology.name) {
+      const existing = await prisma.technology.findUnique({
+        where: { name }
+      });
+      
+      if (existing && existing.id !== id) {
+        return NextResponse.json(
+          { error: 'Une technologie avec ce nom existe déjà' },
+          { status: 400 }
+        );
+      }
     }
     
     // Mettre à jour la technologie
-    const technology = await prisma.technology.update({
-      where: { id: params.id },
-      data: updateData
+    const updatedTechnology = await prisma.technology.update({
+      where: { id },
+      data: {
+        name,
+        slug: name !== technology.name ? slugify(name) : technology.slug,
+        iconUrl,
+        rank,
+        category
+      }
     });
     
-    return NextResponse.json(technology);
+    return NextResponse.json(updatedTechnology);
   } catch (error) {
     console.error('Erreur lors de la mise à jour de la technologie:', error);
     return NextResponse.json(
@@ -120,39 +106,27 @@ export async function PUT(
 
 // DELETE - Supprimer une technologie
 export async function DELETE(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    // Vérifier si la technologie existe
-    const existingTechnology = await prisma.technology.findUnique({
-      where: { id: params.id },
-      include: {
-        projects: true
-      }
+    const { id } = params;
+    
+    // Vérifier que la technologie existe
+    const technology = await prisma.technology.findUnique({
+      where: { id }
     });
     
-    if (!existingTechnology) {
+    if (!technology) {
       return NextResponse.json(
         { error: 'Technologie non trouvée' },
         { status: 404 }
       );
     }
     
-    // Si la technologie est utilisée dans des projets, empêcher la suppression
-    if (existingTechnology.projects.length > 0) {
-      return NextResponse.json(
-        { 
-          error: 'La technologie est utilisée dans des projets et ne peut pas être supprimée',
-          projects: existingTechnology.projects.length
-        },
-        { status: 409 }
-      );
-    }
-    
     // Supprimer la technologie
     await prisma.technology.delete({
-      where: { id: params.id }
+      where: { id }
     });
     
     return NextResponse.json({ success: true });

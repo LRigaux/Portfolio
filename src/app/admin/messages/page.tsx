@@ -9,7 +9,7 @@ interface ContactMessage {
   email: string;
   subject: string;
   message: string;
-  isRead: boolean;
+  status: string; // 'unread', 'read', 'replied'
   createdAt: string;
 }
 
@@ -21,6 +21,8 @@ export default function MessagesPage() {
   const [error, setError] = useState<string | null>(null);
   const [selectedMessage, setSelectedMessage] = useState<ContactMessage | null>(null);
   const [filter, setFilter] = useState<'all' | 'unread' | 'read'>('all');
+  const [selectedMessages, setSelectedMessages] = useState<string[]>([]);
+  const [isSelectMode, setIsSelectMode] = useState(false);
 
   // Charger les messages
   useEffect(() => {
@@ -48,8 +50,8 @@ export default function MessagesPage() {
 
   // Filtrer les messages
   const filteredMessages = messages.filter(message => {
-    if (filter === 'read') return message.isRead;
-    if (filter === 'unread') return !message.isRead;
+    if (filter === 'read') return message.status === 'read' || message.status === 'replied';
+    if (filter === 'unread') return message.status === 'unread';
     return true;
   });
 
@@ -59,7 +61,7 @@ export default function MessagesPage() {
       const res = await fetch(`/api/admin/messages/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ isRead: true }),
+        body: JSON.stringify({ status: 'read' }),
       });
       
       if (!res.ok) {
@@ -68,12 +70,12 @@ export default function MessagesPage() {
       
       // Mettre à jour l'état local
       setMessages(messages.map(msg => 
-        msg.id === id ? { ...msg, isRead: true } : msg
+        msg.id === id ? { ...msg, status: 'read' } : msg
       ));
       
       // Mettre à jour le message sélectionné si nécessaire
       if (selectedMessage && selectedMessage.id === id) {
-        setSelectedMessage({ ...selectedMessage, isRead: true });
+        setSelectedMessage({ ...selectedMessage, status: 'read' });
       }
     } catch (error) {
       console.error('Erreur:', error);
@@ -109,6 +111,118 @@ export default function MessagesPage() {
     }
   };
 
+  // Marquer tous les messages comme lus
+  const markAllAsRead = async () => {
+    if (!confirm('Êtes-vous sûr de vouloir marquer tous les messages comme lus ?')) {
+      return;
+    }
+    
+    try {
+      const res = await fetch('/api/admin/messages/mark-all-read', {
+        method: 'POST',
+      });
+      
+      if (!res.ok) {
+        throw new Error('Erreur lors de la mise à jour des messages');
+      }
+      
+      // Mettre à jour l'état local
+      setMessages(messages.map(msg => 
+        msg.status === 'unread' ? { ...msg, status: 'read' } : msg
+      ));
+      
+      // Mettre à jour le message sélectionné si nécessaire
+      if (selectedMessage && selectedMessage.status === 'unread') {
+        setSelectedMessage({ ...selectedMessage, status: 'read' });
+      }
+    } catch (error) {
+      console.error('Erreur:', error);
+      setError('Erreur lors de la mise à jour des messages');
+    }
+  };
+
+  // Marquer un message comme répondu
+  const markAsReplied = async (id: string) => {
+    try {
+      const res = await fetch(`/api/admin/messages/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'replied' }),
+      });
+      
+      if (!res.ok) {
+        throw new Error('Erreur lors de la mise à jour du message');
+      }
+      
+      // Mettre à jour l'état local
+      setMessages(messages.map(msg => 
+        msg.id === id ? { ...msg, status: 'replied' } : msg
+      ));
+      
+      // Mettre à jour le message sélectionné si nécessaire
+      if (selectedMessage && selectedMessage.id === id) {
+        setSelectedMessage({ ...selectedMessage, status: 'replied' });
+      }
+    } catch (error) {
+      console.error('Erreur:', error);
+      setError('Erreur lors de la mise à jour du message');
+    }
+  };
+
+  // Sélectionner/désélectionner un message
+  const toggleSelectMessage = (id: string) => {
+    if (selectedMessages.includes(id)) {
+      setSelectedMessages(selectedMessages.filter(msgId => msgId !== id));
+    } else {
+      setSelectedMessages([...selectedMessages, id]);
+    }
+  };
+
+  // Sélectionner/désélectionner tous les messages
+  const toggleSelectAll = () => {
+    if (selectedMessages.length === filteredMessages.length) {
+      setSelectedMessages([]);
+    } else {
+      setSelectedMessages(filteredMessages.map(msg => msg.id));
+    }
+  };
+
+  // Supprimer les messages sélectionnés
+  const deleteSelectedMessages = async () => {
+    if (selectedMessages.length === 0) return;
+    
+    if (!confirm(`Êtes-vous sûr de vouloir supprimer ${selectedMessages.length} message(s) ?`)) {
+      return;
+    }
+    
+    try {
+      const res = await fetch('/api/admin/messages/batch-delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids: selectedMessages }),
+      });
+      
+      if (!res.ok) {
+        throw new Error('Erreur lors de la suppression des messages');
+      }
+      
+      // Mettre à jour l'état local
+      setMessages(messages.filter(msg => !selectedMessages.includes(msg.id)));
+      
+      // Réinitialiser la sélection
+      setSelectedMessages([]);
+      setIsSelectMode(false);
+      
+      // Réinitialiser le message sélectionné si nécessaire
+      if (selectedMessage && selectedMessages.includes(selectedMessage.id)) {
+        setSelectedMessage(null);
+      }
+    } catch (error) {
+      console.error('Erreur:', error);
+      setError('Erreur lors de la suppression des messages');
+    }
+  };
+
   // Formater la date
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -129,7 +243,7 @@ export default function MessagesPage() {
       email: 'sophie.martin@example.com',
       subject: 'Demande de collaboration',
       message: 'Bonjour, je suis intéressée par vos services de data science. Pourrions-nous discuter d\'une potentielle collaboration sur un projet d\'analyse de données ?',
-      isRead: false,
+      status: 'unread',
       createdAt: new Date(2023, 5, 15).toISOString(),
     },
     {
@@ -138,7 +252,7 @@ export default function MessagesPage() {
       email: 'thomas.dubois@example.com',
       subject: 'Question sur vos compétences en IA',
       message: 'Salut, j\'ai vu vos projets en intelligence artificielle et je suis impressionné. J\'aimerais savoir si vous êtes disponible pour un projet de reconnaissance d\'images...',
-      isRead: true,
+      status: 'read',
       createdAt: new Date(2023, 5, 10).toISOString(),
     },
     {
@@ -147,7 +261,7 @@ export default function MessagesPage() {
       email: 'julie.leclerc@example.com',
       subject: 'Demande de devis',
       message: 'Bonjour, nous sommes une startup spécialisée dans la fintech et nous recherchons un data scientist pour nous aider à développer des algorithmes de détection de fraude...',
-      isRead: false,
+      status: 'unread',
       createdAt: new Date(2023, 5, 5).toISOString(),
     }
   ];
@@ -165,13 +279,72 @@ export default function MessagesPage() {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className="flex justify-between items-center mb-6"
+        className="mb-6"
       >
-        <h1 className={`text-2xl font-bold ${isDark ? 'text-shadow-text' : 'text-light-text'}`}>
-          Messages <span className={isDark ? 'text-shadow-blue' : 'text-light-primary'}>({filteredMessages.length})</span>
-        </h1>
+        <div className="flex justify-between items-center mb-4">
+          <h1 className={`text-2xl font-bold ${isDark ? 'text-shadow-text' : 'text-light-text'}`}>
+            Messages <span className={isDark ? 'text-shadow-blue' : 'text-light-primary'}>({filteredMessages.length})</span>
+          </h1>
+          
+          <div className="flex space-x-2">
+            {isSelectMode ? (
+              <>
+                <button
+                  onClick={toggleSelectAll}
+                  className={`px-3 py-1.5 rounded text-sm font-medium 
+                    ${isDark ? 'bg-shadow-surface text-shadow-text hover:bg-shadow-surface/80' : 'bg-light-surface text-light-text hover:bg-light-surface/80'}
+                  `}
+                >
+                  {selectedMessages.length === filteredMessages.length ? 'Désélectionner tout' : 'Sélectionner tout'}
+                </button>
+                
+                <button
+                  onClick={deleteSelectedMessages}
+                  disabled={selectedMessages.length === 0}
+                  className={`px-3 py-1.5 rounded text-sm font-medium 
+                    ${selectedMessages.length > 0
+                      ? 'bg-red-500 text-white hover:bg-red-600'
+                      : 'bg-red-300 text-white cursor-not-allowed'
+                    }
+                  `}
+                >
+                  Supprimer ({selectedMessages.length})
+                </button>
+                
+                <button
+                  onClick={() => setIsSelectMode(false)}
+                  className={`px-3 py-1.5 rounded text-sm font-medium 
+                    ${isDark ? 'bg-shadow-surface text-shadow-text hover:bg-shadow-surface/80' : 'bg-light-surface text-light-text hover:bg-light-surface/80'}
+                  `}
+                >
+                  Annuler
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={() => setIsSelectMode(true)}
+                  className={`px-3 py-1.5 rounded text-sm font-medium 
+                    ${isDark ? 'bg-shadow-surface text-shadow-text hover:bg-shadow-surface/80' : 'bg-light-surface text-light-text hover:bg-light-surface/80'}
+                  `}
+                >
+                  Sélectionner
+                </button>
+                
+                <button
+                  onClick={markAllAsRead}
+                  className={`px-3 py-1.5 rounded text-sm font-medium 
+                    ${isDark ? 'bg-shadow-accent text-white hover:bg-shadow-accent/80' : 'bg-light-accent text-white hover:bg-light-accent/80'}
+                  `}
+                >
+                  Tout marquer comme lu
+                </button>
+              </>
+            )}
+          </div>
+        </div>
         
-        <div className="flex space-x-2">
+        <div className="flex space-x-2 mb-6">
           <button
             onClick={() => setFilter('all')}
             className={`px-4 py-2 text-sm rounded-md transition-colors ${
@@ -245,23 +418,38 @@ export default function MessagesPage() {
                   {filteredMessages.map((message) => (
                     <li 
                       key={message.id}
+                      className={`p-4 rounded-lg cursor-pointer transform hover:-translate-y-1 transition-all duration-200 relative
+                        ${message.id === selectedMessage?.id 
+                          ? (isDark ? 'bg-shadow-system' : 'bg-light-system')
+                          : (isDark ? 'bg-shadow-surface hover:bg-shadow-surface/80' : 'bg-light-surface hover:bg-light-surface/80')
+                        }
+                        ${message.status === 'unread' && 'border-l-4 border-blue-500'}
+                      `}
                       onClick={() => {
-                        setSelectedMessage(message);
-                        if (!message.isRead) {
-                          markAsRead(message.id);
+                        if (isSelectMode) {
+                          toggleSelectMessage(message.id);
+                        } else {
+                          setSelectedMessage(message);
+                          if (message.status === 'unread') {
+                            markAsRead(message.id);
+                          }
                         }
                       }}
-                      className={`
-                        px-4 py-3 cursor-pointer transition-colors
-                        ${selectedMessage?.id === message.id
-                          ? isDark ? 'bg-shadow-primary/20' : 'bg-light-primary/20'
-                          : isDark ? 'hover:bg-shadow-surface' : 'hover:bg-light-surface'
-                        }
-                        ${!message.isRead ? 'border-l-4 border-shadow-blue' : ''}
-                      `}
                     >
+                      {isSelectMode && (
+                        <div className="absolute top-3 right-3">
+                          <input 
+                            type="checkbox" 
+                            checked={selectedMessages.includes(message.id)} 
+                            onChange={() => toggleSelectMessage(message.id)}
+                            onClick={(e) => e.stopPropagation()}
+                            className="w-4 h-4"
+                          />
+                        </div>
+                      )}
+                      
                       <div className="flex justify-between items-start mb-1">
-                        <h3 className={`font-medium ${isDark ? 'text-shadow-text' : 'text-light-text'} ${!message.isRead ? 'font-bold' : ''}`}>
+                        <h3 className={`font-medium ${isDark ? 'text-shadow-text' : 'text-light-text'}`}>
                           {message.name}
                         </h3>
                         <span className="text-xs text-shadow-text/60">
@@ -274,6 +462,20 @@ export default function MessagesPage() {
                       <p className={`text-xs truncate mt-1 ${isDark ? 'text-shadow-text/60' : 'text-light-text/60'}`}>
                         {message.message.substring(0, 50)}...
                       </p>
+                      
+                      {message.status !== 'unread' && (
+                        <div className="mt-2">
+                          <span className={`
+                            inline-block px-2 py-0.5 text-xs rounded-full
+                            ${message.status === 'replied' 
+                              ? (isDark ? 'bg-shadow-accent/20 text-shadow-accent' : 'bg-green-100 text-green-800')
+                              : (isDark ? 'bg-shadow-blue/20 text-shadow-blue' : 'bg-blue-100 text-blue-800')
+                            }
+                          `}>
+                            {message.status === 'replied' ? 'Répondu' : 'Lu'}
+                          </span>
+                        </div>
+                      )}
                     </li>
                   ))}
                 </ul>
@@ -349,17 +551,18 @@ export default function MessagesPage() {
                   <div className="flex items-center justify-between mt-8">
                     <div className={`
                       px-2 py-1 rounded-full text-xs
-                      ${selectedMessage.isRead
+                      ${selectedMessage.status !== 'unread'
                         ? isDark ? 'bg-shadow-accent/20 text-shadow-accent' : 'bg-green-100 text-green-800'
                         : isDark ? 'bg-shadow-blue/20 text-shadow-blue' : 'bg-blue-100 text-blue-800'
                       }
                     `}>
-                      {selectedMessage.isRead ? 'Lu' : 'Non lu'}
+                      {selectedMessage.status === 'unread' ? 'Non lu' : selectedMessage.status === 'replied' ? 'Répondu' : 'Lu'}
                     </div>
                     
                     <div className="flex space-x-2">
                       <a
                         href={`mailto:${selectedMessage.email}?subject=Re: ${selectedMessage.subject}`}
+                        onClick={() => markAsReplied(selectedMessage.id)}
                         className={`
                           px-4 py-2 rounded text-sm font-medium
                           ${isDark 
@@ -371,7 +574,7 @@ export default function MessagesPage() {
                         Répondre
                       </a>
                       
-                      {!selectedMessage.isRead && (
+                      {selectedMessage.status === 'unread' && (
                         <button
                           onClick={() => markAsRead(selectedMessage.id)}
                           className={`
