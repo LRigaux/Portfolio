@@ -6,12 +6,19 @@ import ProjectSearchBar from '@/components/admin/ProjectSearchBar';
 interface Project {
   id: string;
   title: string;
-  description: string;
   status: string;
-  rank: string;
-  featured: boolean;
+  rank: string; // Changé de 'S' | 'A' | 'B' | 'C' à string
   createdAt: Date;
   updatedAt: Date;
+  // Ajoutez d'autres propriétés si nécessaires
+  slug?: string;
+  description?: string;
+  content?: string | null;
+  imageUrl?: string | null;
+  githubUrl?: string | null;
+  liveUrl?: string | null;
+  featured?: boolean;
+  viewCount?: number;
 }
 
 export default async function ProjectsPage({

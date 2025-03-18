@@ -21,9 +21,14 @@ interface Project {
   updatedAt?: Date;
 }
 
+// Ce composant gère à la fois la création et la modification de projets
+// Il utilise un état local pour gérer les données du formulaire et les soumet via API
+// Les technologies et catégories sont gérées comme des tableaux de chaînes
+// qui sont convertis en relations dans l'API
+
 interface ProjectFormProps {
   project?: Project;
-  isEdit?: boolean;
+  isEdit?: boolean; // Détermine si le formulaire est en mode édition ou création
 }
 
 export default function ProjectForm({ project, isEdit = false }: ProjectFormProps) {

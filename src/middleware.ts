@@ -1,35 +1,33 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { verifyJWT } from './lib/auth';
+import { verifyAuth, verifyToken } from '@/lib/auth';
 
 export async function middleware(request: NextRequest) {
-  // Protéger les routes admin sauf la page de login
-  if (request.nextUrl.pathname.startsWith('/admin') && 
-      !request.nextUrl.pathname.startsWith('/admin/login')) {
+  // IMPORTANT: Vérifier le chemin exact pour éviter la redirection en boucle
+  const { pathname } = request.nextUrl;
+  
+  // Exclure explicitement la page de login et les routes d'authentification
+  if (pathname === '/admin/auth/admin-login'|| 
+      pathname.startsWith('/api/admin/auth/login')) {
+    return NextResponse.next();
+  }
+  
+  // Vérifier si la route est une route d'administration
+  if (pathname.startsWith('/admin')) {
+    // Vérifier l'authentification
+    const isAuthenticated = verifyAuth(request);
     
-    const token = request.cookies.get('admin_token')?.value;
-    
-    if (!token) {
-      const url = new URL('/admin/login', request.url);
-      url.searchParams.set('from', request.nextUrl.pathname);
-      return NextResponse.redirect(url);
-    }
-    
-    try {
-      const payload = await verifyJWT(token);
-      if (!payload) {
-        throw new Error('Invalid token');
-      }
-    } catch (error) {
-      const url = new URL('/admin/login', request.url);
-      url.searchParams.set('from', request.nextUrl.pathname);
-      return NextResponse.redirect(url);
+    if (!isAuthenticated) {
+      // Rediriger vers la page de connexion avec le paramètre "from" pour rediriger après connexion
+      const loginUrl = new URL('/admin/auth/admin-login', request.url);
+      loginUrl.searchParams.set('from', pathname);
+      return NextResponse.redirect(loginUrl);
     }
   }
   
   // Protéger les API admin
-  if (request.nextUrl.pathname.startsWith('/api/admin') && 
-      !request.nextUrl.pathname.startsWith('/api/admin/auth/login')) {
+  if (pathname.startsWith('/api/admin') && 
+      !pathname.startsWith('/api/admin/auth/login')) {
     
     const token = request.cookies.get('admin_token')?.value;
     
@@ -41,8 +39,9 @@ export async function middleware(request: NextRequest) {
     }
     
     try {
-      const payload = await verifyJWT(token);
-      if (!payload) {
+      // Utiliser verifyToken au lieu de verifyJWT
+      const isValid = await verifyToken(token);
+      if (!isValid) {
         throw new Error('Invalid token');
       }
     } catch (error) {
@@ -55,9 +54,9 @@ export async function middleware(request: NextRequest) {
   
   // Ne pas tracker les requêtes API ou les assets statiques
   if (
-    request.nextUrl.pathname.startsWith('/api') ||
-    request.nextUrl.pathname.startsWith('/_next') ||
-    request.nextUrl.pathname.includes('.')
+    pathname.startsWith('/api') ||
+    pathname.startsWith('/_next') ||
+    pathname.includes('.')
   ) {
     return NextResponse.next();
   }
@@ -66,7 +65,7 @@ export async function middleware(request: NextRequest) {
   try {
     // Enregistrer la visite via une API route
     const visitData = {
-      page: request.nextUrl.pathname,
+      page: pathname,
       referrer: request.headers.get('referer') || undefined,
       userAgent: request.headers.get('user-agent') || undefined,
       ip: process.env.NODE_ENV === 'production'
@@ -102,6 +101,7 @@ function hashIP(ip: string): string {
 export const config = {
   matcher: [
     '/admin/:path*',
+    '/api/admin/:path*',
     '/((?!api|_next/static|_next/image|favicon.ico).*)'
   ],
 }; 

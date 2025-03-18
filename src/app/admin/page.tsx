@@ -1,13 +1,23 @@
 import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 
+// Modifiez l'interface Project pour accepter une string pour rank
 interface Project {
   id: string;
   title: string;
   status: string;
-  rank: 'S' | 'A' | 'B' | 'C';
+  rank: string; // Changé de 'S' | 'A' | 'B' | 'C' à string
   createdAt: Date;
   updatedAt: Date;
+  // Ajoutez d'autres propriétés si nécessaires
+  slug?: string;
+  description?: string;
+  content?: string | null;
+  imageUrl?: string | null;
+  githubUrl?: string | null;
+  liveUrl?: string | null;
+  featured?: boolean;
+  viewCount?: number;
 }
 
 export default async function AdminDashboard() {
