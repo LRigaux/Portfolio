@@ -24,6 +24,13 @@ const config: Config = {
           crimson: '#D32F2F',    // Rouge sang
           surface: '#1A1625',    // Fond alternatif
           muted: '#4A4458',      // Violet grisé pour éléments désactivés
+          // Nouvelles couleurs pour Double-Éveil
+          monarch: '#8E24AA',    // Violet du Shadow Monarch
+          system: '#1A237E',     // Bleu foncé pour l'interface système
+          alert: '#F44336',      // Rouge vif pour les alertes
+          level: '#4CAF50',      // Vert pour les statistiques qui augmentent
+          quest: '#FFD700',      // Or pour les quêtes
+          blue: '#304FFE',       // Bleu électrique pour les compétences
         },
         // Cha Hae-In theme (Light)
         light: {
@@ -44,6 +51,10 @@ const config: Config = {
           },
           surface: '#FFF8E7',    // Fond légèrement doré
           muted: '#BFA67A',      // Or grisé
+          // Nouvelles couleurs pour le mode Cha Hae-In
+          hunter: '#FFCC80',     // Or clair pour l'interface
+          rank: '#D84315',       // Orange-rouge pour le rang
+          stat: '#FFA000',       // Ambre pour les statistiques
         },
       },
       container: {
@@ -66,11 +77,22 @@ const config: Config = {
         'skill-gradient-light': 'linear-gradient(90deg, #C8A36C 0%, #B08B4F 50%, #9E2A2B 100%)',
         'hover-gradient-light': 'linear-gradient(90deg, #DFC393 0%, #C8A36C 50%, #CB4B4B 100%)',
         'button-gradient-light': 'linear-gradient(45deg, #C8A36C 0%, #9E2A2B 100%)',
+        // Nouveaux gradients pour Double-Éveil
+        'double-awakening': 'linear-gradient(135deg, #6A1B9A 0%, #304FFE 50%, #1A237E 100%)',
+        'system-gradient': 'linear-gradient(180deg, #1A237E 0%, #0D47A1 100%)',
+        'rank-up': 'linear-gradient(90deg, #4CAF50 0%, #8BC34A 100%)',
+        'monarch-aura': 'radial-gradient(circle, #9C27B0 0%, #6A1B9A 50%, #13111C 100%)',
       },
       animation: {
         'glow-pulse': 'glow-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'float': 'float 6s ease-in-out infinite',
         'shadow-pulse': 'shadow-pulse 2s ease-in-out infinite',
+        // Nouvelles animations
+        'system-alert': 'system-alert 0.5s ease-in-out',
+        'level-up': 'level-up 1s ease-out',
+        'monarch-emerge': 'monarch-emerge 2s ease-in-out',
+        'flicker': 'flicker 2s linear infinite',
+        'vibrate': 'vibrate 0.15s linear infinite',
       },
       keyframes: {
         'glow-pulse': {
@@ -84,6 +106,32 @@ const config: Config = {
         'shadow-pulse': {
           '0%, 100%': { boxShadow: '0 0 20px 0px rgba(107, 75, 177, 0.3)' },
           '50%': { boxShadow: '0 0 40px 10px rgba(107, 75, 177, 0.5)' },
+        },
+        // Nouveaux keyframes
+        'system-alert': {
+          '0%': { transform: 'scale(0.95)', opacity: '0.5' },
+          '50%': { transform: 'scale(1.05)', opacity: '1' },
+          '100%': { transform: 'scale(1)', opacity: '1' },
+        },
+        'level-up': {
+          '0%': { transform: 'scale(1)', opacity: '0.8' },
+          '50%': { transform: 'scale(1.2)', opacity: '1' },
+          '100%': { transform: 'scale(1)', opacity: '1' },
+        },
+        'monarch-emerge': {
+          '0%': { filter: 'brightness(0.5) blur(5px)', opacity: '0.3' },
+          '100%': { filter: 'brightness(1) blur(0)', opacity: '1' },
+        },
+        'flicker': {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0.7' },
+          '25%, 75%': { opacity: '0.9' },
+        },
+        'vibrate': {
+          '0%, 100%': { transform: 'translate(0)' },
+          '25%': { transform: 'translate(-1px, 1px)' },
+          '50%': { transform: 'translate(1px, -1px)' },
+          '75%': { transform: 'translate(-1px, -1px)' },
         },
       },
     },

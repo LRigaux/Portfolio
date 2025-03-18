@@ -1,15 +1,25 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { Inter, Montserrat } from 'next/font/google';
 import './globals.css';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { ThemeProvider } from '@/context/ThemeContext';
 
-const inter = Inter({ subsets: ['latin'] });
+// Utilisation d'une police plus moderne et professionnelle
+const montserrat = Montserrat({ 
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700'],
+  variable: '--font-montserrat'
+});
 
 export const metadata: Metadata = {
-  title: 'Portfolio Data Science & AI',
-  description: 'Portfolio professionnel présentant mes projets en Data Science et Intelligence Artificielle',
+  title: 'Portfolio Data Science & AI | Solo Leveling',
+  description: 'Portfolio de Data Scientist & Ingénieur IA inspiré par Solo Leveling. Spécialiste en Machine Learning, Deep Learning et NLP.',
+  keywords: 'data science, machine learning, IA, intelligence artificielle, portfolio, solo leveling, deep learning, NLP',
+  authors: [{ name: 'Data Scientist' }],
+  creator: 'Data Scientist',
+  robots: 'index, follow',
+  viewport: 'width=device-width, initial-scale=1'
 };
 
 export default function RootLayout({
@@ -18,14 +28,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="fr">
-      <body className={inter.className}>
+    <html lang="fr" className={montserrat.variable}>
+      <body className={`${montserrat.className} antialiased`}>
         <ThemeProvider>
-          <Header />
-          <main className="min-h-screen">
-            {children}
-          </main>
-          <Footer />
+          <div className="flex flex-col min-h-screen">
+            <Header />
+            <main className="flex-grow">
+              {children}
+            </main>
+            <Footer />
+          </div>
         </ThemeProvider>
       </body>
     </html>

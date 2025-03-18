@@ -12,6 +12,8 @@ Le design s'appuie sur les éléments visuels caractéristiques de Solo Leveling
 - Effets de lueur et gradients
 - Système de rang (S, A, B, C) pour les compétences
 - Animations fluides et réactives
+- Interface système interactive avec statistiques, compétences et projets
+- Défilement horizontal des projets avec navigation intuitive
 
 ## 🛠 Stack Technique
 
@@ -52,24 +54,26 @@ portfolio/
 │ ├── app/
 │ │ ├── layout.tsx # Layout principal
 │ │ ├── page.tsx # Page d'accueil
+│ │ ├── admin/ # Interface d'administration
 │ │ └── globals.css # Styles globaux
 │ ├── components/
 │ │ ├── Header.tsx # Navigation
 │ │ ├── Hero.tsx # Section d'accueil
-│ │ ├── ProjectsSection.tsx
-│ │ ├── ProjectCard.tsx
-│ │ ├── SkillsSection.tsx
-│ │ ├── SkillBar.tsx
-│ │ ├── ContactSection.tsx
-│ │ ├── Footer.tsx
-│ │ ├── ParticlesBackground.tsx
-│ │ └── ThemeToggle.tsx
+│ │ ├── ProjectsSection.tsx # Liste des projets avec défilement horizontal
+│ │ ├── ProjectCard.tsx # Carte de projet individuelle
+│ │ ├── SkillsSection.tsx # Section des compétences
+│ │ ├── SkillBar.tsx # Barre de progression des compétences
+│ │ ├── ContactSection.tsx # Section de contact
+│ │ ├── Footer.tsx # Pied de page
+│ │ ├── ParticlesBackground.tsx # Arrière-plan animé
+│ │ ├── SystemInterface.tsx # Interface système inspirée de Solo Leveling
+│ │ └── ThemeToggle.tsx # Bascule de thème
 │ ├── context/
-│ │ └── ThemeContext.tsx
+│ │ └── ThemeContext.tsx # Gestion du thème global
 │ ├── lib/
-│ │ └── utils.ts
+│ │ └── utils.ts # Utilitaires
 │ └── types/
-│ └── index.ts
+│ └── index.ts # Définitions TypeScript
 
 ## 🛠 Installation
 
@@ -105,11 +109,12 @@ Le portfolio dispose d'une interface d'administration sécurisée pour gérer fa
 
 ### Fonctionnalités
 
+- **Tableau de bord amélioré** avec statistiques visuelles dans le style Solo Leveling
 - Gestion complète des projets (création, édition, suppression)
+- Formulaires intelligents avec validation côté client et suggestions
 - Gestion des compétences et niveaux
 - Gestion des expériences professionnelles
 - Gestion du parcours académique
-- Tableau de bord avec statistiques
 
 ### Configuration
 
@@ -119,7 +124,24 @@ Pour configurer l'accès administrateur, définissez les variables d'environneme
 JWT_SECRET="votre_secret_jwt_tres_long_et_complexe"
 ADMIN_PASSWORD="votre_mot_de_passe_admin_securise"
 ```
-```
+
+## Fonctionnalités immersives
+
+### SystemInterface
+
+Interface interactive inspirée du "système" de Solo Leveling :
+- Affichage des statistiques avec rangs (S, A, B, C)
+- Liste des compétences avec niveau et description
+- Technologies maîtrisées avec projets associés
+- Projets en cours sous forme de quêtes avec progression
+- Animation de niveau supérieur
+
+### Navigation horizontale des projets
+
+- Défilement horizontal fluide avec boutons de navigation
+- Filtrage par rang de projet
+- Cartes de projet avec effet de survol
+- Indication visuelle du rang et technologies utilisées
 
 ## Résumé des meilleures pratiques implémentées
 
@@ -134,6 +156,7 @@ ADMIN_PASSWORD="votre_mot_de_passe_admin_securise"
    - Formulaires avec validation
    - Messages de feedback
    - Thème clair/sombre
+   - Navigation horizontale intuitive
 
 3. **Architecture**
    - Séparation claire des préoccupations
@@ -152,8 +175,6 @@ ADMIN_PASSWORD="votre_mot_de_passe_admin_securise"
    - Composants modulaires
    - Gestion d'erreurs robuste
 
-Cette implémentation vous offre une interface d'administration complète et sécurisée pour gérer facilement le contenu de votre portfolio.
-
 ## 📝 TODO
 
 - [ ] Implémentation des traductions automatiques
@@ -171,5 +192,3 @@ Les contributions sont les bienvenues ! Voir `CONTRIBUTING.md` pour les détails
 ## 📜 Licence
 
 Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails.
-
-C

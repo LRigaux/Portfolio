@@ -4,10 +4,12 @@ import ProjectCard from './ProjectCard';
 import { useTheme } from '@/context/ThemeContext';
 import { motion } from 'framer-motion';
 import { Project } from '@/types';
+import { useRef } from 'react';
 
 const ProjectsSection = () => {
   const { projects, loading, pagination, filters, setFilter } = useProjects();
   const { theme } = useTheme();
+  const projectsContainerRef = useRef<HTMLDivElement>(null);
 
   const ranks = ['S', 'A', 'B', 'C'];
   
@@ -60,21 +62,66 @@ const ProjectsSection = () => {
   // Utiliser les projets de secours si aucun projet n'est disponible
   const displayProjects = projects && projects.length > 0 ? projects : fallbackProjects;
 
+  // Fonction pour faire défiler les projets horizontalement
+  const scrollProjects = (direction: 'left' | 'right') => {
+    if (projectsContainerRef.current) {
+      const scrollAmount = 350; // pixels à défiler
+      const container = projectsContainerRef.current;
+      
+      if (direction === 'left') {
+        container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+      } else {
+        container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+      }
+    }
+  };
+
   return (
     <section id="projects" className={`py-20 ${
       theme === 'light' ? 'bg-light-surface/50' : 'bg-shadow-surface/50'
     }`}>
       <div className="container mx-auto px-4">
-        <motion.h2
+        <motion.div
           initial={{ opacity: 0, y: -20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className={`text-3xl font-bold mb-8 text-center ${
-            theme === 'light' ? 'text-light-text' : 'text-shadow-text'
-          }`}
+          className="flex justify-between items-center mb-8"
         >
-          Mes Projets
-        </motion.h2>
+          <h2 className={`text-3xl font-bold ${
+            theme === 'light' ? 'text-light-text' : 'text-shadow-text'
+          }`}>
+            Mes Projets
+          </h2>
+          
+          <div className="flex space-x-2">
+            <button 
+              onClick={() => scrollProjects('left')}
+              className={`p-2 rounded-full ${
+                theme === 'light' 
+                  ? 'bg-light-surface hover:bg-light-primary/20 text-light-text' 
+                  : 'bg-shadow-surface hover:bg-shadow-primary/20 text-shadow-text'
+              } transition-colors`}
+              aria-label="Défiler vers la gauche"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="m15 18-6-6 6-6"/>
+              </svg>
+            </button>
+            <button 
+              onClick={() => scrollProjects('right')}
+              className={`p-2 rounded-full ${
+                theme === 'light' 
+                  ? 'bg-light-surface hover:bg-light-primary/20 text-light-text' 
+                  : 'bg-shadow-surface hover:bg-shadow-primary/20 text-shadow-text'
+              } transition-colors`}
+              aria-label="Défiler vers la droite"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="m9 18 6-6-6-6"/>
+              </svg>
+            </button>
+          </div>
+        </motion.div>
 
         {/* Filtres - afficher uniquement si des projets réels sont disponibles */}
         {projects && projects.length > 0 && (
@@ -124,9 +171,29 @@ const ProjectsSection = () => {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div 
+              ref={projectsContainerRef}
+              className="flex space-x-6 overflow-x-auto pb-8 scrollbar-hide"
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            >
               {displayProjects.map((project, index) => (
-                <ProjectCard key={project.id} project={project} index={index} />
+                <div key={project.id} className="flex-shrink-0 w-80">
+                  <ProjectCard 
+                    id={project.id} 
+                    title={project.title}
+                    description={project.description}
+                    image={project.imageUrl || '/projects/default.jpg'}
+                    tags={Array.isArray(project.technologies) 
+                      ? project.technologies.map((tech: any) => 
+                          typeof tech === 'string' ? tech : tech.name || '') 
+                      : []}
+                    link={project.githubUrl || ''}
+                    liveLink={project.liveUrl}
+                    rank={project.rank}
+                    featured={project.featured}
+                    index={index}
+                  />
+                </div>
               ))}
             </div>
 

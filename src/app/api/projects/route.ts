@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { Project } from '@/types';
 
 export async function GET(request: NextRequest) {
   // Vérifier que prisma est défini (côté serveur)
@@ -13,34 +12,73 @@ export async function GET(request: NextRequest) {
 
   try {
     const { searchParams } = new URL(request.url);
-    const featured = searchParams.get('featured') === 'true';
-    const rank = searchParams.get('rank');
+    const featured = searchParams.get('featured');
+    const category = searchParams.get('category');
+    const technology = searchParams.get('technology');
+    const limit = searchParams.get('limit') ? parseInt(searchParams.get('limit')!) : undefined;
     
+    // Construire les filtres
+    const where: any = {};
+    
+    if (featured === 'true') {
+      where.featured = true;
+    }
+    
+    if (category) {
+      where.categories = {
+        some: {
+          category: {
+            slug: category
+          }
+        }
+      };
+    }
+    
+    if (technology) {
+      where.technologies = {
+        some: {
+          technology: {
+            slug: technology
+          }
+        }
+      };
+    }
+    
+    // Récupérer les projets
     const projects = await prisma.project.findMany({
-      where: {
-        status: 'published',
-        ...(featured && { featured: true }),
-        ...(rank && { rank })
-      },
+      where,
       orderBy: [
-        { featured: 'desc' },
+        { rank: 'asc' },
         { createdAt: 'desc' }
-      ]
+      ],
+      take: limit,
+      include: {
+        technologies: {
+          include: {
+            technology: true
+          }
+        },
+        categories: {
+          include: {
+            category: true
+          }
+        }
+      }
     });
     
-    // Convertir les dates en chaînes pour la sérialisation JSON
-    const serializedProjects: Project[] = projects.map((project: any) => ({
+    // Formatter les projets pour la réponse
+    const formattedProjects = projects.map(project => ({
       ...project,
-      createdAt: project.createdAt.toISOString(),
-      updatedAt: project.updatedAt.toISOString()
+      technologies: project.technologies.map(t => t.technology),
+      categories: project.categories.map(c => c.category)
     }));
     
-    return NextResponse.json({ projects: serializedProjects });
+    return NextResponse.json({ projects: formattedProjects });
   } catch (error) {
     console.error('Error fetching projects:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch projects', projects: [] },
+      { error: 'Failed to fetch projects' },
       { status: 500 }
     );
   }
-} 
+}

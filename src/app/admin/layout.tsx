@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
-import Sidebar from '@/components/admin/Sidebar';
+import AdminSidebar from '@/components/admin/AdminSidebar';
 import { verifyToken } from '@/lib/auth';
 
 interface AdminLayoutProps {
@@ -18,11 +18,11 @@ export default async function AdminLayout({ children }: AdminLayoutProps) {
   }
   
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
-      <Sidebar />
-      <main className="ml-64 p-8">
+    <div className="min-h-screen bg-shadow-dark">
+      <AdminSidebar />
+      <div className="ml-0 md:ml-64 pt-20 min-h-screen p-4">
         {children}
-      </main>
+      </div>
     </div>
   );
 } 

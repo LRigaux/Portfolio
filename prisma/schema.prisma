@@ -9,7 +9,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = env("DATABASE_PROVIDER")
   url      = env("DATABASE_URL")
 }
 
@@ -19,7 +19,7 @@ model Project {
   title         String
   slug          String   @unique
   description   String
-  content       String?
+  content       String?  @db.Text
   imageUrl      String?
   githubUrl     String?
   liveUrl       String?
@@ -220,4 +220,13 @@ model SiteVisit {
 
   @@index([page])
   @@index([visitedAt])
+}
+
+model Visit {
+  id        String   @id @default(cuid())
+  page      String
+  ip        String?
+  userAgent String?
+  referrer  String?
+  createdAt DateTime @default(now())
 }

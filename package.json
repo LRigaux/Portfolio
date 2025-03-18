@@ -10,7 +10,8 @@
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
-    "db:seed": "ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" prisma/seed.ts"
+    "db:seed": "ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" prisma/seed.ts",
+    "db:reset": "prisma migrate reset && npm run db:seed"
   },
   "dependencies": {
     "@heroicons/react": "^2.1.1",
@@ -19,7 +20,6 @@
     "jose": "^6.0.10",
     "nanoid": "^5.1.4",
     "next": "^14.2.24",
-    "prisma": "^6.5.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-intersection-observer": "^9.5.3",
@@ -33,6 +33,7 @@
     "eslint": "^8.56.0",
     "eslint-config-next": "14.1.0",
     "postcss": "^8.4.35",
+    "prisma": "^6.5.0",
     "tailwindcss": "^3.4.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.2"
