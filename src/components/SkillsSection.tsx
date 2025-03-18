@@ -37,20 +37,9 @@ const SkillInfo = ({ skill, onClose, isVisible }: SkillInfoProps) => {
           initial={{ opacity: 0, scale: 0.9, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.9, y: 20 }}
-          transition={{ duration: 0.3 }}
-          className={`
-            fixed inset-0 z-50 flex items-center justify-center p-4
-          `}
+          transition={{ type: "spring", damping: 25 }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70"
         >
-          {/* Overlay de fond semi-transparent */}
-          <motion.div 
-            className="absolute inset-0 bg-black bg-opacity-70"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={onClose}
-          />
-          
           {/* Contenu */}
           <motion.div 
             className={`
@@ -61,6 +50,7 @@ const SkillInfo = ({ skill, onClose, isVisible }: SkillInfoProps) => {
               shadow-2xl
             `}
             layoutId={`skill-card-${skill.name}`}
+            onClick={(e) => e.stopPropagation()}
           >
             {/* En-tête du système */}
             <div className={`
@@ -74,9 +64,9 @@ const SkillInfo = ({ skill, onClose, isVisible }: SkillInfoProps) => {
                 px-3 py-1 rounded text-sm font-bold
                 ${isDark 
                   ? skill.rank === 'S' ? 'bg-purple-600 text-white' 
-                  : skill.rank === 'A' ? 'bg-blue-600 text-white' 
-                  : skill.rank === 'B' ? 'bg-green-600 text-white' 
-                  : 'bg-gray-600 text-white'
+                  : skill.rank === 'A' ? 'bg-red-600 text-white' 
+                  : skill.rank === 'B' ? 'bg-blue-600 text-white' 
+                  : 'bg-green-600 text-white'
                   : skill.rank === 'S' ? 'bg-yellow-500 text-shadow-dark' 
                   : skill.rank === 'A' ? 'bg-orange-500 text-shadow-dark' 
                   : skill.rank === 'B' ? 'bg-blue-500 text-shadow-dark' 
@@ -91,98 +81,105 @@ const SkillInfo = ({ skill, onClose, isVisible }: SkillInfoProps) => {
             <div className="p-6">
               {/* Description */}
               <div className="mb-6">
-                <h4 className={`font-semibold mb-2 ${isDark ? 'text-shadow-text' : 'text-light-text'}`}>
+                <h4 className={`text-sm font-bold mb-2 ${isDark ? 'text-shadow-blue' : 'text-light-gold-DEFAULT'}`}>
                   Description
                 </h4>
-                <p className={`${isDark ? 'text-shadow-text/80' : 'text-light-text/80'}`}>
+                <p className={`text-sm ${isDark ? 'text-shadow-text' : 'text-light-text'}`}>
                   {skill.description || `Compétence avancée dans le domaine de ${skill.name}.`}
                 </p>
               </div>
               
-              {/* Niveau */}
+              {/* Barre de niveau */}
               <div className="mb-6">
-                <h4 className={`font-semibold mb-2 ${isDark ? 'text-shadow-text' : 'text-light-text'}`}>
+                <h4 className={`text-sm font-bold mb-2 ${isDark ? 'text-shadow-blue' : 'text-light-gold-DEFAULT'}`}>
                   Niveau de maîtrise
                 </h4>
-                <div className="relative h-4 bg-gray-700 rounded-full overflow-hidden">
+                <div className="relative h-6 rounded-lg overflow-hidden bg-gray-800">
                   <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: `${skill.level}%` }}
-                    transition={{ duration: 1 }}
+                    transition={{ duration: 1, delay: 0.2 }}
                     className={`
-                      absolute h-full rounded-full
+                      absolute top-0 left-0 h-full
                       ${isDark
-                        ? 'bg-gradient-to-r from-shadow-primary to-shadow-accent'
-                        : 'bg-gradient-to-r from-light-primary to-light-accent'}
+                        ? skill.rank === 'S' ? 'bg-gradient-to-r from-purple-700 to-purple-500' 
+                        : skill.rank === 'A' ? 'bg-gradient-to-r from-red-700 to-red-500' 
+                        : skill.rank === 'B' ? 'bg-gradient-to-r from-blue-700 to-blue-500' 
+                        : 'bg-gradient-to-r from-green-700 to-green-500'
+                        : skill.rank === 'S' ? 'bg-gradient-to-r from-yellow-600 to-yellow-400' 
+                        : skill.rank === 'A' ? 'bg-gradient-to-r from-orange-600 to-orange-400' 
+                        : skill.rank === 'B' ? 'bg-gradient-to-r from-blue-600 to-blue-400' 
+                        : 'bg-gradient-to-r from-green-600 to-green-400'
+                      }
                     `}
                   />
-                </div>
-                <div className={`mt-2 text-right text-sm font-medium
-                  ${isDark ? 'text-shadow-accent' : 'text-light-primary'}
-                `}>
-                  Niveau {skill.level}
+                  <div className="absolute inset-0 flex items-center justify-end px-3">
+                    <span className="text-xs font-bold text-white">
+                      {skill.level}%
+                    </span>
+                  </div>
                 </div>
               </div>
               
               {/* Projets associés */}
-              <div>
-                <h4 className={`font-semibold mb-3 ${isDark ? 'text-shadow-text' : 'text-light-text'}`}>
-                  Projets associés
-                </h4>
-                {skill.relatedProjects && skill.relatedProjects.length > 0 ? (
-                  <div className="space-y-3">
+              {skill.relatedProjects && skill.relatedProjects.length > 0 && (
+                <div>
+                  <h4 className={`text-sm font-bold mb-3 ${isDark ? 'text-shadow-blue' : 'text-light-gold-DEFAULT'}`}>
+                    Projets associés
+                  </h4>
+                  <div className="space-y-4">
                     {skill.relatedProjects.map((project, index) => (
-                      <div key={index} className={`
-                        p-3 rounded-lg
-                        ${isDark ? 'bg-shadow-surface' : 'bg-light-surface'}
-                      `}>
-                        <h5 className={`font-medium ${isDark ? 'text-shadow-text' : 'text-light-text'}`}>
-                          {project.name}
-                        </h5>
-                        <p className={`text-sm mt-1 ${isDark ? 'text-shadow-text/70' : 'text-light-text/70'}`}>
+                      <div 
+                        key={index}
+                        className={`
+                          p-3 rounded-lg 
+                          ${isDark 
+                            ? 'bg-shadow-surface hover:bg-shadow-surface/80' 
+                            : 'bg-light-surface hover:bg-light-surface/80'}
+                          transition-colors
+                        `}
+                      >
+                        <div className="flex justify-between items-start">
+                          <h5 className={`font-semibold ${isDark ? 'text-shadow-text' : 'text-light-text'}`}>
+                            {project.name}
+                          </h5>
+                          {project.url && (
+                            <a 
+                              href={project.url}
+                              className={`
+                                text-xs px-2 py-1 rounded
+                                ${isDark 
+                                  ? 'bg-shadow-system text-white hover:bg-shadow-monarch' 
+                                  : 'bg-light-gold-DEFAULT text-shadow-dark hover:bg-light-gold-light'}
+                                transition-colors
+                              `}
+                            >
+                              Voir
+                            </a>
+                          )}
+                        </div>
+                        <p className={`text-sm mt-1 ${isDark ? 'text-shadow-text/80' : 'text-light-text/80'}`}>
                           {project.description}
                         </p>
-                        {project.url && (
-                          <a 
-                            href={project.url} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className={`
-                              mt-2 text-xs font-medium inline-flex items-center
-                              ${isDark ? 'text-shadow-blue hover:text-shadow-accent' : 'text-light-primary hover:text-light-accent'}
-                            `}
-                          >
-                            Voir le projet <span className="ml-1">→</span>
-                          </a>
-                        )}
                       </div>
                     ))}
                   </div>
-                ) : (
-                  <div className={`
-                    p-4 rounded-lg text-center
-                    ${isDark ? 'bg-shadow-surface' : 'bg-light-surface'}
-                  `}>
-                    <p className={`text-sm ${isDark ? 'text-shadow-text/70' : 'text-light-text/70'}`}>
-                      Aucun projet associé pour le moment.
-                    </p>
-                  </div>
-                )}
-              </div>
+                </div>
+              )}
             </div>
             
-            {/* Pied */}
+            {/* Pied du modal */}
             <div className={`
-              px-6 py-3 flex justify-end
-              ${isDark ? 'bg-shadow-dark' : 'bg-light-surface'}
+              px-4 py-3 flex justify-end
+              ${isDark ? 'bg-shadow-surface' : 'bg-light-surface'}
             `}>
               <button
                 onClick={onClose}
                 className={`
-                  px-4 py-2 rounded font-medium text-sm
+                  px-4 py-2 rounded-md text-sm font-medium
                   ${isDark 
-                    ? 'bg-shadow-primary text-white hover:bg-shadow-accent' 
-                    : 'bg-light-primary text-white hover:bg-light-accent'}
+                    ? 'bg-shadow-secondary hover:bg-shadow-primary text-shadow-text' 
+                    : 'bg-light-secondary hover:bg-light-primary text-light-text'}
                   transition-colors
                 `}
               >
@@ -196,7 +193,7 @@ const SkillInfo = ({ skill, onClose, isVisible }: SkillInfoProps) => {
   );
 };
 
-// Données enrichies pour les compétences
+// Liste des compétences avec leurs détails
 const skills: Skill[] = [
   {
     name: "Deep Learning",
@@ -277,20 +274,21 @@ const SkillCard = ({ skill, index, onClick }: { skill: Skill; index: number; onC
     }
   }, [controls, inView]);
 
+  // Obtenir la couleur du rang selon le thème
   const getRankColor = (rank: string) => {
     if (theme === 'dark') {
       switch (rank) {
-        case 'S': return 'text-purple-400 shadow-purple-500/50';
-        case 'A': return 'text-blue-400 shadow-blue-500/50';
-        case 'B': return 'text-green-400 shadow-green-500/50';
-        default: return 'text-gray-400 shadow-gray-500/50';
+        case 'S': return 'bg-purple-600';
+        case 'A': return 'bg-red-600';
+        case 'B': return 'bg-blue-600';
+        default: return 'bg-green-600';
       }
     } else {
       switch (rank) {
-        case 'S': return 'text-yellow-600 shadow-yellow-500/50';
-        case 'A': return 'text-orange-500 shadow-orange-500/50';
-        case 'B': return 'text-amber-500 shadow-amber-500/50';
-        default: return 'text-gray-600 shadow-gray-500/50';
+        case 'S': return 'bg-yellow-500';
+        case 'A': return 'bg-orange-500';
+        case 'B': return 'bg-blue-500';
+        default: return 'bg-green-500';
       }
     }
   };
@@ -318,77 +316,56 @@ const SkillCard = ({ skill, index, onClick }: { skill: Skill; index: number; onC
           ? 'bg-shadow-secondary border border-shadow-primary/30' 
           : 'bg-light-secondary border border-light-primary/30'}
         transform transition-all duration-300
+        hover:shadow-lg
       `}
       whileHover={{ 
-        scale: 1.05,
+        scale: 1.03,
         boxShadow: theme === 'dark' 
           ? '0 0 15px rgba(150, 100, 255, 0.3)' 
           : '0 0 15px rgba(255, 215, 0, 0.3)' 
       }}
     >
-      {/* Effet de particules au hover */}
-      <motion.div
-        className={`
-          absolute inset-0 rounded-lg opacity-0
-          ${theme === 'dark' ? 'bg-shadow-pattern' : 'bg-light-pattern'}
-        `}
-        animate={{ opacity: isHovered ? 0.2 : 0 }}
-      />
-
-      {/* Effet de glow au hover */}
-      <motion.div 
-        className="absolute inset-0 rounded-lg"
-        animate={{ 
-          boxShadow: isHovered 
-            ? theme === 'dark'
-              ? '0 0 20px rgba(150, 100, 255, 0.5), inset 0 0 10px rgba(150, 100, 255, 0.3)'
-              : '0 0 20px rgba(255, 215, 0, 0.5), inset 0 0 10px rgba(255, 215, 0, 0.3)'
-            : 'none'
-        }}
-      />
-
-      {/* En-tête avec rang */}
-      <div className="flex justify-between items-center mb-4">
-        <h3 className={`
-          text-xl font-bold
-          ${theme === 'dark' ? 'text-shadow-text' : 'text-light-text'}
-          ${isHovered ? theme === 'dark' ? 'text-shadow-blue' : 'text-light-gold-DEFAULT' : ''}
-          transition-colors duration-300
-        `}>
-          {skill.name}
-        </h3>
-        <motion.div
-          className={`
-            text-2xl font-bold px-3 py-1 rounded
-            ${getRankColor(skill.rank)}
-          `}
-          animate={{
-            scale: isHovered ? 1.1 : 1,
-            textShadow: isHovered 
-              ? theme === 'dark' 
-                ? '0 0 8px rgba(155, 114, 233, 0.8)' 
-                : '0 0 8px rgba(255, 215, 0, 0.8)'
-              : 'none'
-          }}
-        >
-          {skill.rank}
-        </motion.div>
+      {/* Badge de rang */}
+      <div className={`
+        absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center
+        ${getRankColor(skill.rank)}
+        text-white font-bold
+      `}>
+        {skill.rank}
       </div>
 
+      {/* En-tête */}
+      <h3 className={`
+        text-xl font-bold mb-4 pr-10
+        ${theme === 'dark' ? 'text-shadow-text' : 'text-light-text'}
+        ${isHovered ? theme === 'dark' ? 'text-shadow-blue' : 'text-light-gold-DEFAULT' : ''}
+        transition-colors duration-300
+      `}>
+        {skill.name}
+      </h3>
+
       {/* Barre de progression */}
-      <div className="relative h-4 bg-gray-700 rounded-full overflow-hidden">
+      <div className="relative h-6 rounded-lg overflow-hidden bg-gray-800 mb-2">
         <motion.div
           initial={{ width: 0 }}
           animate={{ width: `${skill.level}%` }}
           transition={{ duration: 1, delay: 0.5 }}
           className={`
-            absolute h-full rounded-full
+            absolute top-0 left-0 h-full
             ${theme === 'dark'
-              ? 'bg-gradient-to-r from-shadow-primary to-shadow-accent'
-              : 'bg-gradient-to-r from-light-primary to-light-accent'}
+              ? skill.rank === 'S' ? 'bg-gradient-to-r from-purple-700 to-purple-500' 
+              : skill.rank === 'A' ? 'bg-gradient-to-r from-red-700 to-red-500' 
+              : skill.rank === 'B' ? 'bg-gradient-to-r from-blue-700 to-blue-500' 
+              : 'bg-gradient-to-r from-green-700 to-green-500'
+              : skill.rank === 'S' ? 'bg-gradient-to-r from-yellow-600 to-yellow-400' 
+              : skill.rank === 'A' ? 'bg-gradient-to-r from-orange-600 to-orange-400' 
+              : skill.rank === 'B' ? 'bg-gradient-to-r from-blue-600 to-blue-400' 
+              : 'bg-gradient-to-r from-green-600 to-green-400'
+            }
           `}
         />
-        {/* Effet de brillance */}
+        
+        {/* Brillance sur la barre */}
         <motion.div
           className="absolute inset-0 opacity-0"
           animate={{
@@ -406,14 +383,31 @@ const SkillCard = ({ skill, index, onClick }: { skill: Skill; index: number; onC
               : 'linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.3), transparent)'
           }}
         />
+        
+        {/* Affichage du pourcentage */}
+        <div className="absolute inset-0 flex items-center justify-end px-3">
+          <span className="text-xs font-bold text-white">
+            {skill.level}%
+          </span>
+        </div>
       </div>
 
-      {/* Niveau numérique */}
+      {/* Catégorie de la compétence */}
       <div className={`
-        mt-2 text-right text-sm font-medium
-        ${theme === 'dark' ? 'text-shadow-accent' : 'text-light-primary'}
+        inline-block px-3 py-1 rounded-full text-xs font-medium mt-2
+        ${theme === 'dark' 
+          ? 'bg-shadow-surface text-shadow-accent' 
+          : 'bg-light-surface text-light-gold-DEFAULT'}
       `}>
-        Niveau {skill.level}
+        {skill.category}
+      </div>
+
+      {/* Indicateur de clic pour plus d'infos */}
+      <div className={`
+        absolute bottom-3 right-3 text-xs
+        ${theme === 'dark' ? 'text-shadow-blue/70' : 'text-light-gold-DEFAULT/70'}
+      `}>
+        Cliquer pour plus d'infos
       </div>
     </motion.div>
   );
@@ -421,93 +415,153 @@ const SkillCard = ({ skill, index, onClick }: { skill: Skill; index: number; onC
 
 export default function SkillsSection() {
   const { theme } = useTheme();
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedSkill, setSelectedSkill] = useState<Skill | null>(null);
   const sectionRef = useRef<HTMLDivElement>(null);
 
-  // Filtrer les compétences par catégorie
-  const filteredSkills = selectedCategory === 'all'
-    ? skills
-    : skills.filter(skill => skill.category === selectedCategory);
+  // Extraire les catégories uniques des compétences
+  const categories = Array.from(new Set(skills.map(skill => skill.category)));
 
-  const categories = ['all', ...new Set(skills.map(skill => skill.category))];
+  // Filtrer les compétences par catégorie
+  const filteredSkills = selectedCategory 
+    ? skills.filter(skill => skill.category === selectedCategory)
+    : skills;
+
+  // Gérer le changement de catégorie
+  const handleCategoryChange = (category: string | null) => {
+    if (category === selectedCategory) {
+      // Désactiver le filtre si on clique à nouveau sur la même catégorie
+      setSelectedCategory(null);
+    } else {
+      setSelectedCategory(category);
+    }
+  };
 
   return (
-    <section id="skills" className={`
-      min-h-screen py-24 relative overflow-hidden
-      ${theme === 'dark' ? 'bg-shadow-secondary' : 'bg-light-secondary'}
-    `} ref={sectionRef}>
-      {/* Fond animé */}
-      <ParticlesBackground />
+    <section 
+      id="skills" 
+      className={`py-24 relative overflow-hidden ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}
+      ref={sectionRef}
+    >
+      {/* Arrière-plan de particules */}
+      <div className="absolute inset-0 z-0 opacity-30">
+        <ParticlesBackground />
+      </div>
 
-      <div className="container mx-auto px-6 relative z-10">
-        <motion.div
+      <div className="container mx-auto px-4 relative z-10">
+        <div className="mb-12 text-center">
+          <motion.h2 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className={`text-3xl md:text-4xl font-bold mb-4 ${
+              theme === 'dark' 
+                ? 'text-shadow-primary shadow-text-glow' 
+                : 'text-light-primary'
+            }`}
+          >
+            Mes Compétences
+          </motion.h2>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className={`text-xl max-w-2xl mx-auto ${
+              theme === 'dark' ? 'text-shadow-text' : 'text-light-text'
+            }`}
+          >
+            Aptitudes et connaissances acquises au fil de mes quêtes
+          </motion.p>
+        </div>
+
+        {/* Système de filtrage par catégorie amélioré */}
+        <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-16"
+          transition={{ duration: 0.6, delay: 0.4 }}
+          className="flex justify-center mb-10"
         >
-          <h2 className={`
-            text-4xl md:text-5xl font-bold mb-6
-            ${theme === 'dark' ? 'text-shadow-text' : 'text-light-text'}
+          <div className={`
+            px-4 py-3 rounded-lg 
+            ${theme === 'dark' 
+              ? 'bg-shadow-secondary/80 border-2 border-shadow-system shadow-lg shadow-shadow-primary/20' 
+              : 'bg-light-secondary/80 border-2 border-light-gold-DEFAULT shadow-lg shadow-light-primary/20'}
           `}>
-            Mes{' '}
-            <span className={
-              theme === 'dark' ? 'text-shadow-primary' : 'text-light-primary'
-            }>
-              Compétences
-            </span>
-          </h2>
-
-          {/* Filtres de catégories */}
-          <div className="flex flex-wrap justify-center gap-4 mb-12">
-            {categories.map((category) => (
-              <motion.button
-                key={category}
-                onClick={() => setSelectedCategory(category)}
-                className={`
-                  px-6 py-2 rounded-full text-sm font-medium
-                  ${selectedCategory === category
-                    ? theme === 'dark'
-                      ? 'bg-shadow-primary text-white'
-                      : 'bg-light-primary text-shadow-secondary'
-                    : theme === 'dark'
-                      ? 'bg-shadow-secondary text-shadow-text'
-                      : 'bg-light-secondary text-light-text'
-                  }
-                  transition-all duration-300
-                `}
-                whileHover={{
-                  scale: 1.05,
-                  boxShadow: theme === 'dark'
-                    ? '0 0 10px rgba(150, 100, 255, 0.3)'
-                    : '0 0 10px rgba(255, 215, 0, 0.3)'
-                }}
-              >
-                {category === 'all' ? 'Toutes' : category}
-              </motion.button>
-            ))}
+            <div className="flex flex-col items-center">
+              <div className={`
+                text-sm font-medium mb-2
+                ${theme === 'dark' ? 'text-shadow-blue' : 'text-light-gold-DEFAULT'}
+              `}>
+                Filtrer par domaine :
+              </div>
+              <div className="flex flex-wrap justify-center gap-2">
+                <button
+                  onClick={() => handleCategoryChange(null)}
+                  className={`
+                    px-4 py-2 rounded-md text-sm font-medium transition-colors
+                    ${!selectedCategory 
+                      ? theme === 'dark'
+                        ? 'bg-shadow-system text-white' 
+                        : 'bg-light-gold-DEFAULT text-shadow-dark'
+                      : theme === 'dark'
+                        ? 'bg-shadow-surface hover:bg-shadow-system/70 text-shadow-text' 
+                        : 'bg-light-surface hover:bg-light-gold-DEFAULT/70 text-light-text'}
+                  `}
+                >
+                  Toutes
+                </button>
+                {categories.map((category) => (
+                  <button
+                    key={category}
+                    onClick={() => handleCategoryChange(category)}
+                    className={`
+                      px-4 py-2 rounded-md text-sm font-medium transition-colors
+                      ${selectedCategory === category 
+                        ? theme === 'dark'
+                          ? 'bg-shadow-system text-white' 
+                          : 'bg-light-gold-DEFAULT text-shadow-dark'
+                        : theme === 'dark'
+                          ? 'bg-shadow-surface hover:bg-shadow-system/70 text-shadow-text' 
+                          : 'bg-light-surface hover:bg-light-gold-DEFAULT/70 text-light-text'}
+                    `}
+                  >
+                    {category}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </motion.div>
 
-        {/* Grille de compétences */}
+        {/* Grille de compétences améliorée */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredSkills.map((skill, index) => (
-            <SkillCard 
-              key={skill.name} 
-              skill={skill} 
+          {filteredSkills.length > 0 ? (
+            filteredSkills.map((skill, index) => (
+              <SkillCard 
+                key={skill.name} 
+                skill={skill} 
                 index={index}
-              onClick={() => setSelectedSkill(skill)}
+                onClick={() => setSelectedSkill(skill)}
               />
-            ))}
+            ))
+          ) : (
+            <div className={`col-span-3 text-center py-10 ${
+              theme === 'dark' ? 'text-shadow-text' : 'text-light-text'
+            }`}>
+              Aucune compétence trouvée dans cette catégorie.
+            </div>
+          )}
         </div>
       </div>
 
       {/* Fenêtre modale d'information sur la compétence */}
-      <SkillInfo 
-        skill={selectedSkill || skills[0]} 
-        onClose={() => setSelectedSkill(null)}
-        isVisible={selectedSkill !== null}
-      />
+      {selectedSkill && (
+        <SkillInfo 
+          skill={selectedSkill} 
+          onClose={() => setSelectedSkill(null)}
+          isVisible={selectedSkill !== null}
+        />
+      )}
     </section>
   );
 } 

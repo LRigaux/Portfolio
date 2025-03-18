@@ -7,6 +7,8 @@ import ProjectsSection from '@/components/ProjectsSection';
 import SkillsSection from '@/components/SkillsSection';
 import TechnologiesSection from '@/components/TechnologiesSection';
 import ContactSection from '@/components/ContactSection';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 
 export default function Home() {
   const { theme } = useTheme();
@@ -36,12 +38,16 @@ export default function Home() {
 
   return (
     <div className={`min-h-screen ${theme === 'dark' ? 'bg-shadow-dark' : 'bg-light-primary'}`}>
-      <Hero />
-      <SystemInterface />
-      <ProjectsSection />
-      <SkillsSection />
-      <TechnologiesSection />
-      <ContactSection />
+      <Header />
+      <main>
+        <Hero />
+        <SystemInterface />
+        <ProjectsSection />
+        <SkillsSection />
+        <TechnologiesSection />
+        <ContactSection />
+      </main>
+      <Footer />
     </div>
   );
 } 

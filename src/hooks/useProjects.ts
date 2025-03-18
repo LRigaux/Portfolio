@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Project } from '@/types';
+import { isValidImagePath } from '@/lib/utils';
 
 export function useProjects(options?: { 
   featured?: boolean;
@@ -50,7 +51,32 @@ export function useProjects(options?: {
         const data = await response.json();
         console.log('API response:', data);
         
-        setProjects(data.projects || []);
+        // Ajouter des images par défaut pour les projets qui n'en ont pas
+        const projectsWithFallbacks = (data.projects || []).map((project: Project) => {
+          // Si pas d'imageUrl ou imageUrl non valide, ajouter une image par défaut
+          if (!project.imageUrl || !isValidImagePath(project.imageUrl)) {
+            // Utiliser des images spécifiques selon le rang, sinon fallback générique
+            switch(project.rank) {
+              case 'S':
+                project.imageUrl = '/projects/fallback.jpg';
+                break;
+              case 'A':
+                project.imageUrl = '/projects/fallback.jpg';
+                break;
+              case 'B':
+                project.imageUrl = '/projects/fallback.jpg';
+                break;
+              case 'C':
+                project.imageUrl = '/projects/fallback.jpg';
+                break;
+              default:
+                project.imageUrl = '/projects/fallback.jpg';
+            }
+          }
+          return project;
+        });
+        
+        setProjects(projectsWithFallbacks);
         setPagination(data.pagination || {
           total: 0,
           pages: 0,

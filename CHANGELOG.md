@@ -234,6 +234,73 @@ tags={Array.isArray(project.technologies)
 - Assurer la cohérence des données entre l'interface d'administration et l'affichage public
 - Rendre la gestion des technologies plus intuitive et complète
 
+## [1.3.0] - 2024-03-18
+
+### ✨ Ajouts et améliorations majeures
+- Refonte complète du header et du footer avec des animations inspirées de Solo Leveling
+- Ajout d'effets de particules magiques dynamiques
+- Implémentation du suivi de curseur avec effet de "cercle magique"
+- Nouveau système de navigation avec indicateurs de section active
+
+### 🎨 Header
+- Ajout d'un effet de suivi de défilement qui modifie l'apparence
+- Implémentation d'une navigation fluide avec indicateurs de section active
+- Intégration d'animations de particules magiques en arrière-plan
+- Optimisation du menu mobile avec des transitions fluides
+- Amélioration des effets de survol pour les liens sociaux
+
+### 🎯 Footer
+- Ajout d'un effet de "cercle magique" qui suit le curseur
+- Implémentation de particules animées multicolores
+- Création d'une navigation rapide avec animations
+- Intégration de statistiques dynamiques avec badges de rang
+- Ajout d'un call-to-action pour le contact
+- Implémentation d'effets de séparation animés
+
+### 🔧 Optimisations
+- Amélioration des performances des animations
+- Optimisation du rendu des particules selon la taille de l'écran
+- Réduction de la consommation mémoire des effets visuels
+- Meilleure gestion des événements de scroll
+
+### 🐛 Corrections
+- Correction des problèmes de z-index dans la navigation
+- Résolution des conflits d'animation sur mobile
+- Amélioration de la stabilité des effets de particules
+- Correction du comportement du menu mobile sur iOS
+
+## [1.2.0] - 2024-03-17
+
+### ✨ Ajouts
+- Implémentation du système de compétences avec rangs
+- Ajout des modales détaillées pour les projets
+- Intégration du défilement horizontal pour les projets
+
+### 🎨 Design
+- Refonte du système de thèmes (clair/sombre)
+- Amélioration des transitions et animations
+- Nouveaux effets visuels pour les cartes de projet
+
+## [1.1.0] - 2024-03-16
+
+### ✨ Ajouts
+- Mise en place de l'interface d'administration
+- Système de gestion des projets
+- Intégration de la base de données Prisma
+
+### 🔒 Sécurité
+- Implémentation de l'authentification
+- Protection des routes administratives
+- Validation des données
+
+## [1.0.0] - 2024-03-15
+
+### 🚀 Première version
+- Structure de base du portfolio
+- Système de navigation
+- Intégration du thème Solo Leveling
+- Configuration initiale de Next.js et TypeScript
+
 ---
 
 *Ce document sera mis à jour à chaque amélioration significative du projet.* 

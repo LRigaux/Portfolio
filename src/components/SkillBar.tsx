@@ -1,6 +1,6 @@
 'use client';
 import { motion } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTheme } from '@/context/ThemeContext';
 
 interface SkillBarProps {
@@ -10,136 +10,149 @@ interface SkillBarProps {
   index: number;
 }
 
-const SkillBar = ({ name, level, rank, index }: SkillBarProps) => {
+export default function SkillBar({ name, level, rank, index }: SkillBarProps) {
   const { theme } = useTheme();
   const [isHovered, setIsHovered] = useState(false);
-
-  const getRankColor = (rank: string) => {
-    if (theme === 'light') {
+  const isDark = theme === 'dark';
+  
+  // Déterminer la couleur en fonction du rang et du thème
+  const getRankColor = () => {
+    if (isDark) {
       switch (rank) {
-        case 'S': return 'text-light-red-DEFAULT';
-        case 'A': return 'text-light-red-light';
-        case 'B': return 'text-light-gold-DEFAULT';
-        default: return 'text-light-muted';
+        case 'S': return 'bg-purple-600 border-purple-400';
+        case 'A': return 'bg-red-600 border-red-400';
+        case 'B': return 'bg-blue-600 border-blue-400';
+        default: return 'bg-green-600 border-green-400';
+      }
+    } else {
+      switch (rank) {
+        case 'S': return 'bg-yellow-500 border-yellow-300';
+        case 'A': return 'bg-orange-500 border-orange-300';
+        case 'B': return 'bg-blue-500 border-blue-300';
+        default: return 'bg-green-500 border-green-300';
       }
     }
-    if (theme === 'dark') {
+  };
+  
+  // Déterminer la couleur du texte en fonction du rang et du thème
+  const getTextColor = () => {
+    if (isDark) {
       switch (rank) {
-        case 'S': return 'text-shadow-crimson';
-        case 'A': return 'text-shadow-red';
-        case 'B': return 'text-shadow-purple';
-        default: return 'text-shadow-muted';
+        case 'S': return 'text-purple-400';
+        case 'A': return 'text-red-400';
+        case 'B': return 'text-blue-400';
+        default: return 'text-green-400';
+      }
+    } else {
+      switch (rank) {
+        case 'S': return 'text-yellow-600';
+        case 'A': return 'text-orange-600';
+        case 'B': return 'text-blue-600';
+        default: return 'text-green-600';
+      }
+    }
+  };
+  
+  // Déterminer la couleur du gradient pour la barre
+  const getGradientColor = () => {
+    if (isDark) {
+      switch (rank) {
+        case 'S': return 'from-purple-700 to-purple-500';
+        case 'A': return 'from-red-700 to-red-500';
+        case 'B': return 'from-blue-700 to-blue-500';
+        default: return 'from-green-700 to-green-500';
+      }
+    } else {
+      switch (rank) {
+        case 'S': return 'from-yellow-600 to-yellow-400';
+        case 'A': return 'from-orange-600 to-orange-400';
+        case 'B': return 'from-blue-600 to-blue-400';
+        default: return 'from-green-600 to-green-400';
       }
     }
   };
 
   return (
     <motion.div
-      initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: 1, x: 0 }}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: index * 0.1 }}
+      className={`
+        p-4 rounded-lg
+        ${isDark 
+          ? 'bg-shadow-secondary border border-shadow-system/30' 
+          : 'bg-light-secondary border border-light-gold-DEFAULT/30'}
+        transform transition-all duration-300
+        hover:shadow-lg
+      `}
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
-      className="mb-6"
+      whileHover={{ 
+        scale: 1.02,
+        boxShadow: isDark 
+          ? '0 0 12px rgba(150, 100, 255, 0.25)' 
+          : '0 0 12px rgba(255, 215, 0, 0.25)' 
+      }}
     >
-      {/* En-tête de la compétence */}
-      <div className="flex justify-between items-center mb-2">
-        <span className={`
-          text-lg font-semibold
-          ${theme === 'light' 
-            ? 'text-light-text' 
-            : 'text-shadow-text'}
+      {/* En-tête avec nom et rang */}
+      <div className="flex justify-between items-center mb-3">
+        <h3 className={`
+          font-semibold text-base
+          ${isDark ? 'text-shadow-text' : 'text-light-text'}
+          ${isHovered ? isDark ? 'text-shadow-blue' : 'text-light-gold-DEFAULT' : ''}
+          transition-colors duration-300
         `}>
           {name}
-        </span>
-        <motion.span
-          className={`
-            text-xl font-bold ${getRankColor(rank)}
-            transition-all duration-300
-          `}
-          whileHover={{ scale: 1.1 }}
-        >
+        </h3>
+        <div className={`
+          w-7 h-7 flex items-center justify-center rounded-full
+          text-white text-sm font-bold
+          ${getRankColor()}
+          ${isHovered ? 'scale-110' : 'scale-100'}
+          transition-transform duration-300
+        `}>
           {rank}
-        </motion.span>
+        </div>
       </div>
-
-      {/* Conteneur de la barre de progression */}
-      <div className={`
-        relative h-3 rounded-full overflow-hidden
-        ${theme === 'light' 
-          ? 'bg-light-surface shadow-inner' 
-          : 'bg-shadow-surface'}
-      `}>
-        {/* Effet de brillance de base */}
-        <motion.div
-          className="absolute inset-0 opacity-20"
-          animate={{
-            backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
-          }}
-          transition={{
-            duration: 3,
-            repeat: Infinity,
-            ease: "linear"
-          }}
-          style={{
-            backgroundImage: theme === 'light'
-              ? 'linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent)'
-              : 'linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)',
-          }}
-        />
-
-        {/* Barre de progression */}
+      
+      {/* Barre de progression */}
+      <div className="relative h-5 rounded-md overflow-hidden bg-gray-800">
         <motion.div
           initial={{ width: 0 }}
           animate={{ width: `${level}%` }}
           transition={{ duration: 1, delay: 0.2 }}
           className={`
-            h-full relative
-            ${theme === 'light'
-              ? isHovered 
-                ? 'bg-hover-gradient-light' 
-                : 'bg-skill-gradient-light'
-              : isHovered 
-                ? 'bg-hover-gradient' 
-                : 'bg-skill-gradient'}
-            transition-all duration-300
+            absolute top-0 left-0 h-full
+            bg-gradient-to-r ${getGradientColor()}
           `}
-        >
-          {/* Effet de brillance au survol */}
-          <motion.div
-            className="absolute inset-0"
-            animate={{
-              opacity: isHovered ? [0.3, 0.5, 0.3] : 0.3,
-            }}
-            transition={{
-              duration: 1.5,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-            style={{
-              background: theme === 'light'
-                ? 'linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)'
-                : 'linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent)',
-            }}
-          />
-        </motion.div>
-      </div>
-
-      {/* Niveau numérique */}
-      <div className="flex justify-end mt-1">
-        <motion.span
+        />
+        
+        {/* Effet de brillance sur la barre */}
+        <motion.div
+          className="absolute inset-0 opacity-0"
           animate={{
-            color: theme === 'light'
-              ? isHovered ? '#9E2A2B' : '#FDB813'
-              : isHovered ? '#D32F2F' : '#9C27B0'
+            opacity: isHovered ? [0, 0.4, 0] : 0,
+            left: isHovered ? ['0%', '100%'] : '0%'
           }}
-          className="text-sm font-medium"
-        >
-          Niveau {level}
-        </motion.span>
+          transition={{
+            duration: 1,
+            repeat: Infinity,
+            repeatType: 'loop'
+          }}
+          style={{
+            background: isDark
+              ? 'linear-gradient(90deg, transparent, rgba(155, 114, 233, 0.3), transparent)'
+              : 'linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.3), transparent)'
+          }}
+        />
+        
+        {/* Affichage du pourcentage */}
+        <div className="absolute inset-0 flex items-center justify-end px-3">
+          <span className="text-xs font-bold text-white">
+            {level}%
+          </span>
+        </div>
       </div>
     </motion.div>
   );
-};
-
-export default SkillBar;
+}

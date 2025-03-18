@@ -1,463 +1,97 @@
 'use client';
-import { motion, useAnimation, AnimatePresence } from 'framer-motion';
+import { motion, useAnimation } from 'framer-motion';
 import { useEffect, useState, useRef } from 'react';
 import { useTheme } from '@/context/ThemeContext';
-import { useInView } from 'react-intersection-observer';
 import ParticlesBackground from './ParticlesBackground';
 import { Technology } from '@/types';
+import TechnologyCard from './TechnologyCard';
+import TechnologyInfo from './TechnologyInfo';
 
-interface TechnologyInfoProps {
-  technology: Technology;
-  onClose: () => void;
-  isVisible: boolean;
-}
-
-// Composant pour afficher les informations détaillées d'une technologie
-const TechnologyInfo = ({ technology, onClose, isVisible }: TechnologyInfoProps) => {
-  const { theme } = useTheme();
-  const isDark = theme === 'dark';
-  
-  return (
-    <AnimatePresence>
-      {isVisible && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.9, y: 20 }}
-          transition={{ duration: 0.3 }}
-          className={`
-            fixed inset-0 z-50 flex items-center justify-center p-4
-          `}
-        >
-          {/* Overlay de fond semi-transparent */}
-          <motion.div 
-            className="absolute inset-0 bg-black bg-opacity-70"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={onClose}
-          />
-          
-          {/* Contenu */}
-          <motion.div 
-            className={`
-              relative w-full max-w-2xl rounded-lg overflow-hidden z-10
-              ${isDark 
-                ? 'bg-shadow-secondary border-2 border-shadow-system' 
-                : 'bg-light-secondary border-2 border-light-gold-DEFAULT'}
-              shadow-2xl
-            `}
-            layoutId={`tech-card-${technology.id}`}
-          >
-            {/* En-tête du système */}
-            <div className={`
-              px-4 py-3 flex items-center justify-between
-              ${isDark ? 'bg-shadow-system' : 'bg-light-gold-DEFAULT'}
-            `}>
-              <h3 className={`font-bold text-lg ${isDark ? 'text-white' : 'text-shadow-dark'}`}>
-                {technology.name}
-              </h3>
-              {technology.rank && (
-                <div className={`
-                  px-3 py-1 rounded text-sm font-bold
-                  ${isDark 
-                    ? technology.rank === 'S' ? 'bg-purple-600 text-white' 
-                    : technology.rank === 'A' ? 'bg-blue-600 text-white' 
-                    : technology.rank === 'B' ? 'bg-green-600 text-white' 
-                    : 'bg-gray-600 text-white'
-                    : technology.rank === 'S' ? 'bg-yellow-500 text-shadow-dark' 
-                    : technology.rank === 'A' ? 'bg-orange-500 text-shadow-dark' 
-                    : technology.rank === 'B' ? 'bg-blue-500 text-shadow-dark' 
-                    : 'bg-green-500 text-shadow-dark'
-                  }
-                `}>
-                  Rang {technology.rank}
-                </div>
-              )}
-            </div>
-            
-            {/* Corps */}
-            <div className="p-6">
-              {/* Description */}
-              <div className="mb-6">
-                <h4 className={`font-semibold mb-2 ${isDark ? 'text-shadow-text' : 'text-light-text'}`}>
-                  Description
-                </h4>
-                <p className={`${isDark ? 'text-shadow-text/80' : 'text-light-text/80'}`}>
-                  {technology.description || `Maîtrise avancée de ${technology.name}.`}
-                </p>
-              </div>
-              
-              {/* Niveau */}
-              {technology.level !== undefined && (
-                <div className="mb-6">
-                  <h4 className={`font-semibold mb-2 ${isDark ? 'text-shadow-text' : 'text-light-text'}`}>
-                    Niveau de maîtrise
-                  </h4>
-                  <div className="relative h-4 bg-gray-700 rounded-full overflow-hidden">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: `${technology.level}%` }}
-                      transition={{ duration: 1 }}
-                      className={`
-                        absolute h-full rounded-full
-                        ${isDark
-                          ? 'bg-gradient-to-r from-shadow-primary to-shadow-accent'
-                          : 'bg-gradient-to-r from-light-primary to-light-accent'}
-                      `}
-                    />
-                  </div>
-                  <div className={`mt-2 text-right text-sm font-medium
-                    ${isDark ? 'text-shadow-accent' : 'text-light-primary'}
-                  `}>
-                    Niveau {technology.level}
-                  </div>
-                </div>
-              )}
-              
-              {/* Projets associés */}
-              <div>
-                <h4 className={`font-semibold mb-3 ${isDark ? 'text-shadow-text' : 'text-light-text'}`}>
-                  Projets associés
-                </h4>
-                {technology.relatedProjects && technology.relatedProjects.length > 0 ? (
-                  <div className="space-y-3">
-                    {technology.relatedProjects.map((project, index) => (
-                      <div key={index} className={`
-                        p-3 rounded-lg
-                        ${isDark ? 'bg-shadow-surface' : 'bg-light-surface'}
-                      `}>
-                        <h5 className={`font-medium ${isDark ? 'text-shadow-text' : 'text-light-text'}`}>
-                          {project.title}
-                        </h5>
-                        <div className={`flex items-center mt-1`}>
-                          <span className={`
-                            px-2 py-0.5 text-xs rounded font-medium
-                            ${project.rank === 'S'
-                              ? isDark ? 'bg-shadow-blue text-white' : 'bg-light-gold-light text-shadow-dark'
-                              : project.rank === 'A'
-                                ? isDark ? 'bg-shadow-monarch text-white' : 'bg-light-rank text-white'
-                                : isDark ? 'bg-shadow-accent text-white' : 'bg-light-primary text-white'
-                            }
-                          `}>
-                            Rang {project.rank}
-                          </span>
-                        </div>
-                        <a 
-                          href={`/projects/${project.slug}`} 
-                          className={`
-                            mt-2 text-xs font-medium inline-flex items-center
-                            ${isDark ? 'text-shadow-blue hover:text-shadow-accent' : 'text-light-primary hover:text-light-accent'}
-                          `}
-                        >
-                          Voir le projet <span className="ml-1">→</span>
-                        </a>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className={`
-                    p-4 rounded-lg text-center
-                    ${isDark ? 'bg-shadow-surface' : 'bg-light-surface'}
-                  `}>
-                    <p className={`text-sm ${isDark ? 'text-shadow-text/70' : 'text-light-text/70'}`}>
-                      Aucun projet associé pour le moment.
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
-            
-            {/* Pied */}
-            <div className={`
-              px-6 py-3 flex justify-end
-              ${isDark ? 'bg-shadow-dark' : 'bg-light-surface'}
-            `}>
-              <button
-                onClick={onClose}
-                className={`
-                  px-4 py-2 rounded font-medium text-sm
-                  ${isDark 
-                    ? 'bg-shadow-primary text-white hover:bg-shadow-accent' 
-                    : 'bg-light-primary text-white hover:bg-light-accent'}
-                  transition-colors
-                `}
-              >
-                Fermer
-              </button>
-            </div>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
-};
-
-// Carte pour afficher une technologie
-const TechnologyCard = ({ technology, index, onClick }: { 
-  technology: Technology; 
-  index: number; 
-  onClick: () => void 
-}) => {
-  const { theme } = useTheme();
-  const [isHovered, setIsHovered] = useState(false);
-  const controls = useAnimation();
-  const [ref, inView] = useInView({
-    threshold: 0.1,
-    triggerOnce: true
-  });
-
-  useEffect(() => {
-    if (inView) {
-      controls.start('visible');
-    }
-  }, [controls, inView]);
-
-  const getRankColor = (rank?: string) => {
-    if (!rank) return theme === 'dark' ? 'text-gray-400 shadow-gray-500/50' : 'text-gray-600 shadow-gray-500/50';
-    
-    if (theme === 'dark') {
-      switch (rank) {
-        case 'S': return 'text-purple-400 shadow-purple-500/50';
-        case 'A': return 'text-blue-400 shadow-blue-500/50';
-        case 'B': return 'text-green-400 shadow-green-500/50';
-        default: return 'text-gray-400 shadow-gray-500/50';
-      }
-    } else {
-      switch (rank) {
-        case 'S': return 'text-yellow-600 shadow-yellow-500/50';
-        case 'A': return 'text-orange-500 shadow-orange-500/50';
-        case 'B': return 'text-amber-500 shadow-amber-500/50';
-        default: return 'text-gray-600 shadow-gray-500/50';
-      }
-    }
-  };
-
-  return (
-    <motion.div
-      ref={ref}
-      initial="hidden"
-      animate={controls}
-      variants={{
-        hidden: { opacity: 0, y: 50 },
-        visible: {
-          opacity: 1,
-          y: 0,
-          transition: { duration: 0.6, delay: index * 0.1 }
-        }
-      }}
-      layoutId={`tech-card-${technology.id}`}
-      onClick={onClick}
-      onHoverStart={() => setIsHovered(true)}
-      onHoverEnd={() => setIsHovered(false)}
-      className={`
-        relative p-6 rounded-lg cursor-pointer
-        ${theme === 'dark' 
-          ? 'bg-shadow-secondary border border-shadow-primary/30' 
-          : 'bg-light-secondary border border-light-primary/30'}
-        transform transition-all duration-300
-      `}
-      whileHover={{ 
-        scale: 1.05,
-        boxShadow: theme === 'dark' 
-          ? '0 0 15px rgba(150, 100, 255, 0.3)' 
-          : '0 0 15px rgba(255, 215, 0, 0.3)' 
-      }}
-    >
-      {/* Effet de particules au hover */}
-      <motion.div
-        className={`
-          absolute inset-0 rounded-lg opacity-0
-          ${theme === 'dark' ? 'bg-shadow-pattern' : 'bg-light-pattern'}
-        `}
-        animate={{ opacity: isHovered ? 0.2 : 0 }}
-      />
-
-      {/* Effet de glow au hover */}
-      <motion.div 
-        className="absolute inset-0 rounded-lg"
-        animate={{ 
-          boxShadow: isHovered 
-            ? theme === 'dark'
-              ? '0 0 20px rgba(150, 100, 255, 0.5), inset 0 0 10px rgba(150, 100, 255, 0.3)'
-              : '0 0 20px rgba(255, 215, 0, 0.5), inset 0 0 10px rgba(255, 215, 0, 0.3)'
-            : 'none'
-        }}
-      />
-
-      {/* En-tête avec rang */}
-      <div className="flex justify-between items-center mb-4">
-        <h3 className={`
-          text-xl font-bold
-          ${theme === 'dark' ? 'text-shadow-text' : 'text-light-text'}
-          ${isHovered ? theme === 'dark' ? 'text-shadow-blue' : 'text-light-gold-DEFAULT' : ''}
-          transition-colors duration-300
-        `}>
-          {technology.name}
-        </h3>
-        {technology.rank && (
-          <motion.div
-            className={`
-              text-2xl font-bold px-3 py-1 rounded
-              ${getRankColor(technology.rank)}
-            `}
-            animate={{
-              scale: isHovered ? 1.1 : 1,
-              textShadow: isHovered 
-                ? theme === 'dark' 
-                  ? '0 0 8px rgba(155, 114, 233, 0.8)' 
-                  : '0 0 8px rgba(255, 215, 0, 0.8)'
-                : 'none'
-            }}
-          >
-            {technology.rank}
-          </motion.div>
-        )}
-      </div>
-
-      {/* Description */}
-      <p className={`
-        mb-4 text-sm
-        ${theme === 'dark' ? 'text-shadow-text/70' : 'text-light-text/70'}
-      `}>
-        {technology.description?.substring(0, 100)}
-        {technology.description && technology.description.length > 100 ? '...' : ''}
-      </p>
-
-      {/* Projets associés */}
-      <div>
-        <div className={`text-xs font-medium mt-4 mb-2
-          ${theme === 'dark' ? 'text-shadow-text/50' : 'text-light-text/50'}
-        `}>
-          {technology.relatedProjects && technology.relatedProjects.length 
-            ? `${technology.relatedProjects.length} projet${technology.relatedProjects.length > 1 ? 's' : ''} associé${technology.relatedProjects.length > 1 ? 's' : ''}`
-            : 'Aucun projet associé'
-          }
-        </div>
-        
-        {technology.relatedProjects && technology.relatedProjects.length > 0 && (
-          <div className="flex flex-wrap gap-1">
-            {technology.relatedProjects.slice(0, 3).map((project, idx) => (
-              <span key={idx} className={`
-                px-2 py-0.5 text-xs rounded-full
-                ${theme === 'dark' ? 'bg-shadow-surface text-shadow-text/80' : 'bg-light-surface text-light-text/80'}
-              `}>
-                {project.title.length > 15 ? project.title.substring(0, 15) + '...' : project.title}
-              </span>
-            ))}
-            {technology.relatedProjects.length > 3 && (
-              <span className={`
-                px-2 py-0.5 text-xs rounded-full
-                ${theme === 'dark' ? 'bg-shadow-blue/20 text-shadow-text/80' : 'bg-light-gold-light/20 text-light-text/80'}
-              `}>
-                +{technology.relatedProjects.length - 3}
-              </span>
-            )}
-          </div>
-        )}
-      </div>
-    </motion.div>
-  );
-};
-
-// Données temporaires pour les technologies
+// Données de secours au cas où l'API n'est pas disponible
 const fallbackTechnologies: Technology[] = [
   {
     id: '1',
-    name: 'Python',
-    slug: 'python',
-    description: 'Langage principal pour le développement IA et analyse de données',
-    level: 100,
+    name: 'React',
+    slug: 'react',
+    description: 'Bibliothèque JavaScript pour créer des interfaces utilisateur interactives',
+    imageUrl: '/images/technologies/react.png',
+    category: 'Frontend',
+    level: 90,
     rank: 'S',
-    category: 'Langages de programmation',
     relatedProjects: [
-      { id: '1', title: 'Système de Recommandation IA', slug: 'systeme-de-recommandation-ia', rank: 'S' },
-      { id: '3', title: 'Agent de Trading Automatisé', slug: 'agent-trading-automatise', rank: 'A' }
+      {
+        id: '101',
+        title: 'Portfolio Personnel',
+        slug: 'portfolio-personnel',
+        rank: 'S'
+      },
+      {
+        id: '102',
+        title: 'Dashboard Analytics',
+        slug: 'dashboard-analytics',
+        rank: 'A'
+      }
     ],
-    createdAt: new Date(),
-    updatedAt: new Date()
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
   },
   {
     id: '2',
-    name: 'TensorFlow',
-    slug: 'tensorflow',
-    description: 'Framework de deep learning pour la construction de modèles IA',
+    name: 'Next.js',
+    slug: 'nextjs',
+    description: 'Framework React pour la production avec rendu côté serveur, génération statique, et plus',
+    imageUrl: '/images/technologies/nextjs.png',
+    category: 'Framework',
     level: 85,
     rank: 'S',
-    category: 'Frameworks',
     relatedProjects: [
-      { id: '1', title: 'Système de Recommandation IA', slug: 'systeme-de-recommandation-ia', rank: 'S' },
-      { id: '2', title: 'Classification d\'Images Médicales', slug: 'classification-images-medicales', rank: 'A' }
+      {
+        id: '101',
+        title: 'Portfolio Personnel',
+        slug: 'portfolio-personnel',
+        rank: 'S'
+      }
     ],
-    createdAt: new Date(),
-    updatedAt: new Date()
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
   },
   {
     id: '3',
-    name: 'React/Next.js',
-    slug: 'react-nextjs',
-    description: 'Développement d\'interfaces web modernes et réactives',
-    level: 90,
-    rank: 'A',
-    category: 'Frameworks Frontend',
-    relatedProjects: [
-      { id: '8', title: 'Portfolio Solo Leveling', slug: 'portfolio-solo-leveling', rank: 'S' }
-    ],
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
-  {
-    id: '4',
-    name: 'Docker/Kubernetes',
-    slug: 'docker-kubernetes',
-    description: 'Conteneurisation et orchestration de services',
-    level: 75,
-    rank: 'A',
-    category: 'DevOps',
-    relatedProjects: [
-      { id: '6', title: 'Plateforme ETL Cloud-Native', slug: 'plateforme-etl-cloud-native', rank: 'S' }
-    ],
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
-  {
-    id: '5',
-    name: 'AWS/GCP',
-    slug: 'aws-gcp',
-    description: 'Services cloud pour le déploiement et la gestion d\'applications',
-    level: 80,
-    rank: 'B',
-    category: 'Cloud',
-    relatedProjects: [
-      { id: '6', title: 'Plateforme ETL Cloud-Native', slug: 'plateforme-etl-cloud-native', rank: 'S' }
-    ],
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
-  {
-    id: '6',
     name: 'TypeScript',
     slug: 'typescript',
-    description: 'JavaScript avec typage statique pour des applications plus robustes',
-    level: 85,
+    description: 'JavaScript avec une syntaxe de types, améliorant la qualité du code et l\'expérience de développement',
+    imageUrl: '/images/technologies/typescript.png',
+    category: 'Langage',
+    level: 88,
     rank: 'A',
-    category: 'Langages de programmation',
     relatedProjects: [
-      { id: '8', title: 'Portfolio Solo Leveling', slug: 'portfolio-solo-leveling', rank: 'S' }
+      {
+        id: '101',
+        title: 'Portfolio Personnel',
+        slug: 'portfolio-personnel',
+        rank: 'S'
+      },
+      {
+        id: '103',
+        title: 'API REST',
+        slug: 'api-rest',
+        rank: 'A'
+      }
     ],
-    createdAt: new Date(),
-    updatedAt: new Date()
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
   }
+  // Ajoutez d'autres technologies de secours si nécessaire
 ];
 
 export default function TechnologiesSection() {
   const { theme } = useTheme();
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedTechnology, setSelectedTechnology] = useState<Technology | null>(null);
   const [technologies, setTechnologies] = useState<Technology[]>(fallbackTechnologies);
   const [loading, setLoading] = useState(true);
+  const [showAll, setShowAll] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
-  const techContainerRef = useRef<HTMLDivElement>(null);
 
   // Charger les technologies depuis l'API
   useEffect(() => {
@@ -480,84 +114,137 @@ export default function TechnologiesSection() {
     fetchTechnologies();
   }, []);
 
-  // Faire défiler les technologies horizontalement
-  const scrollTechnologies = (direction: 'left' | 'right') => {
-    if (!techContainerRef.current) return;
-    
-    const container = techContainerRef.current;
-    const scrollAmount = 400; // Ajuster selon vos besoins
-    
-    if (direction === 'left') {
-      container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+  // Extraire les catégories uniques des technologies
+  const categories = Array.from(new Set(technologies.map(tech => tech.category || 'Autre')));
+
+  // Filtrer les technologies par catégorie
+  const filteredTechnologies = selectedCategory 
+    ? technologies.filter(tech => tech.category === selectedCategory)
+    : technologies;
+
+  // Limiter les technologies affichées
+  const displayedTechnologies = showAll 
+    ? filteredTechnologies 
+    : filteredTechnologies.slice(0, 6);
+
+  // Gérer le changement de catégorie
+  const handleCategoryChange = (category: string | null) => {
+    if (category === selectedCategory) {
+      // Désactiver le filtre si on clique à nouveau sur la même catégorie
+      setSelectedCategory(null);
     } else {
-      container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+      setSelectedCategory(category);
+      setShowAll(false); // Réinitialiser la vue lors du changement de filtre
     }
   };
 
-  // Filtrer les technologies par catégorie
-  const filteredTechnologies = selectedCategory === 'all'
-    ? technologies
-    : technologies.filter(tech => tech.category === selectedCategory);
-
-  const categories = ['all', ...new Set(technologies.map(tech => tech.category || 'Autre'))];
+  // Basculer entre afficher toutes les technologies ou seulement 6
+  const toggleShowAll = () => {
+    setShowAll(prev => !prev);
+    
+    // Faire défiler vers le haut de la section si on réduit l'affichage
+    if (showAll && sectionRef.current) {
+      sectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
 
   return (
-    <section id="technologies" className={`
-      min-h-screen py-24 relative overflow-hidden
-      ${theme === 'dark' ? 'bg-shadow-primary' : 'bg-light-primary'}
-    `} ref={sectionRef}>
-      {/* Fond animé */}
+    <section 
+      id="technologies" 
+      className={`py-24 relative overflow-hidden ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}
+      ref={sectionRef}
+    >
+      {/* Arrière-plan de particules */}
+      <div className="absolute inset-0 z-0 opacity-30">
       <ParticlesBackground />
+      </div>
 
-      <div className="container mx-auto px-6 relative z-10">
+      <div className="container mx-auto px-4 relative z-10">
+        <div className="mb-12 text-center">
+          <motion.h2 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className={`text-3xl md:text-4xl font-bold mb-4 ${
+              theme === 'dark' 
+                ? 'text-shadow-primary shadow-text-glow' 
+                : 'text-light-primary'
+            }`}
+          >
+            Mes Technologies
+          </motion.h2>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className={`text-xl max-w-2xl mx-auto ${
+              theme === 'dark' ? 'text-shadow-text' : 'text-light-text'
+            }`}
+          >
+            Arsenal technique acquis durant mes explorations
+          </motion.p>
+        </div>
+
+        {/* Système de filtrage par catégorie amélioré */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-16"
+          transition={{ duration: 0.6, delay: 0.4 }}
+          className="flex justify-center mb-10"
         >
-          <h2 className={`
-            text-4xl md:text-5xl font-bold mb-6
-            ${theme === 'dark' ? 'text-shadow-text' : 'text-light-text'}
+          <div className={`
+            px-4 py-3 rounded-lg 
+            ${theme === 'dark' 
+              ? 'bg-shadow-secondary/80 border-2 border-shadow-system shadow-lg shadow-shadow-primary/20' 
+              : 'bg-light-secondary/80 border-2 border-light-gold-DEFAULT shadow-lg shadow-light-primary/20'}
           `}>
-            Mes{' '}
-            <span className={
-              theme === 'dark' ? 'text-shadow-blue' : 'text-light-gold-DEFAULT'
-            }>
-              Technologies
-            </span>
-          </h2>
-
-          {/* Filtres de catégories */}
-          <div className="flex flex-wrap justify-center gap-4 mb-12">
+            <div className="flex flex-col items-center">
+              <div className={`
+                text-sm font-medium mb-2
+                ${theme === 'dark' ? 'text-shadow-blue' : 'text-light-gold-DEFAULT'}
+              `}>
+                Filtrer par domaine :
+              </div>
+              <div className="flex flex-wrap justify-center gap-2">
+                <button
+                  onClick={() => handleCategoryChange(null)}
+                  className={`
+                    px-4 py-2 rounded-md text-sm font-medium transition-colors
+                    ${!selectedCategory 
+                      ? theme === 'dark'
+                        ? 'bg-shadow-system text-white' 
+                        : 'bg-light-gold-DEFAULT text-shadow-dark'
+                      : theme === 'dark'
+                        ? 'bg-shadow-surface hover:bg-shadow-system/70 text-shadow-text' 
+                        : 'bg-light-surface hover:bg-light-gold-DEFAULT/70 text-light-text'}
+                  `}
+                >
+                  Toutes
+                </button>
             {categories.map((category) => (
-              <motion.button
+                  <button
                 key={category}
-                onClick={() => setSelectedCategory(category)}
+                    onClick={() => handleCategoryChange(category)}
                 className={`
-                  px-6 py-2 rounded-full text-sm font-medium
+                      px-4 py-2 rounded-md text-sm font-medium transition-colors
                   ${selectedCategory === category
                     ? theme === 'dark'
-                      ? 'bg-shadow-blue text-white'
-                      : 'bg-light-gold-DEFAULT text-shadow-secondary'
+                          ? 'bg-shadow-system text-white' 
+                          : 'bg-light-gold-DEFAULT text-shadow-dark'
                     : theme === 'dark'
-                      ? 'bg-shadow-secondary text-shadow-text'
-                      : 'bg-light-secondary text-light-text'
-                  }
-                  transition-all duration-300
-                `}
-                whileHover={{
-                  scale: 1.05,
-                  boxShadow: theme === 'dark'
-                    ? '0 0 10px rgba(150, 100, 255, 0.3)'
-                    : '0 0 10px rgba(255, 215, 0, 0.3)'
-                }}
-              >
-                {category === 'all' ? 'Toutes' : category}
-              </motion.button>
-            ))}
+                          ? 'bg-shadow-surface hover:bg-shadow-system/70 text-shadow-text' 
+                          : 'bg-light-surface hover:bg-light-gold-DEFAULT/70 text-light-text'}
+                    `}
+                  >
+                    {category}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </motion.div>
 
+        {/* Affichage des technologies */}
         {loading ? (
           <div className="flex justify-center py-12">
             <div className={`animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 ${
@@ -565,60 +252,63 @@ export default function TechnologiesSection() {
             }`}></div>
           </div>
         ) : (
-          <div className="relative w-full max-w-full mx-auto">
-            {/* Flèche gauche */}
-            <button 
-              onClick={() => scrollTechnologies('left')}
-              className={`
-                absolute left-2 top-1/2 transform -translate-y-1/2 z-20
-                p-4 rounded-full shadow-lg
-                ${theme === 'light' 
-                  ? 'bg-light-surface hover:bg-light-primary/20 text-light-text' 
-                  : 'bg-shadow-surface hover:bg-shadow-primary/20 text-shadow-text'}
-                transition-colors
-              `}
-              aria-label="Défiler vers la gauche"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="m15 18-6-6 6-6"/>
-              </svg>
-            </button>
-
-            {/* Conteneur de technologies avec défilement horizontal */}
-            <div 
-              ref={techContainerRef}
-              className="flex py-6 px-4 overflow-x-auto space-x-6 snap-x snap-mandatory hide-scrollbar"
-              style={{ scrollBehavior: 'smooth' }}
-            >
-              {filteredTechnologies.map((technology, index) => (
-                <div key={technology.id} className="snap-start flex-shrink-0">
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {displayedTechnologies.length > 0 ? (
+                displayedTechnologies.map((technology, index) => (
                   <TechnologyCard 
+                    key={technology.id} 
                     technology={technology} 
                     index={index} 
                     onClick={() => setSelectedTechnology(technology)}
                   />
+                ))
+              ) : (
+                <div className={`col-span-3 text-center py-10 ${
+                  theme === 'dark' ? 'text-shadow-text' : 'text-light-text'
+                }`}>
+                  Aucune technologie trouvée dans cette catégorie.
                 </div>
-              ))}
+              )}
             </div>
 
-            {/* Flèche droite */}
-            <button 
-              onClick={() => scrollTechnologies('right')}
+            {/* Bouton Afficher plus/moins */}
+            {filteredTechnologies.length > 6 && (
+              <div className="mt-12 text-center">
+                <motion.button
+                  onClick={toggleShowAll}
               className={`
-                absolute right-2 top-1/2 transform -translate-y-1/2 z-20
-                p-4 rounded-full shadow-lg
-                ${theme === 'light' 
-                  ? 'bg-light-surface hover:bg-light-primary/20 text-light-text' 
-                  : 'bg-shadow-surface hover:bg-shadow-primary/20 text-shadow-text'}
-                transition-colors
-              `}
-              aria-label="Défiler vers la droite"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="m9 18 6-6-6-6"/>
+                    px-6 py-3 rounded-lg font-medium
+                    ${theme === 'dark' 
+                      ? 'bg-shadow-system text-white hover:bg-shadow-blue' 
+                      : 'bg-light-gold-DEFAULT text-shadow-dark hover:bg-light-gold-light'}
+                    transition-all duration-300
+                  `}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <div className="flex items-center">
+                    {showAll ? (
+                      <>
+                        <span className="mr-2">Afficher moins</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="m18 15-6-6-6 6"/>
+                        </svg>
+                      </>
+                    ) : (
+                      <>
+                        <span className="mr-2">Afficher plus</span>
+                        <span className="text-sm">({filteredTechnologies.length - 6} restantes)</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="ml-2">
+                          <path d="m6 9 6 6 6-6"/>
               </svg>
-            </button>
+                      </>
+                    )}
+                  </div>
+                </motion.button>
           </div>
+            )}
+          </>
         )}
       </div>
 

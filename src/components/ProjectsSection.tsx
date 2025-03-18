@@ -4,13 +4,24 @@ import ProjectCard from './ProjectCard';
 import { useTheme } from '@/context/ThemeContext';
 import { motion } from 'framer-motion';
 import { Project } from '@/types';
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState, useCallback } from 'react';
 import ParticlesBackground from './ParticlesBackground';
 
 const ProjectsSection = () => {
   const { projects, loading, pagination, filters, setFilter } = useProjects();
   const { theme } = useTheme();
   const projectsContainerRef = useRef<HTMLDivElement>(null);
+  const [activeRank, setActiveRank] = useState<string | null>(null);
+  // État pour la mise en cache des projets filtrés
+  const [cachedProjects, setCachedProjects] = useState<Record<string, Project[]>>({
+    all: [],
+    S: [],
+    A: [],
+    B: [],
+    C: [],
+  });
+  const [displayedProjects, setDisplayedProjects] = useState<Project[]>([]);
+  const [autoScrollInterval, setAutoScrollInterval] = useState<NodeJS.Timeout | null>(null);
 
   const ranks = ['S', 'A', 'B', 'C'];
   
@@ -24,7 +35,7 @@ const ProjectsSection = () => {
       rank: 'S',
       featured: true,
       status: 'published',
-      imageUrl: '/images/projects/ai-recommendation.jpg',
+      imageUrl: '/projects/fallback.jpg',
       technologies: ['Python', 'TensorFlow', 'Pandas'],
       categories: ['Machine Learning', 'Deep Learning'],
       createdAt: new Date().toISOString(),
@@ -38,7 +49,7 @@ const ProjectsSection = () => {
       rank: 'A',
       featured: true,
       status: 'published',
-      imageUrl: '/images/projects/portfolio.jpg',
+      imageUrl: '/projects/fallback.jpg',
       technologies: ['React', 'Next.js', 'TypeScript', 'Tailwind CSS', 'Framer Motion'],
       categories: ['Web Development'],
       createdAt: new Date().toISOString(),
@@ -52,7 +63,7 @@ const ProjectsSection = () => {
       rank: 'B',
       featured: false,
       status: 'published',
-      imageUrl: '/images/projects/climate-data.jpg',
+      imageUrl: '/projects/fallback.jpg',
       technologies: ['Python', 'Pandas', 'Matplotlib'],
       categories: ['Data Science', 'Data Visualization'],
       createdAt: new Date().toISOString(),
@@ -60,8 +71,27 @@ const ProjectsSection = () => {
     }
   ];
   
-  // Utiliser les projets de secours si aucun projet n'est disponible
-  const displayProjects = projects && projects.length > 0 ? projects : fallbackProjects;
+  // Fonction pour filtrer les projets par rang côté client
+  const filterProjectsByRank = useCallback((rank: string | null) => {
+    if (!rank) {
+      setDisplayedProjects(cachedProjects.all);
+      return;
+    }
+    
+    // Utiliser le cache si disponible
+    if (cachedProjects[rank] && cachedProjects[rank].length > 0) {
+      setDisplayedProjects(cachedProjects[rank]);
+      return;
+    }
+    
+    // Sinon filtrer et mettre en cache
+    const filtered = cachedProjects.all.filter(project => project.rank === rank);
+    setCachedProjects(prev => ({
+      ...prev,
+      [rank]: filtered,
+    }));
+    setDisplayedProjects(filtered);
+  }, [cachedProjects]);
 
   // Function to truncate description to maintain same card height
   const truncateDescription = (description: string, maxLength: number = 100) => {
@@ -83,218 +113,320 @@ const ProjectsSection = () => {
     }
   };
 
-  // Fonction pour appliquer les filtres de manière sécurisée
-  const applyFilter = (filterType: 'rank' | 'category' | 'technology' | 'page', value: string | null) => {
-    try {
-      console.log(`Applying filter: ${filterType} = ${value}`);
-      // Vérifier si on essaie d'appliquer le même filtre que celui déjà actif
-      if (filterType !== 'page' && filters[filterType] === value) {
-        console.log('Skipping filter application - same value already applied');
-        return;
-      }
+  // Auto-scroll setup
+  useEffect(() => {
+    // Démarrer le défilement automatique
+    const startAutoScroll = () => {
+      const interval = setInterval(() => {
+        if (projectsContainerRef.current) {
+          const container = projectsContainerRef.current;
+          const isAtEnd = container.scrollLeft + container.clientWidth >= container.scrollWidth - 10;
+          
+          if (isAtEnd) {
+            // Revenir au début
+            container.scrollTo({ left: 0, behavior: 'smooth' });
+          } else {
+            // Continuer à défiler
+            container.scrollBy({ left: 300, behavior: 'smooth' });
+          }
+        }
+      }, 8000); // Intervalle augmenté pour donner plus de temps à l'utilisateur
       
-      // Ajouter un délai pour éviter les problèmes de performance avec les filtres rapides
-      setTimeout(() => {
-        console.log(`Setting filter after delay: ${filterType} = ${value}`);
-        setFilter(filterType, value);
-      }, 50);
-    } catch (error) {
-      console.error(`Erreur lors de l'application du filtre ${filterType}:`, error);
+      return interval;
+    };
+    
+    // Démarrer le défilement
+    const interval = startAutoScroll();
+    setAutoScrollInterval(interval);
+    
+    // Arrêter le défilement au hover
+    const container = projectsContainerRef.current;
+    if (container) {
+      const stopScroll = () => {
+        if (autoScrollInterval) {
+          clearInterval(autoScrollInterval);
+          setAutoScrollInterval(null);
+        }
+      };
+      
+      const resumeScroll = () => {
+        if (!autoScrollInterval) {
+          const interval = startAutoScroll();
+          setAutoScrollInterval(interval);
+        }
+      };
+      
+      container.addEventListener('mouseenter', stopScroll);
+      container.addEventListener('mouseleave', resumeScroll);
+      
+      return () => {
+        clearInterval(autoScrollInterval as NodeJS.Timeout);
+        container.removeEventListener('mouseenter', stopScroll);
+        container.removeEventListener('mouseleave', resumeScroll);
+      };
+    }
+    
+    return () => {
+      if (autoScrollInterval) clearInterval(autoScrollInterval);
+    };
+  }, [autoScrollInterval]);
+
+  // Effet pour mettre à jour les projets affichés lorsque les projets sont chargés
+  useEffect(() => {
+    // Utiliser les projets de l'API ou les fallbacks
+    const allProjects = projects && projects.length > 0 ? projects : fallbackProjects;
+    
+    // Mettre à jour le cache principal
+    setCachedProjects(prev => ({
+      ...prev,
+      all: allProjects,
+    }));
+    
+    // Mettre à jour les projets affichés
+    if (!activeRank) {
+      setDisplayedProjects(allProjects);
+    } else {
+      filterProjectsByRank(activeRank);
+    }
+  }, [projects, filterProjectsByRank, activeRank]);
+
+  // Gérer le changement de rang
+  const handleRankChange = (rank: string | null) => {
+    if (rank === activeRank) {
+      // Désactiver le filtre si on clique à nouveau sur le même rang
+      setActiveRank(null);
+      filterProjectsByRank(null);
+    } else {
+      setActiveRank(rank);
+      filterProjectsByRank(rank);
     }
   };
 
-  // Ajouter un effet pour logger les changements de filtres ou de projets
-  useEffect(() => {
-    console.log('Current filters:', filters);
-    console.log('Projects loaded:', projects?.length || 0);
-    console.log('Current pagination:', pagination);
-    
-    // Si on n'a pas de projets et qu'on a un filtre de rang appliqué, vérifier si le filtre est correctement appliqué
-    if (projects?.length === 0 && filters.rank) {
-      console.log('No projects found with rank filter:', filters.rank);
-    }
-  }, [filters, projects, pagination]);
-
   return (
-    <section id="projects" className={`
-      relative py-20 
-      ${theme === 'light' ? 'bg-light-secondary' : 'bg-shadow-secondary'}
-    `}>
+    <section id="projects" className={`py-16 relative ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>
+      {/* Arrière-plan de particules */}
+      <div className="absolute inset-0 z-0 opacity-30">
       <ParticlesBackground />
+      </div>
       
       <div className="container mx-auto px-4 relative z-10">
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="flex justify-between items-center mb-8"
-        >
-          <h2 className={`text-3xl font-bold ${
-            theme === 'light' ? 'text-light-text' : 'text-shadow-text'
-          }`}>
-            Mes Projets
-          </h2>
-        </motion.div>
+        <div className="mb-8 text-center">
+          <motion.h2 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className={`text-3xl md:text-4xl font-bold mb-4 ${
+              theme === 'dark' 
+                ? 'text-shadow-primary shadow-text-glow' 
+                : 'text-light-primary'
+            }`}
+          >
+            Mes Quêtes Complétées
+          </motion.h2>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className={`text-xl max-w-2xl mx-auto ${
+              theme === 'dark' ? 'text-shadow-text' : 'text-light-text'
+            }`}
+          >
+            Projets classés par rang selon leur complexité et impact
+          </motion.p>
+        </div>
 
-        {/* Filtres - afficher uniquement si des projets réels sont disponibles */}
-        {projects && projects.length > 0 && (
-          <div className="flex flex-wrap gap-4 mb-8 justify-center">
-            <div className="flex flex-wrap gap-2 justify-center">
+        {/* Système de filtrage par rang amélioré avec style inspiré du jeu */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          className="flex justify-center mb-10"
+        >
+          <div className={`
+            px-4 py-3 rounded-lg 
+            ${theme === 'dark' 
+              ? 'bg-shadow-secondary/80 border-2 border-shadow-system shadow-lg shadow-shadow-primary/20' 
+              : 'bg-light-secondary/80 border-2 border-light-gold-DEFAULT shadow-lg shadow-light-primary/20'}
+          `}>
+            <div className="flex flex-col items-center">
+              <div className={`
+                text-sm font-medium mb-2
+                ${theme === 'dark' ? 'text-shadow-blue' : 'text-light-gold-DEFAULT'}
+              `}>
+                Filtrer par rang :
+              </div>
+              <div className="flex space-x-2">
               <button
-                onClick={() => applyFilter('rank', null)}
-                className={`px-4 py-2 rounded-md transition-all ${
-                  !filters.rank
-                    ? theme === 'light'
-                      ? 'bg-light-primary text-white'
-                      : 'bg-shadow-primary text-white'
-                    : theme === 'light'
-                    ? 'bg-light-surface text-light-text'
-                    : 'bg-shadow-surface text-shadow-text'
-                }`}
-              >
-                Tous
+                  onClick={() => handleRankChange(null)}
+                  className={`
+                    relative w-14 h-14 rounded-full transition-all duration-300 flex items-center justify-center
+                    ${!activeRank 
+                      ? theme === 'dark'
+                        ? 'bg-shadow-system ring-2 ring-shadow-primary ring-offset-2 ring-offset-shadow-dark' 
+                        : 'bg-light-gold-DEFAULT ring-2 ring-light-primary ring-offset-2 ring-offset-light-secondary'
+                      : theme === 'dark'
+                        ? 'bg-shadow-secondary hover:bg-shadow-system/70' 
+                        : 'bg-light-secondary hover:bg-light-gold-DEFAULT/70'
+                    }
+                  `}
+                >
+                  <span className={`font-bold ${!activeRank ? 'text-white' : ''}`}>ALL</span>
               </button>
               {ranks.map((rank) => (
                 <button
                   key={rank}
-                  onClick={() => applyFilter('rank', rank)}
-                  className={`px-4 py-2 rounded-md transition-all ${
-                    filters.rank === rank
-                      ? theme === 'light'
-                        ? 'bg-light-primary text-white'
-                        : 'bg-shadow-primary text-white'
-                      : theme === 'light'
-                      ? 'bg-light-surface text-light-text'
-                      : 'bg-shadow-surface text-shadow-text'
-                  }`}
-                >
-                  Rang {rank}
+                    onClick={() => handleRankChange(rank)}
+                    className={`
+                      relative w-14 h-14 rounded-full transition-all duration-300 flex items-center justify-center
+                      ${activeRank === rank 
+                        ? getRankColor(rank, true)
+                        : theme === 'dark'
+                          ? 'bg-shadow-secondary hover:bg-shadow-system/70' 
+                          : 'bg-light-secondary hover:bg-light-gold-DEFAULT/70'
+                      }
+                      ${activeRank === rank ? 'ring-2 ring-offset-2 ring-shadow-primary ring-offset-shadow-dark' : ''}
+                    `}
+                  >
+                    <span className={`font-bold ${activeRank === rank ? 'text-white' : ''}`}>{rank}</span>
                 </button>
               ))}
+              </div>
             </div>
           </div>
-        )}
+        </motion.div>
 
-        {/* Section des projets avec flèches de navigation sur les côtés */}
-        <div className="relative w-full max-w-full mx-auto">
-          {/* Flèche gauche positionnée sur le côté gauche */}
+        {loading ? (
+          <div className="flex justify-center py-16">
+            <div className={`animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 ${
+              theme === 'dark' ? 'border-shadow-primary' : 'border-light-gold-DEFAULT'
+            }`}></div>
+          </div>
+        ) : (
+          <>
+            {/* Conteneur de projets avec défilement horizontal */}
+            <div className="relative px-16">
+              {/* Bouton de navigation gauche - Écarté */}
           <button 
             onClick={() => scrollProjects('left')}
             className={`
-              absolute left-2 top-1/2 transform -translate-y-1/2 z-20
-              p-4 rounded-full shadow-lg
-              ${theme === 'light' 
-                ? 'bg-light-surface hover:bg-light-primary/20 text-light-text' 
-                : 'bg-shadow-surface hover:bg-shadow-primary/20 text-shadow-text'}
-              transition-colors
-            `}
-            aria-label="Défiler vers la gauche"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="m15 18-6-6 6-6"/>
+                  absolute left-0 top-1/2 -translate-y-1/2 z-10 rounded-full p-2
+                  ${theme === 'dark' 
+                    ? 'bg-shadow-system/70 text-white hover:bg-shadow-monarch' 
+                    : 'bg-light-gold-DEFAULT/70 text-shadow-dark hover:bg-light-gold-DEFAULT'}
+                  transition-colors w-12 h-12 flex items-center justify-center
+                `}
+                aria-label="Précédent"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
           </button>
 
-          {/* Projets */}
-          {loading ? (
-            <div className="flex justify-center py-12">
-              <div className={`animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 ${
-                theme === 'light' ? 'border-light-primary' : 'border-shadow-primary'
-              }`}></div>
-            </div>
-          ) : (
+              {/* Conteneur avec défilement horizontal - Centré */}
             <div 
               ref={projectsContainerRef}
-              className="flex space-x-6 overflow-x-auto pb-8 scrollbar-hide snap-x snap-mandatory px-16 w-full"
-              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-            >
-              {displayProjects.length > 0 ? (
-                displayProjects.map((project, index) => (
-                  <div key={project.id} className="flex-shrink-0 w-80 snap-start">
+                className="
+                  flex overflow-x-auto pb-8 pt-4 px-2 snap-x justify-center
+                  hide-scrollbar
+                "
+                style={{ scrollSnapType: 'x mandatory' }}
+              >
+                {displayedProjects.length > 0 ? (
+                  displayedProjects.map((project, index) => (
+                    <div 
+                      key={project.id} 
+                      className="min-w-[350px] max-w-[350px] px-4 snap-start flex-shrink-0"
+                    >
                     <ProjectCard 
                       id={project.id} 
                       title={project.title}
-                      description={truncateDescription(project.description, 100)}
-                      image={project.imageUrl}
+                        description={truncateDescription(project.description)}
+                        image={project.imageUrl || '/projects/fallback.jpg'}
                       tags={Array.isArray(project.technologies) 
                         ? project.technologies.map((tech: any) => 
                             typeof tech === 'string' ? tech : tech.name || '') 
                         : []}
-                      link={project.githubUrl || ''}
+                        link={`/projects/${project.slug}`}
                       liveLink={project.liveUrl}
+                        githubUrl={project.githubUrl}
+                        index={index}
                       rank={project.rank}
                       featured={project.featured}
-                      index={index}
                     />
                   </div>
                 ))
               ) : (
-                <div className="w-full flex justify-center items-center py-16">
-                  <div className={`text-center ${theme === 'light' ? 'text-light-text' : 'text-shadow-text'}`}>
-                    <p className="text-xl font-medium mb-2">Aucun projet trouvé</p>
-                    <p className="text-sm opacity-70">
-                      Aucun projet ne correspond aux critères sélectionnés.
-                    </p>
-                    <button
-                      onClick={() => applyFilter('rank', null)}
-                      className={`mt-4 px-4 py-2 rounded-md ${
-                        theme === 'light' ? 'bg-light-primary text-white' : 'bg-shadow-primary text-white'
-                      }`}
-                    >
-                      Voir tous les projets
-                    </button>
-                  </div>
+                  <div className={`w-full py-16 text-center ${
+                    theme === 'dark' ? 'text-shadow-text' : 'text-light-text'
+                  }`}>
+                    <p>Aucun projet disponible pour ce rang.</p>
                 </div>
               )}
             </div>
-          )}
 
-          {/* Flèche droite positionnée sur le côté droit */}
+              {/* Bouton de navigation droite - Écarté */}
           <button 
             onClick={() => scrollProjects('right')}
             className={`
-              absolute right-2 top-1/2 transform -translate-y-1/2 z-20
-              p-4 rounded-full shadow-lg
-              ${theme === 'light' 
-                ? 'bg-light-surface hover:bg-light-primary/20 text-light-text' 
-                : 'bg-shadow-surface hover:bg-shadow-primary/20 text-shadow-text'}
-              transition-colors
-            `}
-            aria-label="Défiler vers la droite"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="m9 18 6-6-6-6"/>
+                  absolute right-0 top-1/2 -translate-y-1/2 z-10 rounded-full p-2
+                  ${theme === 'dark' 
+                    ? 'bg-shadow-system/70 text-white hover:bg-shadow-monarch' 
+                    : 'bg-light-gold-DEFAULT/70 text-shadow-dark hover:bg-light-gold-DEFAULT'}
+                  transition-colors w-12 h-12 flex items-center justify-center
+                `}
+                aria-label="Suivant"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
           </button>
         </div>
 
-        {/* Pagination - afficher uniquement si des projets réels sont disponibles */}
-        {projects && projects.length > 0 && pagination && pagination.pages > 1 && (
-          <div className="flex justify-center mt-12">
-            <div className="flex gap-2">
-              {Array.from({ length: pagination.pages }, (_, i) => i + 1).map((page) => (
+            {/* Indicateurs de page */}
+            {displayedProjects.length > 3 && (
+              <div className="flex justify-center mt-6 space-x-2">
+                {Array.from({ length: Math.ceil(displayedProjects.length / 3) }).map((_, index) => (
                 <button
-                  key={page}
-                  onClick={() => applyFilter('page', page.toString())}
-                  className={`w-10 h-10 rounded-md flex items-center justify-center transition-all ${
-                    pagination.page === page
-                      ? theme === 'light'
-                        ? 'bg-light-primary text-white'
-                        : 'bg-shadow-primary text-white'
-                      : theme === 'light'
-                      ? 'bg-light-surface text-light-text'
-                      : 'bg-shadow-surface text-shadow-text'
-                  }`}
-                >
-                  {page}
-                </button>
+                    key={index}
+                    className={`w-3 h-3 rounded-full transition-all ${
+                      index === 0
+                        ? theme === 'dark' 
+                          ? 'bg-shadow-primary' 
+                          : 'bg-light-gold-DEFAULT'
+                        : theme === 'dark'
+                          ? 'bg-shadow-surface hover:bg-shadow-system/70'
+                          : 'bg-light-surface hover:bg-light-gold-DEFAULT/70'
+                    }`}
+                    aria-label={`Page ${index + 1}`}
+                    onClick={() => {
+                      if (projectsContainerRef.current) {
+                        const container = projectsContainerRef.current;
+                        const scrollAmount = container.scrollWidth / Math.ceil(displayedProjects.length / 3) * index;
+                        container.scrollTo({ left: scrollAmount, behavior: 'smooth' });
+                      }
+                    }}
+                  />
               ))}
             </div>
-          </div>
+            )}
+          </>
         )}
       </div>
     </section>
   );
+};
+
+// Fonction utilitaire pour obtenir la couleur de fond selon le rang
+const getRankColor = (rank?: string, active = false) => {
+  const opacity = active ? '' : '70';
+  
+  switch (rank) {
+    case 'S': return `bg-purple-600${opacity} text-white`;
+    case 'A': return `bg-red-600${opacity} text-white`;
+    case 'B': return `bg-blue-600${opacity} text-white`;
+    case 'C': return `bg-green-600${opacity} text-white`;
+    default: return `bg-gray-600${opacity} text-white`;
+  }
 };
 
 export default ProjectsSection; 

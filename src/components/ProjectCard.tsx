@@ -15,12 +15,13 @@ interface ProjectCardProps {
   tags: string[];
   link?: string;
   liveLink?: string | null;
+  githubUrl?: string | null;
   index: number;
   rank?: string;
   featured?: boolean;
 }
 
-const ProjectCard = ({ id, title, description, image, tags, link, liveLink, index, rank, featured }: ProjectCardProps) => {
+const ProjectCard = ({ id, title, description, image, tags, link, liveLink, githubUrl, index, rank, featured }: ProjectCardProps) => {
   const { theme } = useTheme();
   const [isHovered, setIsHovered] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -66,7 +67,7 @@ const ProjectCard = ({ id, title, description, image, tags, link, liveLink, inde
       >
         <div className="relative h-48 w-full cursor-pointer" onClick={openModal}>
         <Image
-            src={normalizeImagePath(image)}
+            src={normalizeImagePath(image) || '/projects/fallback.jpg'}
           alt={title}
           fill
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -79,301 +80,298 @@ const ProjectCard = ({ id, title, description, image, tags, link, liveLink, inde
             }}
         />
         {featured && (
-            <div className={`
-              absolute top-2 right-2 text-xs font-bold px-2 py-1 rounded
-              ${isDark ? 'bg-shadow-accent text-white' : 'bg-light-gold-DEFAULT text-shadow-dark'}
-            `}>
+          <div className={`
+            absolute top-2 right-2 px-2 py-1 rounded text-xs font-bold
+            ${isDark ? 'bg-shadow-blue text-white' : 'bg-light-gold-DEFAULT text-shadow-dark'}
+          `}>
             Featured
           </div>
         )}
         {rank && (
-            <div className={`
-              absolute top-2 left-2 text-white text-xs font-bold px-2 py-1 rounded
-              ${getRankColor()}
-            `}>
-              Rang {rank}
+          <div className={`
+            absolute top-2 left-2 w-8 h-8 rounded-full flex items-center justify-center
+            ${getRankColor()}
+            text-white font-bold
+          `}>
+            {rank}
           </div>
         )}
-          
-          {/* Overlay au survol */}
-          <motion.div 
-            className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0"
-            animate={{ opacity: isHovered ? 1 : 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <div className={`
-              p-2 rounded-full
-              ${isDark 
-                ? 'bg-shadow-primary hover:bg-shadow-accent' 
-                : 'bg-light-primary hover:bg-light-accent'}
-              transition-colors
-            `}>
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="text-white">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-              </svg>
-            </div>
-          </motion.div>
-      </div>
+        </div>
         
-        <div className="p-6 flex-grow flex flex-col">
-          <h3 
-            className={`
-              text-xl font-bold mb-2 cursor-pointer hover:underline
-              ${isDark ? 'text-shadow-text' : 'text-light-text'}
-            `}
-            onClick={openModal}
-          >
+        <div className="px-6 py-4 flex-grow flex flex-col">
+          <h3 className={`font-bold text-xl mb-2 ${isDark ? 'text-shadow-text' : 'text-light-text'}`}>
             {title}
           </h3>
-          
-          <p className={`
-            text-sm mb-4 line-clamp-3
-            ${isDark ? 'text-shadow-text/70' : 'text-light-text/70'}
-          `}>
+          <p className={`text-sm flex-grow ${isDark ? 'text-shadow-text/80' : 'text-light-text/80'}`}>
             {description}
           </p>
           
-          <div className="flex flex-wrap gap-2 mt-auto mb-4">
-            {tags.slice(0, 4).map((tag, idx) => (
-            <span 
-                key={idx}
-                className={`
-                  text-xs px-2 py-1 rounded-full
-                  ${isDark 
-                    ? 'bg-shadow-system text-shadow-text' 
-                    : 'bg-light-surface text-light-text'}
-                `}
-            >
-              {tag}
-            </span>
-          ))}
-            {tags.length > 4 && (
-              <span 
-                className={`
-                  text-xs px-2 py-1 rounded-full
-                  ${isDark 
-                    ? 'bg-shadow-accent/20 text-shadow-accent' 
-                    : 'bg-light-accent/20 text-light-accent'}
-                `}
-              >
-                +{tags.length - 4}
-              </span>
-            )}
-        </div>
-        
-          <div className="flex gap-2">
-          {link && (
-              <a 
-              href={link} 
-              target="_blank" 
-              rel="noopener noreferrer"
-                className={`
-                  px-3 py-1 text-sm rounded flex items-center gap-1
-                  ${isDark 
-                    ? 'bg-shadow-primary text-white hover:bg-shadow-accent' 
-                    : 'bg-light-primary text-white hover:bg-light-accent'}
-                  transition-colors
-                `}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-                </svg>
-                Code
-              </a>
-          )}
-          
-          {liveLink && (
-              <a 
-              href={liveLink} 
-              target="_blank" 
-              rel="noopener noreferrer"
-                className={`
-                  px-3 py-1 text-sm rounded flex items-center gap-1
-                  ${isDark 
-                    ? 'bg-shadow-surface text-shadow-text hover:bg-shadow-system/80' 
-                    : 'bg-light-surface text-light-text hover:bg-light-surface/80'}
-                  transition-colors
-                `}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                </svg>
-                Demo
-              </a>
+          <div className="mt-auto">
+            {tags && tags.length > 0 && (
+              <div className="flex flex-wrap gap-1 mt-4">
+                {tags.slice(0, 4).map((tag, index) => (
+                  <span 
+                    key={index}
+                    className={`
+                      inline-block px-2 py-1 rounded text-xs
+                      ${isDark ? 'bg-shadow-surface text-shadow-blue' : 'bg-light-surface text-light-gold-DEFAULT'}
+                    `}
+                  >
+                    {tag}
+                  </span>
+                ))}
+                {tags.length > 4 && (
+                  <span className={`
+                    inline-block px-2 py-1 rounded text-xs
+                    ${isDark ? 'bg-shadow-surface text-shadow-blue' : 'bg-light-surface text-light-gold-DEFAULT'}
+                  `}>
+                    +{tags.length - 4}
+                  </span>
+                )}
+              </div>
             )}
             
-            <button 
-              onClick={openModal}
-              className={`
-                px-3 py-1 text-sm rounded flex items-center gap-1 ml-auto
-                ${isDark 
-                  ? 'bg-shadow-surface text-shadow-text hover:bg-shadow-system/80' 
-                  : 'bg-light-surface text-light-text hover:bg-light-surface/80'}
-                transition-colors
-              `}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              Détails
-            </button>
+            <div className="flex justify-between mt-4">
+              <div className="flex space-x-2">
+                {githubUrl && (
+                  <Link 
+                    href={githubUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`
+                      flex items-center justify-center w-9 h-9 rounded-full
+                      ${isDark 
+                        ? 'bg-shadow-surface hover:bg-shadow-system text-shadow-blue' 
+                        : 'bg-light-surface hover:bg-light-gold-DEFAULT/70 text-light-gold-DEFAULT'}
+                      transition-all
+                    `}
+                    title="Voir sur GitHub"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                      <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+                    </svg>
+                  </Link>
+                )}
+                {liveLink && (
+                  <Link 
+                    href={liveLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`
+                      flex items-center justify-center w-9 h-9 rounded-full
+                      ${isDark 
+                        ? 'bg-shadow-surface hover:bg-shadow-system text-shadow-blue' 
+                        : 'bg-light-surface hover:bg-light-gold-DEFAULT/70 text-light-gold-DEFAULT'}
+                      transition-all
+                    `}
+                    title="Voir la démo"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                      <path fillRule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5z"/>
+                      <path fillRule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0v-5z"/>
+                    </svg>
+                  </Link>
+                )}
+              </div>
+              
+              <button
+                onClick={openModal}
+                className={`
+                  px-3 py-1 rounded-md text-sm font-medium
+                  ${isDark 
+                    ? 'bg-shadow-system text-white hover:bg-shadow-monarch' 
+                    : 'bg-light-gold-DEFAULT text-shadow-dark hover:bg-light-gold-light'}
+                  transition-colors
+                `}
+              >
+                Plus d'infos
+              </button>
+            </div>
           </div>
         </div>
       </motion.div>
-      
-      {/* Modal détaillé du projet */}
+
+      {/* Modal dans le style du système Solo Leveling */}
       <AnimatePresence>
         {isModalOpen && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-70"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70"
             onClick={closeModal}
           >
             <motion.div
               initial={{ scale: 0.9, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 20 }}
-              transition={{ duration: 0.3 }}
+              transition={{ type: "spring", damping: 25 }}
               className={`
-                relative max-w-4xl w-full max-h-[90vh] overflow-y-auto rounded-xl shadow-2xl
+                relative max-w-2xl w-full rounded-lg overflow-hidden shadow-2xl
                 ${isDark 
-                  ? 'bg-shadow-secondary border-2 border-shadow-primary' 
-                  : 'bg-light-secondary border-2 border-light-primary'}
+                  ? 'bg-shadow-secondary border-2 border-shadow-system' 
+                  : 'bg-light-secondary border-2 border-light-gold-DEFAULT'}
               `}
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Bannière et image du projet */}
-              <div className="relative h-64 md:h-80">
-                <Image
-                  src={normalizeImagePath(image)}
-                  alt={title}
-                  fill
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 75vw, 50vw"
-                  className="object-cover"
-                  onError={(e) => {
-                    // Fallback to default image if loading fails
-                    const target = e.target as HTMLImageElement;
-                    target.onerror = null; // Prevent infinite loop
-                    target.src = '/projects/fallback.jpg';
-                  }}
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-6">
-                  <div>
-                    <div className="flex items-center gap-2 mb-2">
-                      {rank && (
-                        <div className={`
-                          text-white text-sm font-bold px-2 py-1 rounded
-                          ${getRankColor()}
-                        `}>
-                          Rang {rank}
-                        </div>
-                      )}
-                      {featured && (
-                        <div className={`
-                          text-sm font-bold px-2 py-1 rounded
-                          ${isDark ? 'bg-shadow-accent text-white' : 'bg-light-gold-DEFAULT text-shadow-dark'}
-                        `}>
-                          Featured
-                        </div>
-                      )}
-                    </div>
-                    <h2 className="text-2xl md:text-3xl font-bold text-white">{title}</h2>
+              {/* En-tête du système */}
+              <div className={`
+                px-4 py-3 flex items-center justify-between
+                ${isDark ? 'bg-shadow-system' : 'bg-light-gold-DEFAULT'}
+              `}>
+                <h3 className={`font-bold text-lg ${isDark ? 'text-white' : 'text-shadow-dark'}`}>
+                  {title}
+                </h3>
+                {rank && (
+                  <div className={`
+                    px-3 py-1 rounded text-sm font-bold
+                    ${isDark 
+                      ? rank === 'S' ? 'bg-purple-600 text-white' 
+                      : rank === 'A' ? 'bg-blue-600 text-white' 
+                      : rank === 'B' ? 'bg-green-600 text-white' 
+                      : 'bg-gray-600 text-white'
+                      : rank === 'S' ? 'bg-yellow-500 text-shadow-dark' 
+                      : rank === 'A' ? 'bg-orange-500 text-shadow-dark' 
+                      : rank === 'B' ? 'bg-blue-500 text-shadow-dark' 
+                      : 'bg-green-500 text-shadow-dark'
+                    }
+                  `}>
+                    Rang {rank}
                   </div>
-                </div>
-                <button 
-                  className={`
-                    absolute top-4 right-4 p-2 rounded-full
-                    ${isDark ? 'bg-shadow-dark/70' : 'bg-light-dark/70'}
-                    hover:bg-opacity-100 transition-colors
-                  `}
-                  onClick={closeModal}
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
+                )}
               </div>
               
-              {/* Contenu du projet */}
-              <div className="p-6 md:p-8">
-                <div className={`mb-6 ${isDark ? 'text-shadow-text' : 'text-light-text'}`}>
-                  <h3 className="text-xl font-bold mb-2">Description</h3>
-                  <p className="whitespace-pre-line">{description}</p>
-                </div>
-                
-                <div className="mb-6">
-                  <h3 className={`text-xl font-bold mb-3 ${isDark ? 'text-shadow-text' : 'text-light-text'}`}>
-                    Technologies
-                  </h3>
-                  <div className="flex flex-wrap gap-2">
-                    {tags.map((tag, idx) => (
-                      <span 
-                        key={idx}
-                        className={`
-                          text-sm px-3 py-1 rounded-full
-                          ${isDark 
-                            ? 'bg-shadow-system text-shadow-text' 
-                            : 'bg-light-surface text-light-text'}
-                        `}
-                      >
-                        {tag}
-                      </span>
-                    ))}
+              {/* Corps du modal */}
+              <div className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <div className="relative h-48 rounded-lg overflow-hidden mb-4">
+                      <Image
+                        src={normalizeImagePath(image) || '/projects/fallback.jpg'}
+                        alt={title}
+                        fill
+                        className="object-cover"
+                        onError={(e) => {
+                          // Fallback to default image if loading fails
+                          const target = e.target as HTMLImageElement;
+                          target.onerror = null; // Prevent infinite loop
+                          target.src = '/projects/fallback.jpg';
+                        }}
+                      />
+                    </div>
+                    
+                    {tags && tags.length > 0 && (
+                      <div>
+                        <h4 className={`text-sm font-bold mb-2 ${isDark ? 'text-shadow-blue' : 'text-light-gold-DEFAULT'}`}>
+                          Technologies utilisées:
+                        </h4>
+                        <div className="flex flex-wrap gap-1">
+                          {tags.map((tag, index) => (
+                            <span 
+                              key={index}
+                              className={`
+                                inline-block px-2 py-1 rounded text-xs
+                                ${isDark ? 'bg-shadow-surface text-shadow-blue' : 'bg-light-surface text-light-gold-DEFAULT'}
+                              `}
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div>
+                    <h4 className={`text-sm font-bold mb-2 ${isDark ? 'text-shadow-blue' : 'text-light-gold-DEFAULT'}`}>
+                      Description:
+                    </h4>
+                    <p className={`text-sm mb-4 ${isDark ? 'text-shadow-text' : 'text-light-text'}`}>
+                      {description}
+                    </p>
+                    
+                    <div className="flex gap-3 mt-6">
+                      {githubUrl && (
+                        <Link 
+                          href={githubUrl}
+                          className={`
+                            px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2
+                            ${isDark 
+                              ? 'bg-shadow-surface text-shadow-blue hover:bg-shadow-system' 
+                              : 'bg-light-surface text-light-gold-DEFAULT hover:bg-light-gold-DEFAULT/70'}
+                            transition-colors
+                          `}
+                          target="_blank"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+                          </svg>
+                          Voir le code
+                        </Link>
+                      )}
+                      {liveLink && (
+                        <Link 
+                          href={liveLink}
+                          className={`
+                            px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2
+                            ${isDark 
+                              ? 'bg-shadow-blue text-white hover:bg-shadow-accent' 
+                              : 'bg-light-primary text-white hover:bg-light-accent'}
+                            transition-colors
+                          `}
+                          target="_blank"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                            <path fillRule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5z"/>
+                            <path fillRule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0v-5z"/>
+                          </svg>
+                          Voir le site
+                        </Link>
+                      )}
+                      {link && !githubUrl && !liveLink && (
+                        <Link 
+                          href={link}
+                          className={`
+                            px-4 py-2 rounded-md text-sm font-medium
+                            ${isDark 
+                              ? 'bg-shadow-system text-white hover:bg-shadow-monarch' 
+                              : 'bg-light-gold-DEFAULT text-shadow-dark hover:bg-light-gold-light'}
+                            transition-colors
+                          `}
+                          target="_blank"
+                        >
+                          Voir les détails
+                        </Link>
+                      )}
+                    </div>
                   </div>
                 </div>
-                
-                <div className="flex flex-wrap gap-3 mt-8">
-                  {link && (
-                    <a 
-                      href={link} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className={`
-                        px-4 py-2 rounded flex items-center gap-2
-                        ${isDark 
-                          ? 'bg-shadow-primary text-white hover:bg-shadow-accent' 
-                          : 'bg-light-primary text-white hover:bg-light-accent'}
-                        transition-colors
-                      `}
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-                      </svg>
-                      Voir le code
-                    </a>
-                  )}
-                  
-                  {liveLink && (
-                    <a 
-                      href={liveLink} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className={`
-                        px-4 py-2 rounded flex items-center gap-2
-                        ${isDark 
-                          ? 'bg-shadow-blue text-white hover:opacity-90' 
-                          : 'bg-light-gold-DEFAULT text-shadow-dark hover:opacity-90'}
-                        transition-colors
-                      `}
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                      </svg>
-                      Voir la démo
-                    </a>
-          )}
-        </div>
-      </div>
-    </motion.div>
+              </div>
+              
+              {/* Pied du modal */}
+              <div className={`
+                px-4 py-3 flex justify-end
+                ${isDark ? 'bg-shadow-surface' : 'bg-light-surface'}
+              `}>
+                <button
+                  onClick={closeModal}
+                  className={`
+                    px-4 py-2 rounded-md text-sm font-medium
+                    ${isDark 
+                      ? 'bg-shadow-secondary hover:bg-shadow-primary text-shadow-text' 
+                      : 'bg-light-secondary hover:bg-light-primary text-light-text'}
+                    transition-colors
+                  `}
+                >
+                  Fermer
+                </button>
+              </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
     </>
   );
-}
+};
 
 export default ProjectCard; 
