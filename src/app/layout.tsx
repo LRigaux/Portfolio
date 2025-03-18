@@ -27,17 +27,15 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  // Vérifier si le chemin actuel est une page d'administration
+  // Puisque c'est un composant côté serveur, nous ne pouvons pas utiliser usePathname()
+  // On utilise une approche différente pour éviter d'afficher le header/footer sur les pages admin
+
   return (
     <html lang="fr" className={montserrat.variable}>
       <body className={`${montserrat.className} antialiased`}>
         <ThemeProvider>
-          <div className="flex flex-col min-h-screen">
-            <Header />
-            <main className="flex-grow">
-              {children}
-            </main>
-            <Footer />
-          </div>
+          {children}
         </ThemeProvider>
       </body>
     </html>

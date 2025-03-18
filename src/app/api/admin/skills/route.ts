@@ -5,11 +5,18 @@ import { z } from 'zod';
 // Schéma de validation pour la création/mise à jour d'une compétence
 const skillSchema = z.object({
   name: z.string().min(1, 'Le nom est requis'),
-  description: z.string().optional(),
   level: z.number().min(0).max(100),
   category: z.string().min(1, 'La catégorie est requise'),
   icon: z.string().optional()
 });
+
+// Fonction pour calculer le rang basé sur le niveau
+function calculateRank(level: number): string {
+  if (level >= 90) return 'S';
+  if (level >= 75) return 'A';
+  if (level >= 50) return 'B';
+  return 'C';
+}
 
 // GET - Récupérer toutes les compétences
 export async function GET() {
@@ -45,7 +52,10 @@ export async function POST(request: Request) {
       );
     }
     
-    const { name, description, level, category, icon } = validation.data;
+    const { name, level, category, icon } = validation.data;
+    
+    // Calculer le rang en fonction du niveau
+    const rank = calculateRank(level);
     
     // Vérifier si une compétence avec le même nom existe déjà
     const existingSkill = await prisma.skill.findFirst({
@@ -63,10 +73,10 @@ export async function POST(request: Request) {
     const skill = await prisma.skill.create({
       data: {
         name,
-        description,
         level,
         category,
-        icon
+        rank,
+        iconUrl: icon || null
       }
     });
     

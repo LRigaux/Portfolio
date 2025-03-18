@@ -495,10 +495,10 @@ export default function SkillsSection() {
             <SkillCard 
               key={skill.name} 
               skill={skill} 
-              index={index} 
+                index={index}
               onClick={() => setSelectedSkill(skill)}
-            />
-          ))}
+              />
+            ))}
         </div>
       </div>
 

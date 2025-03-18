@@ -16,7 +16,9 @@ const ProjectSchema = z.object({
   status: z.enum(["draft", "published"], {
     errorMap: () => ({ message: "Le statut doit être 'draft' ou 'published'" })
   }).default("draft"),
-  imageUrl: z.string().url("L'URL de l'image doit être valide").optional().nullable(),
+  imageUrl: z.string().optional().nullable()
+    .refine(val => !val || val === '' || val.startsWith('http://') || val.startsWith('https://') || !val.startsWith('http'), 
+           { message: "L'URL de l'image doit être une URL valide (http://, https://) ou un chemin local" }),
   githubUrl: z.string().url("L'URL GitHub doit être valide").optional().nullable(),
   liveUrl: z.string().url("L'URL du site doit être valide").optional().nullable(),
   technologies: z.array(z.string()).default([]),
@@ -75,8 +77,21 @@ export async function PUT(
   try {
     const data = await request.json();
     
+    console.log('PUT Project update request data:', {
+      id: params.id,
+      imageUrl: data.imageUrl,
+      githubUrl: data.githubUrl,
+      liveUrl: data.liveUrl
+    });
+    
     // Valider les données
     const validatedData = ProjectSchema.parse(data);
+    
+    console.log('Validated data:', {
+      imageUrl: validatedData.imageUrl,
+      githubUrl: validatedData.githubUrl,
+      liveUrl: validatedData.liveUrl
+    });
     
     // Vérifier si le projet existe
     const existingProject = await prisma.project.findUnique({
@@ -93,12 +108,22 @@ export async function PUT(
     // Extraire les technologies et catégories
     const { technologies, categories, ...projectData } = validatedData;
     
+    // S'assurer que les URLs nulles sont correctement traitées
+    const sanitizedProjectData = {
+      ...projectData,
+      imageUrl: projectData.imageUrl === '' ? null : projectData.imageUrl,
+      githubUrl: projectData.githubUrl === '' ? null : projectData.githubUrl,
+      liveUrl: projectData.liveUrl === '' ? null : projectData.liveUrl
+    };
+    
+    console.log('Updated project data before DB update:', sanitizedProjectData);
+    
     // Mettre à jour le projet avec les relations
     const project = await prisma.$transaction(async (tx) => {
       // Mettre à jour le projet
       const updatedProject = await tx.project.update({
         where: { id: params.id },
-        data: projectData
+        data: sanitizedProjectData
       });
       
       // Supprimer les anciennes technologies

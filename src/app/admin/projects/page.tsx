@@ -171,7 +171,7 @@ export default function ProjectsPage() {
     setFilterRank(null);
     setSearchQuery('');
   };
-
+  
   return (
     <div className="p-6 pt-8">
       {/* En-tête de page */}
@@ -195,16 +195,16 @@ export default function ProjectsPage() {
             </p>
           </div>
           
-          <div>
-            <Link 
-              href="/admin/projects/new" 
+    <div>
+        <Link
+          href="/admin/projects/new"
               className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-double-awakening to-shadow-blue text-white font-medium rounded-lg hover:opacity-90 transition-opacity"
             >
               <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M12 4V20M20 12H4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
               Nouveau Projet
-            </Link>
+        </Link>
           </div>
         </motion.div>
       </div>
@@ -222,8 +222,8 @@ export default function ProjectsPage() {
           <div className="relative w-16 h-16">
             <div className="absolute top-0 left-0 right-0 bottom-0 border-4 border-shadow-blue/30 rounded-full"></div>
             <div className="absolute top-0 left-0 right-0 bottom-0 border-4 border-transparent border-t-shadow-blue rounded-full animate-spin"></div>
-          </div>
-        </div>
+                    </div>
+                    </div>
       ) : (
         <>
           {/* Affichage des projets */}
@@ -235,15 +235,15 @@ export default function ProjectsPage() {
               <h3 className="mt-2 text-lg font-medium text-shadow-text">Aucun projet trouvé</h3>
               <p className="mt-1 text-shadow-text/70">Essayez de modifier vos filtres ou créez un nouveau projet.</p>
               <div className="mt-6">
-                <Link 
+                      <Link
                   href="/admin/projects/new" 
                   className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-double-awakening to-shadow-blue text-white font-medium rounded-lg hover:opacity-90 transition-opacity"
-                >
+                      >
                   <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M12 4V20M20 12H4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                   Créer un projet
-                </Link>
+                      </Link>
               </div>
             </div>
           ) : (
@@ -294,8 +294,8 @@ export default function ProjectsPage() {
                             </span>
                           )}
                         </div>
-                      </div>
-                      
+        </div>
+        
                       <p className="text-shadow-text/70 mb-4 line-clamp-2">
                         {project.description}
                       </p>
@@ -303,11 +303,11 @@ export default function ProjectsPage() {
                       <div className="flex flex-wrap items-center justify-between gap-y-4">
                         <div className="text-shadow-text/50 text-sm">
                           <span>Créé le {new Date(project.createdAt).toLocaleDateString()}</span>
-                        </div>
-                        
+              </div>
+              
                         <div className="flex items-center gap-2">
                           {project.status === 'published' && (
-                            <Link 
+                  <Link
                               href={`/projects/${project.slug}`}
                               target="_blank"
                               className="text-shadow-text/70 hover:text-shadow-blue p-2 rounded-lg hover:bg-shadow-system/30 transition-colors"
@@ -317,18 +317,18 @@ export default function ProjectsPage() {
                                 <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                                 <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                               </svg>
-                            </Link>
-                          )}
-                          
-                          <Link 
+                  </Link>
+                )}
+                
+                  <Link
                             href={`/admin/projects/${project.id}`}
                             className="text-shadow-text/70 hover:text-shadow-blue p-2 rounded-lg hover:bg-shadow-system/30 transition-colors"
                             title="Modifier"
-                          >
+                  >
                             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                               <path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                             </svg>
-                          </Link>
+                  </Link>
                           
                           <button 
                             onClick={() => deleteProject(project.id)}
@@ -340,15 +340,15 @@ export default function ProjectsPage() {
                             </svg>
                           </button>
                         </div>
-                      </div>
-                    </div>
-                  </div>
+              </div>
+            </div>
+          </div>
                 </motion.div>
               ))}
             </motion.div>
           )}
         </>
-      )}
+        )}
     </div>
   );
 } 

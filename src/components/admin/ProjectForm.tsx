@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { normalizeImagePath } from '@/lib/utils';
 
 // Fonction de slugification
 const slugify = (text: string) => {
@@ -149,11 +150,35 @@ export default function ProjectForm({ project, isEdit = false }: ProjectFormProp
   // Gérer les changements dans les champs du formulaire
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
     
-    // Réinitialiser les erreurs de validation pour le champ modifié
+    // Pour les champs d'URL, traiter une chaîne vide comme null
+    if ((name === 'imageUrl' || name === 'githubUrl' || name === 'liveUrl') && value.trim() === '') {
+      setFormData({
+        ...formData,
+        [name]: null
+      });
+    } else {
+      setFormData({
+        ...formData,
+        [name]: value
+      });
+    }
+    
+    // Mettre à jour le slug si le titre change
+    if (name === 'title') {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value,
+        slug: slugify(value)
+      }));
+    }
+    
+    // Effacer l'erreur de validation pour ce champ
     if (validationErrors[name as keyof ValidationErrors]) {
-      setValidationErrors(prev => ({ ...prev, [name]: undefined }));
+      setValidationErrors(prev => ({
+        ...prev,
+        [name]: undefined
+      }));
     }
   };
 
@@ -251,8 +276,13 @@ export default function ProjectForm({ project, isEdit = false }: ProjectFormProp
       errors.description = "La description doit contenir au moins 10 caractères";
     }
     
-    if (formData.imageUrl && !formData.imageUrl.match(/^(https?:\/\/|$)/)) {
-      errors.imageUrl = "L'URL de l'image doit être valide ou vide";
+    // Permettre les URLs externes (http://, https://) OU les chemins locaux
+    if (formData.imageUrl && 
+        !(formData.imageUrl.trim() === '' || 
+          formData.imageUrl.startsWith('http://') || 
+          formData.imageUrl.startsWith('https://') || 
+          !formData.imageUrl.startsWith('http'))) {
+      errors.imageUrl = "L'URL de l'image doit être une URL valide ou un chemin local";
     }
     
     if (formData.githubUrl && !formData.githubUrl.match(/^(https?:\/\/|$)/)) {
@@ -516,21 +546,56 @@ export default function ProjectForm({ project, isEdit = false }: ProjectFormProp
               <span className="w-1 h-4 bg-shadow-quest mr-2 rounded"></span>
               URL de l'image
             </label>
-            <input
-              type="text"
-              id="imageUrl"
-              name="imageUrl"
-              value={formData.imageUrl || ''}
-              onChange={handleChange}
-              className={`w-full p-2 rounded bg-shadow-surface border ${validationErrors.imageUrl ? 'border-red-500' : 'border-shadow-system'} focus:border-shadow-blue outline-none text-shadow-text`}
-              placeholder="https://example.com/image.jpg"
-            />
-            {validationErrors.imageUrl && (
-              <p className="mt-1 text-red-500 text-sm">{validationErrors.imageUrl}</p>
-            )}
-            <p className="text-xs text-shadow-text/60 mt-1">
-              Optionnel. Doit commencer par http:// ou https://
-            </p>
+            <div className="space-y-2">
+              <input
+                type="text"
+                id="imageUrl"
+                name="imageUrl"
+                value={formData.imageUrl || ''}
+                onChange={handleChange}
+                className={`w-full p-2 rounded bg-shadow-surface border ${validationErrors.imageUrl ? 'border-red-500' : 'border-shadow-system'} focus:border-shadow-blue outline-none text-shadow-text`}
+                placeholder="https://example.com/image.jpg ou images/projects/monimage.jpg"
+              />
+              {validationErrors.imageUrl && (
+                <p className="mt-1 text-red-500 text-sm">{validationErrors.imageUrl}</p>
+              )}
+              <p className="text-xs text-shadow-text/60">
+                Vous pouvez saisir une URL externe (https://...) ou un chemin local (images/projects/monimage.jpg)
+              </p>
+              
+              {formData.imageUrl && (
+                <div className="mt-2 rounded overflow-hidden w-full max-w-xs mx-auto border border-shadow-system">
+                  <div className="relative h-40 w-full">
+                    <img 
+                      src={normalizeImagePath(formData.imageUrl)} 
+                      alt="Aperçu"
+                      className="object-cover w-full h-full"
+                      onError={(e) => {
+                        // Fallback to default image if loading fails
+                        const target = e.target as HTMLImageElement;
+                        target.onerror = null; // Prevent infinite loop
+                        target.src = '/projects/fallback.jpg';
+                      }}
+                    />
+                  </div>
+                  <div className="p-2 bg-shadow-surface flex justify-between items-center">
+                    <span className="text-xs text-shadow-text/60 truncate">
+                      {formData.imageUrl.substring(0, 30)}
+                      {formData.imageUrl.length > 30 ? '...' : ''}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setFormData({...formData, imageUrl: ''})}
+                      className="text-shadow-monarch hover:text-shadow-monarch/80 transition-colors"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
           
           <div>
@@ -554,7 +619,7 @@ export default function ProjectForm({ project, isEdit = false }: ProjectFormProp
               <p className="mt-1 text-red-500 text-sm">{validationErrors.githubUrl}</p>
             )}
             <p className="text-xs text-shadow-text/60 mt-1">
-              Optionnel. Doit commencer par http:// ou https://
+              Optionnel. Pour GitHub, utilisez une URL complète (exemple: https://github.com/username/repo)
             </p>
           </div>
           
@@ -579,7 +644,7 @@ export default function ProjectForm({ project, isEdit = false }: ProjectFormProp
               <p className="mt-1 text-red-500 text-sm">{validationErrors.liveUrl}</p>
             )}
             <p className="text-xs text-shadow-text/60 mt-1">
-              Optionnel. Doit commencer par http:// ou https://
+              Optionnel. Pour les liens vers votre site, utilisez une URL complète (exemple: https://monsite.com)
             </p>
           </div>
         </div>

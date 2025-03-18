@@ -26,21 +26,11 @@ const ProjectSchema = z.object({
   status: z.enum(["draft", "published"], {
     errorMap: () => ({ message: "Le statut doit être 'draft' ou 'published'" })
   }).default("draft"),
-  imageUrl: z.union([
-    z.string().url("L'URL de l'image doit être valide"),
-    z.string().max(0),
-    z.null()
-  ]).optional().nullable().transform(val => val === "" ? null : val),
-  githubUrl: z.union([
-    z.string().url("L'URL GitHub doit être valide"),
-    z.string().max(0),
-    z.null()
-  ]).optional().nullable().transform(val => val === "" ? null : val),
-  liveUrl: z.union([
-    z.string().url("L'URL du site doit être valide"),
-    z.string().max(0),
-    z.null()
-  ]).optional().nullable().transform(val => val === "" ? null : val),
+  imageUrl: z.string().optional().nullable()
+    .refine(val => !val || val === '' || val.startsWith('http://') || val.startsWith('https://') || !val.startsWith('http'), 
+           { message: "L'URL de l'image doit être une URL valide (http://, https://) ou un chemin local" }),
+  githubUrl: z.string().url("L'URL GitHub doit être valide").optional().nullable(),
+  liveUrl: z.string().url("L'URL du site doit être valide").optional().nullable(),
   technologies: z.array(z.string()).default([]),
   categories: z.array(z.string()).default([])
 });

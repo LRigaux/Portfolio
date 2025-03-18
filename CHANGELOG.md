@@ -9,6 +9,7 @@ Ce document retrace les modifications et améliorations apportées au projet, ai
 - [Corrections et améliorations](#corrections-et-améliorations)
 - [Fonctionnalités avancées](#fonctionnalités-avancées)
 - [Refonte de l'interface utilisateur](#refonte-de-linterface-utilisateur)
+- [Optimisations et corrections récentes](#optimisations-et-corrections-récentes)
 
 ## Introduction
 
@@ -170,6 +171,68 @@ tags={Array.isArray(project.technologies)
 - Établir des liens visuels entre les compétences et projets concrets
 - Renforcer l'immersion dans le thème Solo Leveling avec des effets visuels cohérents
 - Permettre aux visiteurs d'explorer le portfolio de manière plus approfondie
+
+## Optimisations et corrections récentes
+
+### Interface d'administration améliorée
+
+**Objectif** : Rendre l'interface d'administration plus cohérente avec le thème Solo Leveling et améliorer l'expérience utilisateur
+
+**Modifications** :
+- **Système de déconnexion fonctionnel** : Implémentation d'un mécanisme de déconnexion robuste via l'API
+- **Layout admin personnalisé** : Création d'une structure adaptée avec header et footer distincts pour éviter la duplication d'éléments
+- **Section Technologies** : Ajout d'une nouvelle section dans la sidebar pour gérer les technologies
+- **Interface messages** : Implémentation d'un système de gestion des messages de contact avec filtrage et statut de lecture
+
+**Raisonnement** :
+- Offrir une expérience d'administration complètement immersive dans l'univers Solo Leveling
+- Éviter les confusions avec l'UI du portfolio public
+- Garantir un contrôle total et sécurisé sur l'ensemble du contenu
+
+### Améliorations de la navigation et du défilement
+
+**Objectif** : Optimiser l'expérience de navigation dans les sections à défilement horizontal
+
+**Modifications** :
+- **Positionnement des flèches de navigation** : Déplacement des boutons vers les bords de l'écran pour un meilleur accès
+- **Section Projets** : Optimisation du défilement horizontal pour utiliser toute la largeur de l'écran
+- **Section Technologies** : Implémentation d'un défilement horizontal similaire à celui des projets
+- **CSS personnalisé** : Ajout d'une classe utilitaire `hide-scrollbar` pour masquer les barres de défilement
+
+**Raisonnement** :
+- Améliorer l'ergonomie et la facilité d'utilisation
+- Offrir une expérience de navigation cohérente entre les différentes sections
+- Optimiser l'esthétique visuelle en supprimant les éléments d'interface système disruptifs
+
+### Corrections et mises à jour diverses
+
+**Objectif** : Résoudre des problèmes mineurs et améliorer la cohérence globale
+
+**Modifications** :
+- **Mise à jour de l'email de contact** : Changement vers pro.lrigs@gmail.com
+- **Navigation du footer** : Ajout de la section Technologies dans les liens
+- **Structure des pages** : Correction des éléments dupliqués dans plusieurs sections
+
+**Raisonnement** :
+- Assurer la cohérence des informations de contact
+- Faciliter la navigation vers toutes les sections importantes du portfolio
+- Améliorer la performance en évitant la duplication d'éléments dans le DOM
+
+## Optimisations et corrections (Mars 2025)
+
+**Améliorations de l'interface d'administration** :
+- **Correction des layouts** : Suppression du header et footer du portfolio dans l'interface admin
+- **Support des images locales** : Ajout de la possibilité d'utiliser des chemins d'images locaux en plus des URLs
+- **Synchronisation des compétences** : Amélioration de la synchronisation entre la base de données et l'affichage
+- **Correction de création de compétences** : Résolution du bug lors de la création d'une nouvelle compétence avec calcul automatique du rang
+- **Gestion des technologies** : Ajout de fonctionnalités d'édition et suppression des technologies
+- **Catégorisation des technologies** : Amélioration du système de catégorisation des technologies
+
+**Raisonnement** :
+- Éliminer les interférences entre l'interface admin et le portfolio public
+- Simplifier la gestion des ressources médias sans dépendre d'hébergeurs externes
+- Assurer la cohérence des données entre l'interface d'administration et l'affichage public
+- Rendre la gestion des technologies plus intuitive et complète
 
 ---
 

@@ -103,7 +103,7 @@ const Hero = () => {
       
       {/* Effet lumineux de système Solo Leveling */}
       <div className="absolute inset-0 z-0">
-        <div className={`
+      <div className={`
           absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2
           w-[200%] h-[200%] opacity-10 rounded-full
           ${isDark 
@@ -111,7 +111,7 @@ const Hero = () => {
             : 'bg-gradient-radial from-light-gold-light to-transparent animate-glow-pulse'}
         `}></div>
       </div>
-      
+
       <div className="container mx-auto px-6 relative z-10">
         <motion.div
           variants={containerVariants}
@@ -125,7 +125,7 @@ const Hero = () => {
               className={`
                 text-5xl md:text-6xl lg:text-7xl font-bold
                 ${isDark 
-                  ? 'text-shadow-text shadow-text-glow' 
+                  ? 'text-shadow-text shadow-text-glow'
                   : 'text-light-text'}
               `}
             >
@@ -156,7 +156,7 @@ const Hero = () => {
               className={`
                 text-xl
                 ${isDark 
-                  ? 'text-shadow-text/80' 
+                  ? 'text-shadow-text/80'
                   : 'text-light-text/80'}
               `}
             >

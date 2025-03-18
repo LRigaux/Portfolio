@@ -38,13 +38,18 @@ export function useProjects(options?: {
         if (rank) params.set('rank', rank);
         if (featured !== undefined) params.set('featured', featured.toString());
 
-        const response = await fetch(`/api/projects?${params.toString()}`);
+        const apiUrl = `/api/projects?${params.toString()}`;
+        console.log(`Fetching projects from API: ${apiUrl}`);
+        
+        const response = await fetch(apiUrl);
         
         if (!response.ok) {
           throw new Error(`Error: ${response.status}`);
         }
         
         const data = await response.json();
+        console.log('API response:', data);
+        
         setProjects(data.projects || []);
         setPagination(data.pagination || {
           total: 0,
@@ -52,6 +57,8 @@ export function useProjects(options?: {
           page: 1,
           limit: 10
         });
+        
+        console.log(`Received ${data.projects?.length || 0} projects with rank filter: ${rank || 'none'}`);
       } catch (error) {
         console.error('Error fetching projects:', error);
         setError(error instanceof Error ? error.message : 'Une erreur est survenue');
@@ -66,6 +73,9 @@ export function useProjects(options?: {
 
   const setFilter = (key: string, value: string | null) => {
     const params = new URLSearchParams(searchParams.toString());
+    const oldValue = searchParams.get(key);
+    
+    console.log(`setFilter called: changing ${key} from "${oldValue}" to "${value}"`);
     
     if (value) {
       params.set(key, value);
@@ -76,7 +86,11 @@ export function useProjects(options?: {
     // Réinitialiser la page lors du changement de filtre
     params.delete('page');
     
-    router.push(`?${params.toString()}`);
+    const newUrl = `?${params.toString()}`;
+    console.log(`Navigating to: ${newUrl}`);
+    
+    // Utiliser replace au lieu de push pour éviter le rechargement complet et prévenir le freeze
+    router.replace(newUrl, { scroll: false });
   };
 
   return {

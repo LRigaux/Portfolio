@@ -122,7 +122,7 @@ export default function AdminDashboard() {
       console.error('Erreur lors de la déconnexion:', error);
     }
   };
-
+  
   return (
     <div className="p-6 pt-8">
       {error && (
@@ -196,7 +196,7 @@ export default function AdminDashboard() {
           </div>
         </div>
       </motion.div>
-
+      
       {/* Statistiques */}
       {loading ? (
         <div className="flex justify-center items-center py-12">
@@ -286,12 +286,12 @@ export default function AdminDashboard() {
             ) : (
               <div className="text-shadow-text/70 text-center py-2">
                 Aucun projet trouvé
-              </div>
+      </div>
             )}
           </motion.div>
         </motion.div>
       )}
-
+      
       {/* Projets récents */}
       {!loading && (
         <motion.div 
@@ -300,19 +300,19 @@ export default function AdminDashboard() {
           transition={{ delay: 0.3 }}
           className="mb-8"
         >
-          <div className="flex justify-between items-center mb-4">
+        <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-bold text-shadow-text">Projets récents</h2>
-            <Link 
-              href="/admin/projects" 
+          <Link 
+            href="/admin/projects" 
               className="text-shadow-blue hover:text-shadow-blue/80 text-sm font-medium"
-            >
+          >
               Voir tous les projets
-            </Link>
-          </div>
-          
+          </Link>
+        </div>
+        
           <div className="bg-shadow-surface border border-shadow-system rounded-lg overflow-hidden">
             {stats.recentProjects && stats.recentProjects.length > 0 ? (
-              <div className="overflow-x-auto">
+        <div className="overflow-x-auto">
                 <table className="w-full text-left">
                   <thead className="bg-shadow-dark/30 text-shadow-text/80 text-sm">
                     <tr>
@@ -322,13 +322,13 @@ export default function AdminDashboard() {
                       <th className="px-6 py-3 font-medium">Vues</th>
                       <th className="px-6 py-3 font-medium">Dernière mise à jour</th>
                       <th className="px-6 py-3 font-medium w-20"></th>
-                    </tr>
-                  </thead>
+              </tr>
+            </thead>
                   <tbody className="divide-y divide-shadow-system/30">
                     {stats.recentProjects.map((project) => (
                       <tr key={project.id} className="hover:bg-shadow-system/10">
                         <td className="px-6 py-4 font-medium text-shadow-text">
-                          {project.title}
+                      {project.title}
                         </td>
                         <td className="px-6 py-4">
                           <span className={`px-2 py-1 text-xs font-medium rounded ${
@@ -338,18 +338,18 @@ export default function AdminDashboard() {
                           }`}>
                             {project.status === 'published' ? 'Publié' : 'Brouillon'}
                           </span>
-                        </td>
+                  </td>
                         <td className="px-6 py-4">
                           <span className={`px-2 py-0.5 text-xs font-bold text-white rounded bg-gradient-to-r ${getRankColor(project.rank)}`}>
-                            {project.rank}
-                          </span>
-                        </td>
+                      {project.rank}
+                    </span>
+                  </td>
                         <td className="px-6 py-4 text-shadow-text/70">
                           {project.viewCount}
-                        </td>
+                  </td>
                         <td className="px-6 py-4 text-shadow-text/70">
-                          {new Date(project.updatedAt).toLocaleDateString()}
-                        </td>
+                    {new Date(project.updatedAt).toLocaleDateString()}
+                  </td>
                         <td className="px-6 py-4">
                           <div className="flex justify-end gap-2">
                             <Link 
@@ -372,10 +372,10 @@ export default function AdminDashboard() {
                             </Link>
                           </div>
                         </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                </tr>
+              ))}
+            </tbody>
+          </table>
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center py-8">

@@ -10,10 +10,11 @@ Portfolio moderne développé avec Next.js 14, inspiré visuellement par l'unive
 Le design s'appuie sur les éléments visuels caractéristiques de Solo Leveling :
 - Particules animées dynamiques
 - Effets de lueur et gradients
-- Système de rang (S, A, B, C) pour les compétences
+- Système de rang (S, A, B, C) pour les compétences et projets
 - Animations fluides et réactives
-- Interface système interactive avec statistiques, compétences et projets
-- Défilement horizontal des projets avec navigation intuitive
+- Interface système interactive avec statistiques, compétences, technologies et projets
+- Défilement horizontal intuitif pour les projets et technologies
+- Modales détaillées pour les compétences et technologies
 
 ## 🛠 Stack Technique
 
@@ -23,6 +24,8 @@ Le design s'appuie sur les éléments visuels caractéristiques de Solo Leveling
 - **TypeScript** (v5.0.0) - Typage statique
 - **Tailwind CSS** (v3.3.0) - Styling utilitaire
 - **Framer Motion** (v11.0.0) - Animations
+- **Prisma** - ORM pour la base de données
+- **PostgreSQL** - Base de données relationnelle
 
 ### Dépendances Principales
 ```json
@@ -33,7 +36,11 @@ Le design s'appuie sur les éléments visuels caractéristiques de Solo Leveling
     "react-dom": "18.2.0",
     "framer-motion": "11.0.0",
     "@heroicons/react": "2.1.1",
-    "react-intersection-observer": "9.5.3"
+    "react-intersection-observer": "9.5.3",
+    "prisma": "^5.0.0",
+    "@prisma/client": "^5.0.0",
+    "jose": "^5.0.0",
+    "zod": "^3.22.0"
   },
   "devDependencies": {
     "typescript": "5.0.0",
@@ -55,6 +62,13 @@ portfolio/
 │ │ ├── layout.tsx # Layout principal
 │ │ ├── page.tsx # Page d'accueil
 │ │ ├── admin/ # Interface d'administration
+│ │ │ ├── layout.tsx # Layout admin spécifique
+│ │ │ ├── page.tsx # Dashboard admin
+│ │ │ ├── projects/ # Gestion des projets
+│ │ │ ├── skills/ # Gestion des compétences
+│ │ │ ├── technologies/ # Gestion des technologies
+│ │ │ └── messages/ # Gestion des messages
+│ │ ├── api/ # Routes API
 │ │ └── globals.css # Styles globaux
 │ ├── components/
 │ │ ├── Header.tsx # Navigation
@@ -62,18 +76,29 @@ portfolio/
 │ │ ├── ProjectsSection.tsx # Liste des projets avec défilement horizontal
 │ │ ├── ProjectCard.tsx # Carte de projet individuelle
 │ │ ├── SkillsSection.tsx # Section des compétences
-│ │ ├── SkillBar.tsx # Barre de progression des compétences
+│ │ ├── TechnologiesSection.tsx # Section des technologies
 │ │ ├── ContactSection.tsx # Section de contact
 │ │ ├── Footer.tsx # Pied de page
 │ │ ├── ParticlesBackground.tsx # Arrière-plan animé
 │ │ ├── SystemInterface.tsx # Interface système inspirée de Solo Leveling
-│ │ └── ThemeToggle.tsx # Bascule de thème
+│ │ ├── ThemeToggle.tsx # Bascule de thème
+│ │ └── admin/ # Composants administratifs
+│ │   ├── AdminHeader.tsx # En-tête admin
+│ │   ├── AdminFooter.tsx # Pied de page admin
+│ │   ├── AdminSidebar.tsx # Barre latérale admin
+│ │   ├── ProjectForm.tsx # Formulaire de projet
+│ │   └── SkillForm.tsx # Formulaire de compétence
 │ ├── context/
 │ │ └── ThemeContext.tsx # Gestion du thème global
+│ ├── hooks/
+│ │ ├── useProjects.ts # Hook personnalisé pour la gestion des projets
+│ │ └── useSkills.ts # Hook personnalisé pour la gestion des compétences
 │ ├── lib/
+│ │ ├── prisma.ts # Client Prisma
+│ │ ├── auth.ts # Authentification
 │ │ └── utils.ts # Utilitaires
 │ └── types/
-│ └── index.ts # Définitions TypeScript
+│   └── index.ts # Définitions TypeScript
 
 ## 🛠 Installation
 
@@ -87,7 +112,12 @@ git clone [URL_DU_REPO]
 npm install
 ```
 
-3. Lancer le serveur de développement
+3. Configurer la base de données
+```bash
+npx prisma migrate dev
+```
+
+4. Lancer le serveur de développement
 ```bash
 npm run dev
 ```
@@ -104,17 +134,18 @@ Le portfolio dispose d'une interface d'administration sécurisée pour gérer fa
 
 ### Accès à l'administration
 
-1. Accédez à `/admin/login` dans votre navigateur
+1. Accédez à `/auth/admin-login` dans votre navigateur
 2. Entrez le mot de passe administrateur configuré dans les variables d'environnement
 
 ### Fonctionnalités
 
-- **Tableau de bord amélioré** avec statistiques visuelles dans le style Solo Leveling
-- Gestion complète des projets (création, édition, suppression)
+- **Interface d'administration complète** - Séparée du frontend avec son propre layout
+- **Gestion des projets** - Création, édition, suppression avec support d'images locales ou distantes
+- **Gestion des compétences** - Interface intuitive avec calcul automatique des rangs (S, A, B, C)
+- **Gestion des technologies** - CRUD complet avec catégorisation et association aux projets
+- **Statistiques** - Suivi des performances et de l'engagement des visiteurs
 - Formulaires intelligents avec validation côté client et suggestions
-- Gestion des compétences et niveaux
-- Gestion des expériences professionnelles
-- Gestion du parcours académique
+- Interface cohérente avec le thème Solo Leveling
 
 ### Configuration
 
@@ -123,6 +154,7 @@ Pour configurer l'accès administrateur, définissez les variables d'environneme
 ```env
 JWT_SECRET="votre_secret_jwt_tres_long_et_complexe"
 ADMIN_PASSWORD="votre_mot_de_passe_admin_securise"
+DATABASE_URL="postgresql://user:password@localhost:5432/portfolio"
 ```
 
 ## Fonctionnalités immersives
@@ -136,12 +168,12 @@ Interface interactive inspirée du "système" de Solo Leveling :
 - Projets en cours sous forme de quêtes avec progression
 - Animation de niveau supérieur
 
-### Navigation horizontale des projets
+### Sections à défilement horizontal
 
-- Défilement horizontal fluide avec boutons de navigation
-- Filtrage par rang de projet
-- Cartes de projet avec effet de survol
-- Indication visuelle du rang et technologies utilisées
+- **Projets et Technologies** : Défilement horizontal fluide avec boutons de navigation
+- Filtrage par rang de projet ou catégorie de technologie
+- Cartes interactives avec effet de survol
+- Indication visuelle du rang et informations associées
 
 ## Résumé des meilleures pratiques implémentées
 
@@ -157,17 +189,20 @@ Interface interactive inspirée du "système" de Solo Leveling :
    - Messages de feedback
    - Thème clair/sombre
    - Navigation horizontale intuitive
+   - Modales détaillées pour les informations complémentaires
 
 3. **Architecture**
    - Séparation claire des préoccupations
    - API RESTful pour les opérations CRUD
    - Transactions Prisma pour la cohérence des données
    - Composants réutilisables
+   - Layouts distincts pour l'admin et le front
 
 4. **Performance**
    - Chargement optimisé des données
    - Pagination pour les listes longues
    - Requêtes optimisées avec Prisma
+   - Masquage des barres de défilement pour une meilleure esthétique
 
 5. **Maintenabilité**
    - Code TypeScript fortement typé
@@ -178,7 +213,7 @@ Interface interactive inspirée du "système" de Solo Leveling :
 ## 📝 TODO
 
 - [ ] Implémentation des traductions automatiques
-- [ ] Optimisation des performances
+- [ ] Optimisation des performances pour les mobiles
 - [ ] Tests unitaires et d'intégration
 - [ ] Documentation des composants
 - [ ] SEO et métadonnées
