@@ -4,7 +4,7 @@ import { generateToken } from '@/lib/auth';
 
 // Normalement, ces informations seraient dans la base de données, mais pour simplifier le développement
 const ADMIN_USERNAME = 'admin';
-const ADMIN_PASSWORD = 'password123'; // À changer pour un mot de passe sécurisé en production
+const ADMIN_PASSWORD = 'admin'; // À changer pour un mot de passe sécurisé en production
 
 export async function POST(request: NextRequest) {
   try {
