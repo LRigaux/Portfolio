@@ -17,9 +17,12 @@ interface Project {
 
 interface AdminStats {
   projectCount: number;
-  draftCount: number;
-  publishedCount: number;
+  draftProjects: number;
+  publishedProjects: number;
   visitCount: number;
+  contactCount: number;
+  skillCount: number;
+  techCount: number;
   highestRankedProject: Project | null;
   recentProjects: Project[];
 }
@@ -27,38 +30,44 @@ interface AdminStats {
 export default function AdminDashboard() {
   const [stats, setStats] = useState<AdminStats>({
     projectCount: 0,
-    draftCount: 0,
-    publishedCount: 0,
+    draftProjects: 0,
+    publishedProjects: 0,
     visitCount: 0,
+    contactCount: 0,
+    skillCount: 0,
+    techCount: 0,
     highestRankedProject: null,
     recentProjects: []
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [theme, setTheme] = useState('dark');
 
-  // Récupération des statistiques
+  // Récupérer les statistiques
   useEffect(() => {
     const fetchStats = async () => {
       try {
         setLoading(true);
-        const response = await fetch('/api/admin/stats');
+        const res = await fetch('/api/admin/stats');
         
-        if (!response.ok) {
-          throw new Error(`Erreur lors de la récupération des statistiques: ${response.status}`);
+        if (!res.ok) {
+          throw new Error('Erreur lors de la récupération des statistiques');
         }
         
-        const data = await response.json();
+        const data = await res.json();
         setStats(data);
       } catch (error) {
         console.error('Erreur:', error);
-        setError(error instanceof Error ? error.message : 'Une erreur est survenue');
+        setError('Impossible de charger les statistiques');
       } finally {
         setLoading(false);
       }
     };
-
+    
     fetchStats();
   }, []);
+
+  const isDark = theme === 'dark';
 
   // Niveaux et rangs fictifs pour le thème Solo Leveling
   const adminLevel = 3;
@@ -102,6 +111,15 @@ export default function AdminDashboard() {
       case 'B': return 'from-shadow-quest to-shadow-quest/70';
       case 'C': return 'from-shadow-system to-shadow-system/70';
       default: return 'from-shadow-system to-shadow-system/70';
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/auth/admin-logout');
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Erreur lors de la déconnexion:', error);
     }
   };
 
@@ -211,8 +229,8 @@ export default function AdminDashboard() {
               </div>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-shadow-text/70">{stats.publishedCount} publiés</span>
-              <span className="text-shadow-text/70">{stats.draftCount} brouillons</span>
+              <span className="text-shadow-text/70">{stats.publishedProjects} publiés</span>
+              <span className="text-shadow-text/70">{stats.draftProjects} brouillons</span>
             </div>
           </motion.div>
           
@@ -411,19 +429,18 @@ export default function AdminDashboard() {
           
           <Link 
             href="/"
-            target="_blank"
-            className="bg-shadow-surface border border-shadow-system hover:border-shadow-blue rounded-lg p-6 flex flex-col items-center justify-center transition-colors duration-200"
+            className="bg-shadow-surface border border-shadow-system hover:border-shadow-primary rounded-lg p-6 flex flex-col items-center justify-center transition-colors duration-200"
           >
-            <div className="w-12 h-12 rounded-full bg-shadow-accent/20 flex items-center justify-center mb-3">
-              <svg className="w-6 h-6 text-shadow-accent" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <div className="w-12 h-12 rounded-full bg-shadow-primary/20 flex items-center justify-center mb-3">
+              <svg className="w-6 h-6 text-shadow-primary" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1h2a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1h3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </div>
             <span className="text-shadow-text font-medium">Voir le portfolio</span>
           </Link>
           
-          <Link 
-            href="/auth/admin-logout"
+          <button 
+            onClick={handleLogout}
             className="bg-shadow-surface border border-shadow-system hover:border-shadow-monarch rounded-lg p-6 flex flex-col items-center justify-center transition-colors duration-200"
           >
             <div className="w-12 h-12 rounded-full bg-shadow-monarch/20 flex items-center justify-center mb-3">
@@ -432,9 +449,205 @@ export default function AdminDashboard() {
               </svg>
             </div>
             <span className="text-shadow-text font-medium">Déconnexion</span>
-          </Link>
+          </button>
         </div>
       </motion.div>
+
+      {/* Cartes de gestion */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-12">
+        {/* Carte Projets */}
+        <Link href="/admin/projects" className={`
+          p-6 rounded-lg flex flex-col
+          ${isDark 
+            ? 'bg-shadow-secondary hover:bg-shadow-system border border-shadow-blue/30' 
+            : 'bg-light-secondary hover:bg-light-surface border border-light-primary/30'}
+          transition-colors duration-300 group
+        `}>
+          <div className="flex justify-between items-center mb-4">
+            <h3 className={`
+              text-lg font-bold
+              ${isDark ? 'text-shadow-text' : 'text-light-text'}
+            `}>
+              Projets
+            </h3>
+            <span className={`
+              w-10 h-10 flex items-center justify-center rounded-full
+              ${isDark 
+                ? 'bg-shadow-blue text-white' 
+                : 'bg-light-primary text-white'}
+            `}>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z" />
+              </svg>
+            </span>
+          </div>
+          <p className={`
+            mb-4 text-sm
+            ${isDark ? 'text-shadow-text/70' : 'text-light-text/70'}
+          `}>
+            Gérer vos projets, modifier leur contenu et leurs statuts.
+          </p>
+          <div className="mt-auto flex justify-between items-center">
+            <div className={`
+              text-sm font-medium
+              ${isDark ? 'text-shadow-text/50' : 'text-light-text/50'}
+            `}>
+              {stats.projectCount} projets
+            </div>
+            <span className={`
+              group-hover:translate-x-1 transform transition-transform
+              ${isDark ? 'text-shadow-blue' : 'text-light-primary'}
+            `}>
+              →
+            </span>
+          </div>
+        </Link>
+
+        {/* Carte Compétences */}
+        <Link href="/admin/skills" className={`
+          p-6 rounded-lg flex flex-col
+          ${isDark 
+            ? 'bg-shadow-secondary hover:bg-shadow-system border border-shadow-monarch/30' 
+            : 'bg-light-secondary hover:bg-light-surface border border-light-rank/30'}
+          transition-colors duration-300 group
+        `}>
+          <div className="flex justify-between items-center mb-4">
+            <h3 className={`
+              text-lg font-bold
+              ${isDark ? 'text-shadow-text' : 'text-light-text'}
+            `}>
+              Compétences
+            </h3>
+            <span className={`
+              w-10 h-10 flex items-center justify-center rounded-full
+              ${isDark 
+                ? 'bg-shadow-monarch text-white' 
+                : 'bg-light-rank text-white'}
+            `}>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />
+              </svg>
+            </span>
+          </div>
+          <p className={`
+            mb-4 text-sm
+            ${isDark ? 'text-shadow-text/70' : 'text-light-text/70'}
+          `}>
+            Mettre à jour vos compétences et ajuster les niveaux de maîtrise.
+          </p>
+          <div className="mt-auto flex justify-between items-center">
+            <div className={`
+              text-sm font-medium
+              ${isDark ? 'text-shadow-text/50' : 'text-light-text/50'}
+            `}>
+              {stats.skillCount} compétences
+            </div>
+            <span className={`
+              group-hover:translate-x-1 transform transition-transform
+              ${isDark ? 'text-shadow-monarch' : 'text-light-rank'}
+            `}>
+              →
+            </span>
+          </div>
+        </Link>
+
+        {/* Carte Technologies */}
+        <Link href="/admin/technologies" className={`
+          p-6 rounded-lg flex flex-col
+          ${isDark 
+            ? 'bg-shadow-secondary hover:bg-shadow-system border border-shadow-primary/30' 
+            : 'bg-light-secondary hover:bg-light-surface border border-light-gold-DEFAULT/30'}
+          transition-colors duration-300 group
+        `}>
+          <div className="flex justify-between items-center mb-4">
+            <h3 className={`
+              text-lg font-bold
+              ${isDark ? 'text-shadow-text' : 'text-light-text'}
+            `}>
+              Technologies
+            </h3>
+            <span className={`
+              w-10 h-10 flex items-center justify-center rounded-full
+              ${isDark 
+                ? 'bg-shadow-primary text-white' 
+                : 'bg-light-gold-DEFAULT text-shadow-dark'}
+            `}>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+              </svg>
+            </span>
+          </div>
+          <p className={`
+            mb-4 text-sm
+            ${isDark ? 'text-shadow-text/70' : 'text-light-text/70'}
+          `}>
+            Gérer les technologies utilisées dans vos projets.
+          </p>
+          <div className="mt-auto flex justify-between items-center">
+            <div className={`
+              text-sm font-medium
+              ${isDark ? 'text-shadow-text/50' : 'text-light-text/50'}
+            `}>
+              {stats.techCount || 0} technologies
+            </div>
+            <span className={`
+              group-hover:translate-x-1 transform transition-transform
+              ${isDark ? 'text-shadow-primary' : 'text-light-gold-DEFAULT'}
+            `}>
+              →
+            </span>
+          </div>
+        </Link>
+
+        {/* Carte Messages */}
+        <Link href="/admin/messages" className={`
+          p-6 rounded-lg flex flex-col
+          ${isDark 
+            ? 'bg-shadow-secondary hover:bg-shadow-system border border-shadow-accent/30' 
+            : 'bg-light-secondary hover:bg-light-surface border border-light-accent/30'}
+          transition-colors duration-300 group
+        `}>
+          <div className="flex justify-between items-center mb-4">
+            <h3 className={`
+              text-lg font-bold
+              ${isDark ? 'text-shadow-text' : 'text-light-text'}
+            `}>
+              Messages
+            </h3>
+            <span className={`
+              w-10 h-10 flex items-center justify-center rounded-full
+              ${isDark 
+                ? 'bg-shadow-accent text-white' 
+                : 'bg-light-accent text-white'}
+            `}>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z" />
+                <path d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z" />
+              </svg>
+            </span>
+          </div>
+          <p className={`
+            mb-4 text-sm
+            ${isDark ? 'text-shadow-text/70' : 'text-light-text/70'}
+          `}>
+            Consulter et répondre aux messages reçus via le formulaire de contact.
+          </p>
+          <div className="mt-auto flex justify-between items-center">
+            <div className={`
+              text-sm font-medium
+              ${isDark ? 'text-shadow-text/50' : 'text-light-text/50'}
+            `}>
+              {stats.contactCount} messages
+            </div>
+            <span className={`
+              group-hover:translate-x-1 transform transition-transform
+              ${isDark ? 'text-shadow-accent' : 'text-light-accent'}
+            `}>
+              →
+            </span>
+          </div>
+        </Link>
+      </div>
     </div>
   );
 } 

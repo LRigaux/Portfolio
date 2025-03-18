@@ -4,7 +4,7 @@ import ProjectCard from './ProjectCard';
 import { useTheme } from '@/context/ThemeContext';
 import { motion } from 'framer-motion';
 import { Project } from '@/types';
-import { useRef, useEffect } from 'react';
+import { useRef } from 'react';
 import ParticlesBackground from './ParticlesBackground';
 
 const ProjectsSection = () => {
@@ -72,7 +72,7 @@ const ProjectsSection = () => {
   // Fonction pour faire défiler les projets horizontalement
   const scrollProjects = (direction: 'left' | 'right') => {
     if (projectsContainerRef.current) {
-      const scrollAmount = 350; // pixels à défiler
+      const scrollAmount = 600; // pixels à défiler - augmenté pour un défilement plus grand
       const container = projectsContainerRef.current;
       
       if (direction === 'left') {
@@ -83,27 +83,13 @@ const ProjectsSection = () => {
     }
   };
 
-  // Automatic scrolling
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (projectsContainerRef.current) {
-        const container = projectsContainerRef.current;
-        const isAtEnd = container.scrollLeft + container.clientWidth >= container.scrollWidth;
-        
-        if (isAtEnd) {
-          container.scrollTo({ left: 0, behavior: 'smooth' });
-        } else {
-          scrollProjects('right');
-        }
-      }
-    }, 8000); // Scroll every 8 seconds
-    
-    return () => clearInterval(interval);
-  }, []);
-
-  // Apply filter function that correctly updates the filter state
-  const applyFilter = (filterType: string, value: string | null) => {
-    setFilter(filterType as any, value);
+  // Fonction pour appliquer les filtres de manière sécurisée
+  const applyFilter = (filterType: 'rank' | 'category' | 'technology' | 'page', value: string | null) => {
+    try {
+      setFilter(filterType, value);
+    } catch (error) {
+      console.error(`Erreur lors de l'application du filtre ${filterType}:`, error);
+    }
   };
 
   return (
@@ -125,41 +111,12 @@ const ProjectsSection = () => {
           }`}>
             Mes Projets
           </h2>
-          
-          <div className="flex space-x-2">
-            <button 
-              onClick={() => scrollProjects('left')}
-              className={`p-2 rounded-full ${
-                theme === 'light' 
-                  ? 'bg-light-surface hover:bg-light-primary/20 text-light-text' 
-                  : 'bg-shadow-surface hover:bg-shadow-primary/20 text-shadow-text'
-              } transition-colors`}
-              aria-label="Défiler vers la gauche"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="m15 18-6-6 6-6"/>
-              </svg>
-            </button>
-            <button 
-              onClick={() => scrollProjects('right')}
-              className={`p-2 rounded-full ${
-                theme === 'light' 
-                  ? 'bg-light-surface hover:bg-light-primary/20 text-light-text' 
-                  : 'bg-shadow-surface hover:bg-shadow-primary/20 text-shadow-text'
-              } transition-colors`}
-              aria-label="Défiler vers la droite"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="m9 18 6-6-6-6"/>
-              </svg>
-            </button>
-          </div>
         </motion.div>
 
         {/* Filtres - afficher uniquement si des projets réels sont disponibles */}
         {projects && projects.length > 0 && (
           <div className="flex flex-wrap gap-4 mb-8 justify-center">
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2 justify-center">
               <button
                 onClick={() => applyFilter('rank', null)}
                 className={`px-4 py-2 rounded-md transition-all ${
@@ -195,18 +152,37 @@ const ProjectsSection = () => {
           </div>
         )}
 
-        {/* Projets */}
-        {loading ? (
-          <div className="flex justify-center">
-            <div className={`animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 ${
-              theme === 'light' ? 'border-light-primary' : 'border-shadow-primary'
-            }`}></div>
-          </div>
-        ) : (
-          <>
+        {/* Section des projets avec flèches de navigation sur les côtés */}
+        <div className="relative w-full max-w-full mx-auto">
+          {/* Flèche gauche positionnée sur le côté gauche */}
+          <button 
+            onClick={() => scrollProjects('left')}
+            className={`
+              absolute left-2 top-1/2 transform -translate-y-1/2 z-20
+              p-4 rounded-full shadow-lg
+              ${theme === 'light' 
+                ? 'bg-light-surface hover:bg-light-primary/20 text-light-text' 
+                : 'bg-shadow-surface hover:bg-shadow-primary/20 text-shadow-text'}
+              transition-colors
+            `}
+            aria-label="Défiler vers la gauche"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="m15 18-6-6 6-6"/>
+            </svg>
+          </button>
+
+          {/* Projets */}
+          {loading ? (
+            <div className="flex justify-center py-12">
+              <div className={`animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 ${
+                theme === 'light' ? 'border-light-primary' : 'border-shadow-primary'
+              }`}></div>
+            </div>
+          ) : (
             <div 
               ref={projectsContainerRef}
-              className="flex space-x-6 overflow-x-auto pb-8 scrollbar-hide snap-x snap-mandatory"
+              className="flex space-x-6 overflow-x-auto pb-8 scrollbar-hide snap-x snap-mandatory px-16 w-full"
               style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
             >
               {displayProjects.map((project, index) => (
@@ -215,7 +191,7 @@ const ProjectsSection = () => {
                     id={project.id} 
                     title={project.title}
                     description={truncateDescription(project.description, 100)}
-                    image={project.imageUrl || '/projects/default.jpg'}
+                    image={project.imageUrl || '/images/projects/default.jpg'}
                     tags={Array.isArray(project.technologies) 
                       ? project.technologies.map((tech: any) => 
                           typeof tech === 'string' ? tech : tech.name || '') 
@@ -229,32 +205,50 @@ const ProjectsSection = () => {
                 </div>
               ))}
             </div>
+          )}
 
-            {/* Pagination - afficher uniquement si des projets réels sont disponibles */}
-            {projects && projects.length > 0 && pagination && pagination.pages > 1 && (
-              <div className="flex justify-center mt-12">
-                <div className="flex gap-2">
-                  {Array.from({ length: pagination.pages }, (_, i) => i + 1).map((page) => (
-                    <button
-                      key={page}
-                      onClick={() => applyFilter('page', page.toString())}
-                      className={`w-10 h-10 rounded-md flex items-center justify-center transition-all ${
-                        pagination.page === page
-                          ? theme === 'light'
-                            ? 'bg-light-primary text-white'
-                            : 'bg-shadow-primary text-white'
-                          : theme === 'light'
-                          ? 'bg-light-surface text-light-text'
-                          : 'bg-shadow-surface text-shadow-text'
-                      }`}
-                    >
-                      {page}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-          </>
+          {/* Flèche droite positionnée sur le côté droit */}
+          <button 
+            onClick={() => scrollProjects('right')}
+            className={`
+              absolute right-2 top-1/2 transform -translate-y-1/2 z-20
+              p-4 rounded-full shadow-lg
+              ${theme === 'light' 
+                ? 'bg-light-surface hover:bg-light-primary/20 text-light-text' 
+                : 'bg-shadow-surface hover:bg-shadow-primary/20 text-shadow-text'}
+              transition-colors
+            `}
+            aria-label="Défiler vers la droite"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="m9 18 6-6-6-6"/>
+            </svg>
+          </button>
+        </div>
+
+        {/* Pagination - afficher uniquement si des projets réels sont disponibles */}
+        {projects && projects.length > 0 && pagination && pagination.pages > 1 && (
+          <div className="flex justify-center mt-12">
+            <div className="flex gap-2">
+              {Array.from({ length: pagination.pages }, (_, i) => i + 1).map((page) => (
+                <button
+                  key={page}
+                  onClick={() => applyFilter('page', page.toString())}
+                  className={`w-10 h-10 rounded-md flex items-center justify-center transition-all ${
+                    pagination.page === page
+                      ? theme === 'light'
+                        ? 'bg-light-primary text-white'
+                        : 'bg-shadow-primary text-white'
+                      : theme === 'light'
+                      ? 'bg-light-surface text-light-text'
+                      : 'bg-shadow-surface text-shadow-text'
+                  }`}
+                >
+                  {page}
+                </button>
+              ))}
+            </div>
+          </div>
         )}
       </div>
     </section>

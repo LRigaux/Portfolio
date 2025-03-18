@@ -60,3 +60,13 @@ html {
     @apply bg-gradient-to-r from-blue-600 to-teal-400 bg-clip-text text-transparent;
   }
 }
+
+/* Utility class for hiding scrollbars on specific elements */
+.hide-scrollbar {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, and Opera */
+}

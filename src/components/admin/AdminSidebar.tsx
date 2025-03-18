@@ -2,8 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import Image from 'next/image';
+import { usePathname, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 
 // Icônes stylisées avec le thème Solo Leveling
@@ -23,6 +22,19 @@ const icons = {
       <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   ),
+  technologies: (
+    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M9 3H4C3.44772 3 3 3.44772 3 4V9C3 9.55228 3.44772 10 4 10H9C9.55228 10 10 9.55228 10 9V4C10 3.44772 9.55228 3 9 3Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M20 3H15C14.4477 3 14 3.44772 14 4V9C14 9.55228 14.4477 10 15 10H20C20.5523 10 21 9.55228 21 9V4C21 3.44772 20.5523 3 20 3Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M9 14H4C3.44772 14 3 14.4477 3 15V20C3 20.5523 3.44772 21 4 21H9C9.55228 21 10 20.5523 10 20V15C10 14.4477 9.55228 14 9 14Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M20 14H15C14.4477 14 14 14.4477 14 15V20C14 20.5523 14.4477 21 15 21H20C20.5523 21 21 20.5523 21 20V15C21 14.4477 20.5523 14 20 14Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  ),
+  messages: (
+    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M8 12H8.01M12 12H12.01M16 12H16.01M21 12C21 16.4183 16.9706 20 12 20C10.4607 20 9.01172 19.6565 7.74467 19.0511L3 20L4.39499 16.28C3.51156 15.0423 3 13.5743 3 12C3 7.58172 7.02944 4 12 4C16.9706 4 21 7.58172 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  ),
   profile: (
     <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path d="M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -38,14 +50,27 @@ const icons = {
 
 export default function AdminSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(true);
 
   const isActive = (path: string) => pathname === path || pathname?.startsWith(path + '/');
+
+  // Fonction pour gérer la déconnexion
+  const handleLogout = async () => {
+    try {
+      await fetch('/auth/admin-logout');
+      router.push('/');
+    } catch (error) {
+      console.error('Erreur lors de la déconnexion:', error);
+    }
+  };
 
   const menuItems = [
     { path: '/admin', label: 'Tableau de bord', icon: icons.dashboard },
     { path: '/admin/projects', label: 'Projets', icon: icons.projects },
     { path: '/admin/skills', label: 'Compétences', icon: icons.skills },
+    { path: '/admin/technologies', label: 'Technologies', icon: icons.technologies },
+    { path: '/admin/messages', label: 'Messages', icon: icons.messages },
   ];
 
   // Animation pour l'apparition des éléments du menu
@@ -161,21 +186,22 @@ export default function AdminSidebar() {
 
         {/* Déconnexion */}
         <div className="p-4 border-t border-shadow-system mt-auto">
-          <Link href="/auth/admin-logout">
-            <div className="flex items-center py-3 px-4 text-shadow-text hover:text-shadow-monarch transition-colors rounded-lg">
-              <span className="text-shadow-monarch">
-                {icons.logout}
-              </span>
-              <motion.span 
-                className="ml-3 font-medium"
-                variants={labelVariants}
-              >
-                Déconnexion
-              </motion.span>
-            </div>
-          </Link>
+          <button
+            onClick={handleLogout}
+            className="flex items-center py-3 px-4 w-full text-shadow-text hover:text-shadow-monarch transition-colors rounded-lg"
+          >
+            <span className="text-shadow-monarch">
+              {icons.logout}
+            </span>
+            <motion.span 
+              className="ml-3 font-medium"
+              variants={labelVariants}
+            >
+              Déconnexion
+            </motion.span>
+          </button>
         </div>
       </div>
     </motion.aside>
   );
-} 
+}
