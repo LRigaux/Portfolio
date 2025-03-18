@@ -1,43 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
-import { authenticateUser } from '@/lib/auth';
+import { signToken, checkAdminPassword, setAuthCookie } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
   try {
     const { password } = await request.json();
     
-    if (!password) {
+    // Vérifier le mot de passe
+    if (!checkAdminPassword(password)) {
       return NextResponse.json(
-        { error: 'Password is required' },
-        { status: 400 }
-      );
-    }
-    
-    const token = await authenticateUser(password);
-    
-    if (!token) {
-      return NextResponse.json(
-        { error: 'Invalid password' },
+        { error: 'Mot de passe incorrect' },
         { status: 401 }
       );
     }
     
-    // Définir le cookie avec le token JWT
-    cookies().set({
-      name: 'admin_token',
-      value: token,
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      maxAge: 60 * 60 * 24, // 1 jour
-      path: '/',
-      sameSite: 'strict'
-    });
+    // Générer un token JWT
+    const token = await signToken();
+    
+    // Définir le cookie d'authentification
+    setAuthCookie(token);
     
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Login error:', error);
     return NextResponse.json(
-      { error: 'Authentication failed' },
+      { error: 'Une erreur est survenue lors de la connexion' },
       { status: 500 }
     );
   }

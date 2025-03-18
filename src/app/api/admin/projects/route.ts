@@ -4,6 +4,16 @@ import { z } from 'zod';
 import { slugify } from '@/lib/utils';
 import { PrismaClient, Prisma } from '@prisma/client';
 
+/**
+ * API pour la gestion des projets
+ * 
+ * GET: Récupère la liste des projets avec filtrage et pagination
+ * POST: Crée un nouveau projet avec ses relations (technologies, catégories)
+ * 
+ * La validation des données est effectuée via Zod
+ * Les transactions Prisma garantissent l'intégrité des données
+ */
+
 // Schéma de validation
 const ProjectSchema = z.object({
   title: z.string().min(3, "Le titre doit contenir au moins 3 caractères"),

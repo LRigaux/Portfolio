@@ -13,7 +13,7 @@ export default function AdminHeader() {
     
     try {
       await fetch('/api/admin/auth/logout', { method: 'POST' });
-      router.push('/admin/login');
+      router.push('/auth/admin-login');
     } catch (error) {
       console.error('Logout error:', error);
       setIsLoggingOut(false);
