@@ -15,60 +15,36 @@ export default function SkillBar({ name, level, rank, index }: SkillBarProps) {
   const [isHovered, setIsHovered] = useState(false);
   const isDark = theme === 'dark';
   
-  // Déterminer la couleur en fonction du rang et du thème
+  // Déterminer la couleur en fonction du rang
   const getRankColor = () => {
-    if (isDark) {
-      switch (rank) {
-        case 'S': return 'bg-purple-600 border-purple-400';
-        case 'A': return 'bg-red-600 border-red-400';
-        case 'B': return 'bg-blue-600 border-blue-400';
-        default: return 'bg-green-600 border-green-400';
-      }
-    } else {
-      switch (rank) {
-        case 'S': return 'bg-yellow-500 border-yellow-300';
-        case 'A': return 'bg-orange-500 border-orange-300';
-        case 'B': return 'bg-blue-500 border-blue-300';
-        default: return 'bg-green-500 border-green-300';
-      }
+    switch (rank) {
+      case 'S': return 'bg-red-600 border-red-400';
+      case 'A': return 'bg-purple-600 border-purple-400';
+      case 'B': return 'bg-blue-600 border-blue-400';
+      case 'C': return 'bg-green-600 border-green-400';
+      default: return 'bg-green-600 border-green-400';
     }
   };
   
-  // Déterminer la couleur du texte en fonction du rang et du thème
+  // Déterminer la couleur du texte en fonction du rang
   const getTextColor = () => {
-    if (isDark) {
-      switch (rank) {
-        case 'S': return 'text-purple-400';
-        case 'A': return 'text-red-400';
-        case 'B': return 'text-blue-400';
-        default: return 'text-green-400';
-      }
-    } else {
-      switch (rank) {
-        case 'S': return 'text-yellow-600';
-        case 'A': return 'text-orange-600';
-        case 'B': return 'text-blue-600';
-        default: return 'text-green-600';
-      }
+    switch (rank) {
+      case 'S': return 'text-red-400';
+      case 'A': return 'text-purple-400';
+      case 'B': return 'text-blue-400';
+      case 'C': return 'text-green-400';
+      default: return 'text-green-400';
     }
   };
   
   // Déterminer la couleur du gradient pour la barre
   const getGradientColor = () => {
-    if (isDark) {
-      switch (rank) {
-        case 'S': return 'from-purple-700 to-purple-500';
-        case 'A': return 'from-red-700 to-red-500';
-        case 'B': return 'from-blue-700 to-blue-500';
-        default: return 'from-green-700 to-green-500';
-      }
-    } else {
-      switch (rank) {
-        case 'S': return 'from-yellow-600 to-yellow-400';
-        case 'A': return 'from-orange-600 to-orange-400';
-        case 'B': return 'from-blue-600 to-blue-400';
-        default: return 'from-green-600 to-green-400';
-      }
+    switch (rank) {
+      case 'S': return 'from-red-700 to-red-500';
+      case 'A': return 'from-purple-700 to-purple-500';
+      case 'B': return 'from-blue-700 to-blue-500';
+      case 'C': return 'from-green-700 to-green-500';
+      default: return 'from-green-700 to-green-500';
     }
   };
 
@@ -79,9 +55,7 @@ export default function SkillBar({ name, level, rank, index }: SkillBarProps) {
       transition={{ duration: 0.5, delay: index * 0.1 }}
       className={`
         p-4 rounded-lg
-        ${isDark 
-          ? 'bg-shadow-secondary border border-shadow-system/30' 
-          : 'bg-light-secondary border border-light-gold-DEFAULT/30'}
+        bg-shadow-secondary border border-shadow-system/30
         transform transition-all duration-300
         hover:shadow-lg
       `}
@@ -89,17 +63,15 @@ export default function SkillBar({ name, level, rank, index }: SkillBarProps) {
       onHoverEnd={() => setIsHovered(false)}
       whileHover={{ 
         scale: 1.02,
-        boxShadow: isDark 
-          ? '0 0 12px rgba(150, 100, 255, 0.25)' 
-          : '0 0 12px rgba(255, 215, 0, 0.25)' 
+        boxShadow: '0 0 12px rgba(150, 100, 255, 0.25)' 
       }}
     >
       {/* En-tête avec nom et rang */}
       <div className="flex justify-between items-center mb-3">
         <h3 className={`
           font-semibold text-base
-          ${isDark ? 'text-shadow-text' : 'text-light-text'}
-          ${isHovered ? isDark ? 'text-shadow-blue' : 'text-light-gold-DEFAULT' : ''}
+          text-shadow-text
+          ${isHovered ? 'text-shadow-blue' : ''}
           transition-colors duration-300
         `}>
           {name}
@@ -140,9 +112,7 @@ export default function SkillBar({ name, level, rank, index }: SkillBarProps) {
             repeatType: 'loop'
           }}
           style={{
-            background: isDark
-              ? 'linear-gradient(90deg, transparent, rgba(155, 114, 233, 0.3), transparent)'
-              : 'linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.3), transparent)'
+            background: 'linear-gradient(90deg, transparent, rgba(155, 114, 233, 0.3), transparent)'
           }}
         />
         

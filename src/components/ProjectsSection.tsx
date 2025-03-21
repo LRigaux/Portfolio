@@ -421,8 +421,8 @@ const getRankColor = (rank?: string, active = false) => {
   const opacity = active ? '' : '70';
   
   switch (rank) {
-    case 'S': return `bg-purple-600${opacity} text-white`;
-    case 'A': return `bg-red-600${opacity} text-white`;
+    case 'S': return `bg-red-600${opacity} text-white`;
+    case 'A': return `bg-purple-600${opacity} text-white`;
     case 'B': return `bg-blue-600${opacity} text-white`;
     case 'C': return `bg-green-600${opacity} text-white`;
     default: return `bg-gray-600${opacity} text-white`;

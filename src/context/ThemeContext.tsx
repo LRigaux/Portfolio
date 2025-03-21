@@ -1,40 +1,29 @@
 'use client';
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 
-type Theme = 'light' | 'dark';
-
-interface ThemeContextType {
+type Theme = 'dark';
+type ThemeContextType = {
   theme: Theme;
-  toggleTheme: () => void;
-}
+};
 
-const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+const ThemeContext = createContext<ThemeContextType>({ theme: 'dark' });
 
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
+export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   const [theme, setTheme] = useState<Theme>('dark');
 
+  // Initialiser le thème sombre au chargement
   useEffect(() => {
-    const savedTheme = localStorage.getItem('theme') as Theme || 'dark';
-    setTheme(savedTheme);
-    document.documentElement.classList.toggle('dark', savedTheme === 'dark');
+    // Appliquer la classe dark au document
+    document.documentElement.classList.add('dark');
+    // Mettre à jour le thème dans le localStorage
+    localStorage.setItem('theme', 'dark');
   }, []);
 
-  const toggleTheme = () => {
-    const newTheme = theme === 'dark' ? 'light' : 'dark';
-    setTheme(newTheme);
-    localStorage.setItem('theme', newTheme);
-    document.documentElement.classList.toggle('dark', newTheme === 'dark');
-  };
-
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+    <ThemeContext.Provider value={{ theme }}>
       {children}
     </ThemeContext.Provider>
   );
-}
+};
 
-export const useTheme = () => {
-  const context = useContext(ThemeContext);
-  if (!context) throw new Error('useTheme must be used within ThemeProvider');
-  return context;
-}; 
+export const useTheme = () => useContext(ThemeContext); 

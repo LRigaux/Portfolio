@@ -26,25 +26,20 @@ export default function Home() {
   // Si chargement en cours, montrer un écran de chargement
   if (loading) {
     return (
-      <div className={`fixed inset-0 flex items-center justify-center ${
-        theme === 'dark' ? 'bg-shadow-dark' : 'bg-light-primary'
-      }`}>
-        <div className={`animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 ${
-          theme === 'dark' ? 'border-shadow-primary' : 'border-light-gold-DEFAULT'
-        }`}></div>
+      <div className="fixed inset-0 flex items-center justify-center bg-shadow-dark">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-shadow-primary"></div>
       </div>
     );
   }
 
   return (
-    <div className={`min-h-screen ${theme === 'dark' ? 'bg-shadow-dark' : 'bg-light-primary'}`}>
+    <div className="min-h-screen bg-shadow-dark">
       <Header />
       <main>
         <Hero />
-        <SystemInterface />
         <ProjectsSection />
         <SkillsSection />
-        <TechnologiesSection />
+        {/* <TechnologiesSection /> */}
         <ContactSection />
       </main>
       <Footer />

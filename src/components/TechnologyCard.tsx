@@ -22,8 +22,8 @@ export default function TechnologyCard({ technology, index, onClick }: Technolog
     
     if (isDark) {
       switch (technology.rank) {
-        case 'S': return 'bg-purple-600 border-purple-400';
-        case 'A': return 'bg-red-600 border-red-400';
+        case 'S': return 'bg-red-600 border-red-400';
+        case 'A': return 'bg-purple-600 border-purple-400';
         case 'B': return 'bg-blue-600 border-blue-400';
         default: return 'bg-green-600 border-green-400';
       }
@@ -43,8 +43,8 @@ export default function TechnologyCard({ technology, index, onClick }: Technolog
     
     if (isDark) {
       switch (technology.rank) {
-        case 'S': return 'from-purple-700 to-purple-500';
-        case 'A': return 'from-red-700 to-red-500';
+        case 'S': return 'from-red-700 to-red-500';
+        case 'A': return 'from-purple-700 to-purple-500';
         case 'B': return 'from-blue-700 to-blue-500';
         default: return 'from-green-700 to-green-500';
       }

@@ -16,62 +16,38 @@ export default function TechnologyInfo({ technology, onClose, isVisible }: Techn
   
   // Déterminer la couleur du gradient pour la barre en fonction du rang
   const getGradientColor = () => {
-    if (!technology.rank) return isDark ? 'from-gray-700 to-gray-500' : 'from-gray-600 to-gray-400';
+    if (!technology.rank) return 'from-gray-700 to-gray-500';
     
-    if (isDark) {
-      switch (technology.rank) {
-        case 'S': return 'from-purple-700 to-purple-500';
-        case 'A': return 'from-red-700 to-red-500';
-        case 'B': return 'from-blue-700 to-blue-500';
-        default: return 'from-green-700 to-green-500';
-      }
-    } else {
-      switch (technology.rank) {
-        case 'S': return 'from-yellow-600 to-yellow-400';
-        case 'A': return 'from-orange-600 to-orange-400';
-        case 'B': return 'from-blue-600 to-blue-400';
-        default: return 'from-green-600 to-green-400';
-      }
+    switch (technology.rank) {
+      case 'S': return 'from-red-700 to-red-500';
+      case 'A': return 'from-purple-700 to-purple-500';
+      case 'B': return 'from-blue-700 to-blue-500';
+      case 'C': return 'from-green-700 to-green-500';
+      default: return 'from-green-700 to-green-500';
     }
   };
   
   // Déterminer la couleur du badge de rang
   const getRankBadgeColor = () => {
-    if (!technology.rank) return isDark ? 'bg-gray-600 text-white' : 'bg-gray-500 text-white';
+    if (!technology.rank) return 'bg-gray-600 text-white';
     
-    if (isDark) {
-      switch (technology.rank) {
-        case 'S': return 'bg-purple-600 text-white';
-        case 'A': return 'bg-red-600 text-white';
-        case 'B': return 'bg-blue-600 text-white';
-        default: return 'bg-green-600 text-white';
-      }
-    } else {
-      switch (technology.rank) {
-        case 'S': return 'bg-yellow-500 text-shadow-dark';
-        case 'A': return 'bg-orange-500 text-shadow-dark';
-        case 'B': return 'bg-blue-500 text-shadow-dark';
-        default: return 'bg-green-500 text-shadow-dark';
-      }
+    switch (technology.rank) {
+      case 'S': return 'bg-red-600 text-white';
+      case 'A': return 'bg-purple-600 text-white';
+      case 'B': return 'bg-blue-600 text-white';
+      case 'C': return 'bg-green-600 text-white';
+      default: return 'bg-green-600 text-white';
     }
   };
   
   // Déterminer la couleur du badge de rang de projet
   const getProjectRankBadgeColor = (rank: string) => {
-    if (isDark) {
-      switch (rank) {
-        case 'S': return 'bg-purple-600 text-white';
-        case 'A': return 'bg-red-600 text-white';
-        case 'B': return 'bg-blue-600 text-white';
-        default: return 'bg-green-600 text-white';
-      }
-    } else {
-      switch (rank) {
-        case 'S': return 'bg-yellow-500 text-shadow-dark';
-        case 'A': return 'bg-orange-500 text-shadow-dark';
-        case 'B': return 'bg-blue-500 text-shadow-dark';
-        default: return 'bg-green-500 text-shadow-dark';
-      }
+    switch (rank) {
+      case 'S': return 'bg-red-600 text-white';
+      case 'A': return 'bg-purple-600 text-white';
+      case 'B': return 'bg-blue-600 text-white';
+      case 'C': return 'bg-green-600 text-white';
+      default: return 'bg-green-600 text-white';
     }
   };
   

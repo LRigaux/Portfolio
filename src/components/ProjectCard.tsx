@@ -29,20 +29,12 @@ const ProjectCard = ({ id, title, description, image, tags, link, liveLink, gith
 
   // Obtenir la couleur du rang selon le thème
   const getRankColor = () => {
-    if (isDark) {
-      switch (rank) {
-        case 'S': return 'bg-purple-600';
-        case 'A': return 'bg-red-600';
-        case 'B': return 'bg-blue-600';
-        default: return 'bg-green-600';
-      }
-    } else {
-      switch (rank) {
-        case 'S': return 'bg-yellow-500';
-        case 'A': return 'bg-orange-500';
-        case 'B': return 'bg-blue-500';
-        default: return 'bg-green-500';
-      }
+    switch (rank) {
+      case 'S': return 'bg-red-600';
+      case 'A': return 'bg-purple-600';
+      case 'B': return 'bg-blue-600';
+      case 'C': return 'bg-green-600';
+      default: return 'bg-green-600';
     }
   };
 
