@@ -2,10 +2,9 @@
 import { useEffect, useState } from 'react';
 import { useTheme } from '@/context/ThemeContext';
 import Hero from '@/components/Hero';
-import SystemInterface from '@/components/SystemInterface';
 import ProjectsSection from '@/components/ProjectsSection';
 import SkillsSection from '@/components/SkillsSection';
-import TechnologiesSection from '@/components/TechnologiesSection';
+// import TechnologiesSection from '@/components/TechnologiesSection';
 import ContactSection from '@/components/ContactSection';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -38,7 +37,7 @@ export default function Home() {
       <main>
         <Hero />
         <ProjectsSection />
-        <SkillsSection />
+        {/* <SkillsSection /> */}
         {/* <TechnologiesSection /> */}
         <ContactSection />
       </main>

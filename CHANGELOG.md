@@ -234,6 +234,26 @@ tags={Array.isArray(project.technologies)
 - Assurer la cohérence des données entre l'interface d'administration et l'affichage public
 - Rendre la gestion des technologies plus intuitive et complète
 
+## [1.4.0]
+### Ajouts
+- Suppression des références au thème clair dans les composants principaux.
+- Application exclusive du thème sombre dans les sections suivantes :
+  - Hero
+  - SystemInterface
+  - ProjectsSection
+  - SkillsSection
+  - TechnologiesSection
+  - ContactSection
+- Mise à jour des couleurs des badges de rang pour refléter uniquement le thème sombre.
+
+### Modifications
+- Simplification du code en éliminant les conditions basées sur le thème.
+- Mise à jour des styles et animations pour s'aligner avec la nouvelle structure de thème.
+
+### Corrections
+- Résolution des erreurs de linter liées aux variables non définies après les modifications.
+
+
 ## [1.3.0] - 2024-03-18
 
 ### ✨ Ajouts et améliorations majeures

@@ -211,7 +211,17 @@ const ProjectsSection = () => {
       
       <div className="container mx-auto px-4 relative z-10">
         <div className="mb-8 text-center">
-          <motion.h2 
+        <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className={`text-xl max-w-2xl mx-auto ${
+              theme === 'dark' ? 'text-shadow-text' : 'text-light-text'
+            }`}
+          >
+            My work
+          </motion.p>
+          <motion.h1 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
@@ -221,21 +231,11 @@ const ProjectsSection = () => {
                 : 'text-light-primary'
             }`}
           >
-            Mes Quêtes Complétées
-          </motion.h2>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className={`text-xl max-w-2xl mx-auto ${
-              theme === 'dark' ? 'text-shadow-text' : 'text-light-text'
-            }`}
-          >
-            Projets classés par rang selon leur complexité et impact
-          </motion.p>
+            Projects
+          </motion.h1>
         </div>
 
-        {/* Système de filtrage par rang amélioré avec style inspiré du jeu */}
+        {/* Système de filtrage par rang amélioré avec style inspiré du jeu
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -293,7 +293,7 @@ const ProjectsSection = () => {
               </div>
             </div>
           </div>
-        </motion.div>
+        </motion.div> */}
 
         {loading ? (
           <div className="flex justify-center py-16">
