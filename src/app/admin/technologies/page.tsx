@@ -12,18 +12,14 @@ export default function TechnologiesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
-  const [newTechnology, setNewTechnology] = useState<{ name: string; iconUrl: string; rank?: string; category?: string }>({
+  const [newTechnology, setNewTechnology] = useState<{ name: string; iconUrl: string }>({
     name: '',
-    iconUrl: '',
-    rank: '',
-    category: ''
+    iconUrl: ''
   });
   const [editMode, setEditMode] = useState<string | null>(null);
-  const [editData, setEditData] = useState<{ name: string; iconUrl: string; rank?: string; category?: string }>({
+  const [editData, setEditData] = useState<{ name: string; iconUrl: string }>({
     name: '',
-    iconUrl: '',
-    rank: '',
-    category: ''
+    iconUrl: ''
   });
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [createError, setCreateError] = useState<string | null>(null);
@@ -93,9 +89,7 @@ export default function TechnologiesPage() {
         },
         body: JSON.stringify({
           name: newTechnology.name,
-          iconUrl: newTechnology.iconUrl,
-          rank: newTechnology.rank || null,
-          category: newTechnology.category || null
+          iconUrl: newTechnology.iconUrl
         }),
       });
       
@@ -107,7 +101,7 @@ export default function TechnologiesPage() {
       const data = await res.json();
       
       setTechnologies([...technologies, data]);
-      setNewTechnology({ name: '', iconUrl: '', rank: '', category: '' });
+      setNewTechnology({ name: '', iconUrl: '' });
       setSuccessMessage('Technologie créée avec succès');
       
       setTimeout(() => {
@@ -125,15 +119,13 @@ export default function TechnologiesPage() {
     setEditMode(tech.id);
     setEditData({
       name: tech.name,
-      iconUrl: tech.imageUrl || '',
-      rank: tech.rank || '',
-      category: tech.category || ''
+      iconUrl: tech.imageUrl || ''
     });
   };
   
   const cancelEdit = () => {
     setEditMode(null);
-    setEditData({ name: '', iconUrl: '', rank: '', category: '' });
+    setEditData({ name: '', iconUrl: '' });
   };
   
   const handleEditSubmit = async (id: string) => {
@@ -147,9 +139,7 @@ export default function TechnologiesPage() {
         },
         body: JSON.stringify({
           name: editData.name,
-          iconUrl: editData.iconUrl,
-          rank: editData.rank || null,
-          category: editData.category || null
+          iconUrl: editData.iconUrl
         }),
       });
       
@@ -211,45 +201,16 @@ export default function TechnologiesPage() {
               placeholder="React, Node.js, etc."
             />
           </div>
+          
           <div className="mb-4">
-            <label className="block text-sm font-medium mb-1">URL de l'icône</label>
+            <label className="block text-sm font-medium mb-1">URL de l'icône (optionnel)</label>
             <input
               type="text"
               value={newTechnology.iconUrl}
               onChange={(e) => setNewTechnology({ ...newTechnology, iconUrl: e.target.value })}
               className="w-full p-2 border rounded"
-              placeholder="https://example.com/icon.svg"
+              placeholder="https://exemple.com/icon.svg"
             />
-          </div>
-          <div className="mb-4">
-            <label className="block text-sm font-medium mb-1">Rang</label>
-            <select
-              value={newTechnology.rank || ''}
-              onChange={(e) => setNewTechnology({ ...newTechnology, rank: e.target.value })}
-              className="w-full p-2 border rounded"
-            >
-              <option value="">Sélectionner un rang</option>
-              <option value="S">S</option>
-              <option value="A">A</option>
-              <option value="B">B</option>
-              <option value="C">C</option>
-            </select>
-          </div>
-          <div className="mb-4">
-            <label className="block text-sm font-medium mb-1">Catégorie</label>
-            <select
-              value={newTechnology.category || ''}
-              onChange={(e) => setNewTechnology({ ...newTechnology, category: e.target.value })}
-              className="w-full p-2 border rounded"
-            >
-              <option value="">Sélectionner une catégorie</option>
-              <option value="Frontend">Frontend</option>
-              <option value="Backend">Backend</option>
-              <option value="Database">Base de données</option>
-              <option value="DevOps">DevOps</option>
-              <option value="Mobile">Mobile</option>
-              <option value="Other">Autre</option>
-            </select>
           </div>
           
           {createError && (

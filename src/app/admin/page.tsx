@@ -79,24 +79,7 @@ export default function AdminDashboard() {
   }, []);
 
   const isDark = theme === 'dark';
-
-  // Niveaux et rangs fictifs pour le thème Solo Leveling
-  const adminLevel = 3;
-  const experience = stats.projectCount * 10 + stats.visitCount * 0.1;
-  const nextLevelExp = adminLevel * 100;
-  const expPercentage = Math.min(100, Math.floor((experience / nextLevelExp) * 100));
   
-  // Calculer un rang en fonction des statistiques
-  const getAdminRank = () => {
-    const totalProjects = stats.projectCount;
-    
-    if (totalProjects >= 20) return 'S';
-    if (totalProjects >= 10) return 'A';
-    if (totalProjects >= 5) return 'B';
-    return 'C';
-  };
-  
-  const adminRank = getAdminRank();
   
   // Animation variants
   const container = {
@@ -159,53 +142,6 @@ export default function AdminDashboard() {
         <p className="text-shadow-text/70">
           Bienvenue dans votre centre de contrôle. Consultez vos statistiques et gérez votre portfolio.
         </p>
-      </motion.div>
-
-      {/* Informations sur l'admin */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="mb-8 bg-shadow-surface border border-shadow-system rounded-lg overflow-hidden"
-      >
-        <div className="p-6">
-          <div className="flex flex-col md:flex-row gap-6 items-center">
-            {/* Avatar et niveau */}
-            <div className="relative">
-              <div className="w-24 h-24 bg-gradient-to-r from-double-awakening to-shadow-blue rounded-full flex items-center justify-center">
-                <span className="text-4xl font-bold text-white">A</span>
-              </div>
-              <div className="absolute -bottom-2 -right-2 bg-shadow-dark border-2 border-shadow-accent text-shadow-accent rounded-full w-10 h-10 flex items-center justify-center font-bold">
-                {adminLevel}
-              </div>
-            </div>
-            
-            {/* Infos admin */}
-            <div className="flex-1">
-              <h2 className="text-2xl font-bold text-shadow-text mb-1">Administrateur</h2>
-              <div className="flex items-center gap-2 mb-4">
-                <span className={`px-2 py-1 text-xs font-bold text-white rounded bg-gradient-to-r ${getRankColor(adminRank)}`}>
-                  Rang {adminRank}
-                </span>
-                <span className="text-shadow-text/60 text-sm">
-                  {adminLevel} niveaux collectés
-                </span>
-              </div>
-              
-              {/* Barre d'expérience */}
-              <div className="w-full bg-shadow-dark/50 rounded-full h-2.5 mb-1 overflow-hidden">
-                <div 
-                  className="bg-gradient-to-r from-double-awakening to-shadow-blue h-2.5 rounded-full transition-all duration-1000" 
-                  style={{ width: `${expPercentage}%` }}
-                ></div>
-              </div>
-              <div className="flex justify-between text-xs text-shadow-text/70">
-                <span>{Math.floor(experience)} EXP</span>
-                <span>{expPercentage}% pour le niveau {adminLevel + 1}</span>
-              </div>
-            </div>
-          </div>
-        </div>
       </motion.div>
       
       {/* Statistiques */}

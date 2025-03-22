@@ -46,8 +46,6 @@ model Technology {
   name        String   @unique
   slug        String   @unique
   iconUrl     String?
-  rank        String?  // S, A, B, C
-  category    String?  // Frontend, Backend, Database, etc.
   
   // Relations
   projects    ProjectTechnology[]

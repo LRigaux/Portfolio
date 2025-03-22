@@ -4,7 +4,7 @@ import { useTheme } from '@/context/ThemeContext';
 import { useState, useEffect, useRef } from 'react';
 import ParticlesBackground from './ParticlesBackground';
 
-export default function Hero() {
+export default function About() {
   const { theme } = useTheme();
   const [typedText, setTypedText] = useState('');
   const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0);
@@ -86,10 +86,10 @@ export default function Hero() {
   }, [typedText, currentPhraseIndex, isDeleting, typingSpeed, phrases]);
 
   return (
-    <section id="hero" className="min-h-screen py-20 relative overflow-hidden">
+    <section id="about" className="min-h-screen py-20 relative overflow-hidden">
         <ParticlesBackground />
       <div className="container mx-auto relative z-10">
-        <div className="bg-shadow-secondary rounded-2xl shadow-2xl overflow-hidden border border-shadow-system/30">
+        <div className="rounded-2xl overflow-hidden">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-center">
 
 
@@ -112,7 +112,7 @@ export default function Hero() {
                   </span>
                     <span className="animate-pulse">|</span>
                 </div>
-                  Passionné par <span className="text-shadow-primary">l'IA</span> et <br className="hidden md:block" />
+                  Passionate about <span className="text-shadow-primary">AI</span> and <br className="hidden md:block" />
                   <span className="relative inline-block text-shadow-monarch">
                     <motion.div
                       className="absolute -z-10 bottom-0 left-0 w-full bg-shadow-monarch/20"
@@ -125,14 +125,14 @@ export default function Hero() {
                       repeat: Infinity,
                       ease: "easeInOut"
                     }}
-                  />
+                  /> Data
                 </span>
               </motion.h1>
               <motion.p
                   variants={fadeIn}
                   className="text-xl max-w-3xl text-shadow-text/90 mt-6"
                 >
-                  Je transforme des données complexes en insights actionnables et modèles intelligents.
+                  I transform data into actionable insights and intelligent models.
               </motion.p>
             <motion.div
                   variants={fadeIn}

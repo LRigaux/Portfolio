@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useTheme } from '@/context/ThemeContext';
-import Hero from '@/components/Hero';
+import Hero from '@/components/About';
 import SystemInterface from '@/components/SystemInterface';
 import ProjectsSection from '@/components/ProjectsSection';
 import SkillsSection from '@/components/SkillsSection';

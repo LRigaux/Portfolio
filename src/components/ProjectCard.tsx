@@ -27,17 +27,6 @@ const ProjectCard = ({ id, title, description, image, tags, link, liveLink, gith
   const [isModalOpen, setIsModalOpen] = useState(false);
   const isDark = theme === 'dark';
 
-  // Obtenir la couleur du rang selon le thème
-  const getRankColor = () => {
-    switch (rank) {
-      case 'S': return 'bg-red-600';
-      case 'A': return 'bg-purple-600';
-      case 'B': return 'bg-blue-600';
-      case 'C': return 'bg-green-600';
-      default: return 'bg-green-600';
-    }
-  };
-
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
@@ -77,15 +66,6 @@ const ProjectCard = ({ id, title, description, image, tags, link, liveLink, gith
             ${isDark ? 'bg-shadow-blue text-white' : 'bg-light-gold-DEFAULT text-shadow-dark'}
           `}>
             Featured
-          </div>
-        )}
-        {rank && (
-          <div className={`
-            absolute top-2 left-2 w-8 h-8 rounded-full flex items-center justify-center
-            ${getRankColor()}
-            text-white font-bold
-          `}>
-            {rank}
           </div>
         )}
         </div>

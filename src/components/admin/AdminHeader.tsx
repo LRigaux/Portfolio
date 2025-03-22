@@ -11,8 +11,7 @@ export default function AdminHeader() {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [unreadMessages, setUnreadMessages] = useState(0);
-  const { theme, toggleTheme } = useTheme();
-  const isDark = theme === 'dark';
+  const theme = useTheme();
   
   // Mettre à jour l'heure toutes les secondes
   useEffect(() => {
@@ -46,12 +45,12 @@ export default function AdminHeader() {
   
   // Fonction pour obtenir le titre de la page actuelle
   const getPageTitle = () => {
-    if (pathname === '/admin') return 'Tableau de bord';
+    if (pathname === '/admin') return 'Administrator System';
     if (pathname?.startsWith('/admin/projects')) return 'Gestion des projets';
     if (pathname?.startsWith('/admin/skills')) return 'Gestion des compétences';
     if (pathname?.startsWith('/admin/technologies')) return 'Gestion des technologies';
     if (pathname?.startsWith('/admin/messages')) return 'Messages';
-    return 'Admin System';
+    return 'Administrator System';
   };
   
   // Fonction pour gérer la déconnexion
@@ -84,42 +83,9 @@ export default function AdminHeader() {
           <h1 className="text-lg font-medium text-shadow-text">
             {getPageTitle()}
           </h1>
-          <div className="ml-4 px-3 py-1 rounded-full bg-shadow-system">
-            <span className="text-xs text-shadow-blue">
-              Niveau Admin
-            </span>
-          </div>
         </motion.div>
         
         <div className="flex items-center space-x-4">
-          {/* Bouton de messages */}
-          <Link href="/admin/messages" className="relative p-1.5 text-shadow-text hover:text-shadow-accent">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
-            </svg>
-            
-            {unreadMessages > 0 && (
-              <span className="absolute -top-1 -right-1 bg-shadow-monarch text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                {unreadMessages > 9 ? '9+' : unreadMessages}
-              </span>
-            )}
-          </Link>
-          
-          {/* Bouton de thème */}
-          <button
-            onClick={toggleTheme}
-            className="p-1.5 text-shadow-text hover:text-shadow-accent"
-          >
-            {isDark ? (
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
-              </svg>
-            ) : (
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
-              </svg>
-            )}
-          </button>
           
           {/* Bouton de déconnexion rapide */}
           <motion.button

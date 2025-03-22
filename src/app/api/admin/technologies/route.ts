@@ -6,8 +6,7 @@ import { slugify } from '@/lib/utils';
 // Schéma de validation pour la création d'une technologie
 const technologySchema = z.object({
   name: z.string().min(1, 'Le nom est requis'),
-  iconUrl: z.string().optional(),
-  category: z.string().optional()
+  iconUrl: z.string().optional()
 });
 
 // Endpoint pour récupérer toutes les technologies utilisées
@@ -34,11 +33,13 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, iconUrl, rank, category } = body;
+    const { name, iconUrl } = body;
     
-    if (!name) {
+    // Validation des données
+    const validationResult = technologySchema.safeParse({ name, iconUrl });
+    if (!validationResult.success) {
       return NextResponse.json(
-        { error: 'Le nom est requis' },
+        { error: 'Données invalides', details: validationResult.error.format() },
         { status: 400 }
       );
     }
@@ -57,13 +58,12 @@ export async function POST(request: NextRequest) {
       );
     }
     
+    // Création de la technologie (uniquement nom, slug et iconUrl)
     const technology = await prisma.technology.create({
       data: {
         name,
         slug,
-        iconUrl,
-        rank,
-        category
+        iconUrl
       }
     });
     

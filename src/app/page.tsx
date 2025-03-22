@@ -1,9 +1,9 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useTheme } from '@/context/ThemeContext';
-import Hero from '@/components/Hero';
+import About from '@/components/About';
 import ProjectsSection from '@/components/ProjectsSection';
-import SkillsSection from '@/components/SkillsSection';
+// import SkillsSection from '@/components/SkillsSection';
 // import TechnologiesSection from '@/components/TechnologiesSection';
 import ContactSection from '@/components/ContactSection';
 import Header from '@/components/Header';
@@ -35,7 +35,7 @@ export default function Home() {
     <div className="min-h-screen bg-shadow-dark">
       <Header />
       <main>
-        <Hero />
+        <About />
         <ProjectsSection />
         {/* <SkillsSection /> */}
         {/* <TechnologiesSection /> */}

@@ -98,9 +98,6 @@ export default function AdminSidebar() {
             className="flex items-center gap-3"
             variants={labelVariants}
           >
-            <div className="w-8 h-8 rounded-full bg-double-awakening flex items-center justify-center text-white font-bold">
-              A
-            </div>
             <motion.h2 
               className="text-shadow-text font-bold"
               variants={labelVariants}
@@ -122,25 +119,6 @@ export default function AdminSidebar() {
               <path d="M15 19L8 12L15 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </button>
-        </div>
-
-        {/* Barre de niveau */}
-        <div className="py-4 px-3 border-b border-shadow-system">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-double-awakening to-shadow-blue flex items-center justify-center text-white font-bold text-sm">
-              LV3
-            </div>
-            <motion.div className="flex-1" variants={labelVariants}>
-              <p className="text-shadow-text text-sm font-medium">Admin System</p>
-              <div className="w-full h-2 bg-shadow-surface rounded-full mt-1 overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-double-awakening to-shadow-blue rounded-full" style={{ width: '45%' }}></div>
-              </div>
-              <div className="flex justify-between text-xs text-shadow-text/70 mt-1">
-                <span>Niveau 3</span>
-                <span>45%</span>
-              </div>
-            </motion.div>
-          </div>
         </div>
 
         {/* Navigation */}

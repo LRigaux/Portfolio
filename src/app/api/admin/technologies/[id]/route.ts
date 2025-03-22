@@ -6,8 +6,7 @@ import { slugify } from '@/lib/utils';
 // Schéma de validation pour la mise à jour d'une technologie
 const technologyUpdateSchema = z.object({
   name: z.string().min(1, 'Le nom est requis').optional(),
-  iconUrl: z.string().optional().nullable(),
-  category: z.string().optional().nullable()
+  iconUrl: z.string().optional().nullable()
 });
 
 // GET - Récupérer une technologie spécifique
@@ -47,11 +46,13 @@ export async function PUT(
   try {
     const { id } = params;
     const body = await request.json();
-    const { name, iconUrl, rank, category } = body;
+    const { name, iconUrl } = body;
     
-    if (!name) {
+    // Validation des données
+    const validationResult = technologyUpdateSchema.safeParse({ name, iconUrl });
+    if (!validationResult.success) {
       return NextResponse.json(
-        { error: 'Le nom est requis' },
+        { error: 'Données invalides', details: validationResult.error.format() },
         { status: 400 }
       );
     }
@@ -69,7 +70,7 @@ export async function PUT(
     }
     
     // Vérifier si le nouveau nom n'est pas déjà utilisé par une autre technologie
-    if (name !== technology.name) {
+    if (name && name !== technology.name) {
       const existing = await prisma.technology.findUnique({
         where: { name }
       });
@@ -82,15 +83,13 @@ export async function PUT(
       }
     }
     
-    // Mettre à jour la technologie
+    // Mettre à jour la technologie (uniquement nom, slug et iconUrl)
     const updatedTechnology = await prisma.technology.update({
       where: { id },
       data: {
-        name,
-        slug: name !== technology.name ? slugify(name) : technology.slug,
-        iconUrl,
-        rank,
-        category
+        name: name || technology.name,
+        slug: name && name !== technology.name ? slugify(name) : technology.slug,
+        iconUrl
       }
     });
     

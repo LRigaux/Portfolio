@@ -5,7 +5,7 @@ import { useEffect, useState, useRef } from 'react'; // Importation des hooks Re
 
 const Header = () => {
   const [scrollPosition, setScrollPosition] = useState(0); // État pour suivre la position de défilement
-  const [activeSection, setActiveSection] = useState('About'); // État pour suivre la section active
+  const [activeSection, setActiveSection] = useState('about'); // État pour suivre la section active
   const headerRef = useRef<HTMLElement>(null); // Référence pour l'élément d'en-tête
   
   const { scrollY } = useScroll(); // Récupération de la position de défilement
@@ -19,7 +19,7 @@ const Header = () => {
       setScrollPosition(position); // Mise à jour de l'état de la position de défilement
       
       // Déterminer la section active basée sur la position de défilement
-      const sections = ['About', 'projects', 'contact']; // Liste des sections à suivre
+      const sections = ['about', 'projects', 'contact']; // Liste des sections à suivre
       
       for (const section of sections) {
         const element = document.getElementById(section); // Récupération de l'élément de la section
@@ -131,20 +131,20 @@ const Header = () => {
           whileTap="tap" // État au clic
         >
           <a 
-            href="#About" // Lien vers la section About
+            href="#about" // Lien vers la section About
             className="text-2xl font-bold text-shadow-blue tracking-wider flex items-center"
             onClick={(e) => {
               e.preventDefault(); // Empêcher le comportement par défaut
-              handleNavClick('About'); // Appel de la fonction pour faire défiler vers la section
+              handleNavClick('about'); // Appel de la fonction pour faire défiler vers la section
             }}
           >
-              <span className="mr-1">Louis</span><span className="text-shadow-white">Rigaux</span>
+              <span className="mr-1">Louis</span><span className="text-shadow-white"></span>
           </a>
         </motion.div>
         
         {/* Navigation desktop */}
         <nav className="hidden md:flex items-center space-x-6">
-          {['About', 'projects', 'contact'].map((item, i) => (
+          {['about', 'projects', 'contact'].map((item, i) => (
             <motion.div
               key={item} // Clé unique pour chaque élément de navigation
               custom={i} // Passer l'index pour l'animation
