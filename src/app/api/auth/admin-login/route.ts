@@ -2,9 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { generateToken } from '@/lib/auth';
 
-// Normalement, ces informations seraient dans la base de données, mais pour simplifier le développement
-const ADMIN_USERNAME = 'admin';
-const ADMIN_PASSWORD = 'admin'; // À changer pour un mot de passe sécurisé en production
+
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,7 +10,7 @@ export async function POST(request: NextRequest) {
     const { username, password } = body;
     
     // Vérifier les identifiants
-    if (username !== ADMIN_USERNAME || password !== ADMIN_PASSWORD) {
+    if (username !== process.env.ADMIN_USERNAME || password !== process.env.ADMIN_PASSWORD) {
       return NextResponse.json(
         { error: 'Identifiants invalides' },
         { status: 401 }

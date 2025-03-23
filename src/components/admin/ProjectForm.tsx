@@ -23,7 +23,6 @@ interface Project {
   title: string;
   description: string;
   content?: string | null;
-  rank: 'S' | 'A' | 'B' | 'C';
   featured: boolean;
   status: 'draft' | 'published';
   imageUrl?: string | null;
@@ -50,12 +49,24 @@ interface ProjectFormProps {
 interface ValidationErrors {
   title?: string;
   description?: string;
-  rank?: string;
   status?: string;
   imageUrl?: string;
   githubUrl?: string;
   liveUrl?: string;
   general?: string;
+}
+
+interface ProjectFormData {
+  title: string;
+  description: string;
+  content?: string;
+  imageUrl?: string;
+  githubUrl?: string;
+  liveUrl?: string;
+  featured: boolean;
+  status: 'draft' | 'published';
+  technologies: string[];
+  categories: string[];
 }
 
 export default function ProjectForm({ project, isEdit = false }: ProjectFormProps) {
@@ -66,12 +77,11 @@ export default function ProjectForm({ project, isEdit = false }: ProjectFormProp
     slug: string;
     description: string;
     content: string;
-    rank: string;
-    featured: boolean;
-    status: string;
     imageUrl: string;
     githubUrl: string;
     liveUrl: string;
+    featured: boolean;
+    status: string;
     technologies: string[];
     categories: string[];
   }>({
@@ -79,12 +89,11 @@ export default function ProjectForm({ project, isEdit = false }: ProjectFormProp
     slug: '',
     description: '',
     content: '',
-    rank: 'C',
-    featured: false,
-    status: 'draft',
     imageUrl: '',
     githubUrl: '',
     liveUrl: '',
+    featured: false,
+    status: 'draft',
     technologies: [],
     categories: []
   });
@@ -134,12 +143,11 @@ export default function ProjectForm({ project, isEdit = false }: ProjectFormProp
         title: project.title,
         description: project.description,
         content: project.content || '',
-        rank: project.rank,
-        featured: project.featured,
-        status: project.status,
         imageUrl: project.imageUrl || '',
         githubUrl: project.githubUrl || '',
         liveUrl: project.liveUrl || '',
+        featured: project.featured,
+        status: project.status,
         technologies: project.technologies || [],
         categories: project.categories || [],
         slug: project.slug || slugify(project.title)
@@ -417,40 +425,14 @@ export default function ProjectForm({ project, isEdit = false }: ProjectFormProp
           </div>
         </div>
         
-        {/* Rank et Status */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div>
-            <label 
-              htmlFor="rank" 
-              className="block text-shadow-text font-medium mb-2 flex items-center"
-            >
-              <span className="w-1 h-4 bg-shadow-monarch mr-2 rounded"></span>
-              Rang
-            </label>
-            <select
-              id="rank"
-              name="rank"
-              value={formData.rank}
-              onChange={handleChange}
-              className="w-full p-2 rounded bg-shadow-surface border border-shadow-system focus:border-shadow-blue outline-none text-shadow-text"
-              required
-            >
-              <option value="S" className="bg-shadow-dark">S (Exceptionnel)</option>
-              <option value="A" className="bg-shadow-dark">A (Excellent)</option>
-              <option value="B" className="bg-shadow-dark">B (Bon)</option>
-              <option value="C" className="bg-shadow-dark">C (Débutant)</option>
-            </select>
-            {validationErrors.rank && (
-              <p className="mt-1 text-red-500 text-sm">{validationErrors.rank}</p>
-            )}
-          </div>
-          
+        {/* Status */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label 
               htmlFor="status" 
               className="block text-shadow-text font-medium mb-2 flex items-center"
             >
-              <span className="w-1 h-4 bg-shadow-monarch mr-2 rounded"></span>
+              <span className="w-1 h-4 bg-shadow-accent mr-2 rounded"></span>
               Statut
             </label>
             <select

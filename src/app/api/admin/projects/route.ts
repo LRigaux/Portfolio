@@ -19,9 +19,6 @@ const ProjectSchema = z.object({
   title: z.string().min(3, "Le titre doit contenir au moins 3 caractères"),
   description: z.string().min(10, "La description doit contenir au moins 10 caractères"),
   content: z.string().optional(),
-  rank: z.enum(["S", "A", "B", "C"], {
-    errorMap: () => ({ message: "Le rang doit être S, A, B ou C" })
-  }),
   featured: z.boolean().default(false),
   status: z.enum(["draft", "published"], {
     errorMap: () => ({ message: "Le statut doit être 'draft' ou 'published'" })
@@ -29,8 +26,16 @@ const ProjectSchema = z.object({
   imageUrl: z.string().optional().nullable()
     .refine(val => !val || val === '' || val.startsWith('http://') || val.startsWith('https://') || !val.startsWith('http'), 
            { message: "L'URL de l'image doit être une URL valide (http://, https://) ou un chemin local" }),
-  githubUrl: z.string().url("L'URL GitHub doit être valide").optional().nullable(),
-  liveUrl: z.string().url("L'URL du site doit être valide").optional().nullable(),
+  githubUrl: z.union([
+    z.string().url("L'URL GitHub doit être valide"),
+    z.string().length(0),
+    z.null()
+  ]).optional().nullable(),
+  liveUrl: z.union([
+    z.string().url("L'URL du site doit être valide"),
+    z.string().length(0),
+    z.null()
+  ]).optional().nullable(),
   technologies: z.array(z.string()).default([]),
   categories: z.array(z.string()).default([])
 });
@@ -112,8 +117,16 @@ export async function POST(request: NextRequest) {
     
     const data = await request.json();
     
+    // Normaliser les champs d'URL vides
+    const normalizedData = {
+      ...data,
+      githubUrl: data.githubUrl === '' ? null : data.githubUrl,
+      liveUrl: data.liveUrl === '' ? null : data.liveUrl,
+      imageUrl: data.imageUrl === '' ? null : data.imageUrl,
+    };
+    
     // Valider les données
-    const validatedData = ProjectSchema.parse(data);
+    const validatedData = ProjectSchema.parse(normalizedData);
     
     // Générer un slug unique
     let slug = slugify(validatedData.title);

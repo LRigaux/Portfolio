@@ -7,7 +7,6 @@ export interface Project {
   imageUrl?: string;
   githubUrl?: string;
   liveUrl?: string;
-  rank: string;
   featured: boolean;
   status: string;
   viewCount?: number;
@@ -21,17 +20,24 @@ export interface Technology {
   id: string;
   name: string;
   slug: string;
+  iconUrl?: string;
   description?: string;
-  imageUrl?: string;
-  category?: string;
-  level?: number;
-  rank?: string;
   relatedProjects?: {
     id: string;
     title: string;
     slug: string;
-    rank: string;
   }[];
+  createdAt: Date | string;
+  updatedAt: Date | string;
+}
+
+export interface Skill {
+  id: string;
+  name: string;
+  category: string;
+  iconUrl?: string;
+  technologyId?: string;
+  technology?: Technology;
   createdAt: Date | string;
   updatedAt: Date | string;
 }

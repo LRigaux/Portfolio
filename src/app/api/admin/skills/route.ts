@@ -2,30 +2,25 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
 
-// Schéma de validation pour la création/mise à jour d'une compétence
+// Schéma de validation pour la création d'une compétence
 const skillSchema = z.object({
   name: z.string().min(1, 'Le nom est requis'),
-  level: z.number().min(0).max(100),
   category: z.string().min(1, 'La catégorie est requise'),
-  icon: z.string().optional()
+  iconUrl: z.string().optional(),
+  technologyId: z.string().optional().nullable()
 });
-
-// Fonction pour calculer le rang basé sur le niveau
-function calculateRank(level: number): string {
-  if (level >= 90) return 'S';
-  if (level >= 75) return 'A';
-  if (level >= 50) return 'B';
-  return 'C';
-}
 
 // GET - Récupérer toutes les compétences
 export async function GET() {
   try {
+    // Récupérer toutes les compétences avec leur technologie associée
     const skills = await prisma.skill.findMany({
-      orderBy: [
-        { category: 'asc' },
-        { level: 'desc' }
-      ]
+      include: {
+        technology: true
+      },
+      orderBy: {
+        name: 'asc'
+      }
     });
     
     return NextResponse.json(skills);
@@ -39,23 +34,26 @@ export async function GET() {
 }
 
 // POST - Créer une nouvelle compétence
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     
-    // Valider les données
-    const validation = skillSchema.safeParse(body);
-    if (!validation.success) {
+    // Normaliser le champ technologyId
+    const normalizedBody = {
+      ...body,
+      technologyId: body.technologyId === '' ? null : body.technologyId
+    };
+    
+    // Validation des données
+    const validationResult = skillSchema.safeParse(normalizedBody);
+    if (!validationResult.success) {
       return NextResponse.json(
-        { error: 'Données invalides', details: validation.error.format() },
+        { error: 'Données invalides', details: validationResult.error.format() },
         { status: 400 }
       );
     }
     
-    const { name, level, category, icon } = validation.data;
-    
-    // Calculer le rang en fonction du niveau
-    const rank = calculateRank(level);
+    const { name, category, iconUrl, technologyId } = validationResult.data;
     
     // Vérifier si une compétence avec le même nom existe déjà
     const existingSkill = await prisma.skill.findFirst({
@@ -69,18 +67,19 @@ export async function POST(request: Request) {
       );
     }
     
-    // Créer la nouvelle compétence
-    const skill = await prisma.skill.create({
-      data: {
-        name,
-        level,
-        category,
-        rank,
-        iconUrl: icon || null
-      }
+    // Création de la compétence avec une approche simplifiée
+    const skill = await prisma.$executeRaw`
+      INSERT INTO Skill (id, name, category, iconUrl, technologyId, createdAt, updatedAt)
+      VALUES (${crypto.randomUUID()}, ${name}, ${category}, ${iconUrl || null}, ${technologyId || null}, ${new Date().toISOString()}, ${new Date().toISOString()})
+    `;
+    
+    // Récupérer la compétence nouvellement créée
+    const newSkill = await prisma.skill.findFirst({
+      where: { name },
+      include: { technology: true }
     });
     
-    return NextResponse.json(skill, { status: 201 });
+    return NextResponse.json(newSkill);
   } catch (error) {
     console.error('Erreur lors de la création de la compétence:', error);
     return NextResponse.json(

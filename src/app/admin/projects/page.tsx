@@ -23,32 +23,6 @@ const item = {
   show: { opacity: 1, y: 0 }
 };
 
-// Badge de rang avec couleur appropriée
-const RankBadge = ({ rank }: { rank: string }) => {
-  let bgColor = '';
-  
-  switch (rank) {
-    case 'S':
-      bgColor = 'bg-gradient-to-r from-shadow-monarch to-shadow-blue';
-      break;
-    case 'A':
-      bgColor = 'bg-shadow-blue';
-      break;
-    case 'B':
-      bgColor = 'bg-shadow-quest';
-      break;
-    case 'C':
-    default:
-      bgColor = 'bg-shadow-system';
-      break;
-  }
-  
-  return (
-    <span className={`text-white text-xs font-bold px-2 py-1 rounded ${bgColor}`}>
-      {rank}
-    </span>
-  );
-};
 
 // Badge de statut
 const StatusBadge = ({ status }: { status: string }) => {
@@ -81,7 +55,6 @@ export default function ProjectsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState<string | null>(null);
-  const [filterRank, setFilterRank] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const router = useRouter();
 
@@ -152,10 +125,6 @@ export default function ProjectsPage() {
       match = match && project.status === filterStatus;
     }
     
-    // Filtre par rang
-    if (filterRank) {
-      match = match && project.rank === filterRank;
-    }
     
     // Recherche par titre
     if (searchQuery) {
@@ -168,7 +137,6 @@ export default function ProjectsPage() {
   // Fonction pour réinitialiser les filtres
   const resetFilters = () => {
     setFilterStatus(null);
-    setFilterRank(null);
     setSearchQuery('');
   };
   
@@ -286,7 +254,6 @@ export default function ProjectsPage() {
                           {project.title}
                         </h3>
                         <div className="flex items-center gap-2">
-                          <RankBadge rank={project.rank} />
                           <StatusBadge status={project.status} />
                           {project.featured && (
                             <span className="bg-shadow-accent/20 text-shadow-accent text-xs font-semibold px-2 py-1 rounded">

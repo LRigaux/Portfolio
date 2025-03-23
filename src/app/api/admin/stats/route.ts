@@ -32,16 +32,6 @@ export async function GET() {
     // Récupérer le nombre de technologies
     const techCount = await prisma.technology.count();
     
-    // Récupérer le projet le mieux classé
-    const highestRankedProject = await prisma.project.findFirst({
-      where: { 
-        status: 'published',
-        rank: 'S'
-      },
-      orderBy: {
-        createdAt: 'desc'
-      }
-    });
     
     // Récupérer les projets récents
     const recentProjects = await prisma.project.findMany({
@@ -59,6 +49,7 @@ export async function GET() {
       }
     });
     
+
     return NextResponse.json({
       projectCount,
       draftProjects,
@@ -68,8 +59,6 @@ export async function GET() {
       unreadMessages,
       skillCount,
       techCount,
-      highestRankedProject,
-      recentProjects,
       recentMessages
     });
     

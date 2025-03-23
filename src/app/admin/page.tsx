@@ -212,9 +212,6 @@ export default function AdminDashboard() {
             
             {stats.highestRankedProject ? (
               <div className="flex items-center">
-                <div className={`w-12 h-12 rounded-full bg-gradient-to-r ${getRankColor(stats.highestRankedProject.rank)} flex items-center justify-center text-white font-bold text-xl mr-4`}>
-                  {stats.highestRankedProject.rank}
-                </div>
                 <div className="flex-1">
                   <h4 className="font-medium text-shadow-text">{stats.highestRankedProject.title}</h4>
                   <div className="flex justify-between mt-1">
@@ -238,199 +235,6 @@ export default function AdminDashboard() {
           </motion.div>
         </motion.div>
       )}
-      
-      {/* Projets récents */}
-      {!loading && (
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="mb-8"
-        >
-        <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold text-shadow-text">Projets récents</h2>
-          <Link 
-            href="/admin/projects" 
-              className="text-shadow-blue hover:text-shadow-blue/80 text-sm font-medium"
-          >
-              Voir tous les projets
-          </Link>
-        </div>
-        
-          <div className="bg-shadow-surface border border-shadow-system rounded-lg overflow-hidden">
-            {stats.recentProjects && stats.recentProjects.length > 0 ? (
-        <div className="overflow-x-auto">
-                <table className="w-full text-left">
-                  <thead className="bg-shadow-dark/30 text-shadow-text/80 text-sm">
-                    <tr>
-                      <th className="px-6 py-3 font-medium">Projet</th>
-                      <th className="px-6 py-3 font-medium">Statut</th>
-                      <th className="px-6 py-3 font-medium">Rang</th>
-                      <th className="px-6 py-3 font-medium">Vues</th>
-                      <th className="px-6 py-3 font-medium">Dernière mise à jour</th>
-                      <th className="px-6 py-3 font-medium w-20"></th>
-              </tr>
-            </thead>
-                  <tbody className="divide-y divide-shadow-system/30">
-                    {stats.recentProjects.map((project) => (
-                      <tr key={project.id} className="hover:bg-shadow-system/10">
-                        <td className="px-6 py-4 font-medium text-shadow-text">
-                      {project.title}
-                        </td>
-                        <td className="px-6 py-4">
-                          <span className={`px-2 py-1 text-xs font-medium rounded ${
-                            project.status === 'published' 
-                              ? 'bg-double-awakening/20 text-double-awakening' 
-                              : 'bg-shadow-system/30 text-shadow-text'
-                          }`}>
-                            {project.status === 'published' ? 'Publié' : 'Brouillon'}
-                          </span>
-                  </td>
-                        <td className="px-6 py-4">
-                          <span className={`px-2 py-0.5 text-xs font-bold text-white rounded bg-gradient-to-r ${getRankColor(project.rank)}`}>
-                      {project.rank}
-                    </span>
-                  </td>
-                        <td className="px-6 py-4 text-shadow-text/70">
-                          {project.viewCount}
-                  </td>
-                        <td className="px-6 py-4 text-shadow-text/70">
-                    {new Date(project.updatedAt).toLocaleDateString()}
-                  </td>
-                        <td className="px-6 py-4">
-                          <div className="flex justify-end gap-2">
-                            <Link 
-                              href={`/admin/projects/${project.id}`}
-                              className="p-1.5 text-shadow-text/70 hover:text-shadow-blue rounded hover:bg-shadow-system/30"
-                            >
-                              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                              </svg>
-                            </Link>
-                            <Link 
-                              href={`/projects/${project.id}`}
-                              className="p-1.5 text-shadow-text/70 hover:text-shadow-blue rounded hover:bg-shadow-system/30"
-                              target="_blank"
-                            >
-                              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                              </svg>
-                            </Link>
-                          </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center py-8">
-                <svg className="w-12 h-12 text-shadow-text/30 mb-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M19 11H5M19 11C20.1046 11 21 11.8954 21 13V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V13C3 11.8954 3.89543 11 5 11M19 11V9C19 7.89543 18.1046 7 17 7M5 11V9C5 7.89543 5.89543 7 7 7M7 7V5C7 3.89543 7.89543 3 9 3H15C16.1046 3 17 3.89543 17 5V7M7 7H17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-                <p className="text-shadow-text/70">Aucun projet trouvé</p>
-                <Link 
-                  href="/admin/projects/new" 
-                  className="mt-4 px-4 py-2 bg-gradient-to-r from-double-awakening to-shadow-blue text-white font-medium rounded-lg hover:opacity-90 transition-opacity"
-                >
-                  Créer un projet
-                </Link>
-              </div>
-            )}
-          </div>
-        </motion.div>
-      )}
-      
-      {/* Messages */}
-      <div className={`
-        bg-shadow-system border border-shadow-system
-        rounded-lg p-6 transition-transform hover:scale-105
-      `}>
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h3 className="text-shadow-text text-lg font-semibold">Messages</h3>
-            <p className="text-shadow-text/60 text-sm">
-              {stats.contactCount} au total
-            </p>
-          </div>
-          <div className="p-3 bg-shadow-primary/10 rounded-full">
-            <svg className="w-7 h-7 text-shadow-primary" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M8 12H8.01M12 12H12.01M16 12H16.01M21 12C21 16.4183 16.9706 20 12 20C10.4607 20 9.01172 19.6565 7.74467 19.0511L3 20L4.39499 16.28C3.51156 15.0423 3 13.5743 3 12C3 7.58172 7.02944 4 12 4C16.9706 4 21 7.58172 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </div>
-        </div>
-        
-        <div className="flex items-baseline">
-          <h2 className="text-3xl font-bold text-shadow-text mr-2">{stats.unreadMessages}</h2>
-          <p className="text-shadow-text/70">non lus</p>
-        </div>
-        
-        <Link href="/admin/messages" className={`
-          mt-4 inline-flex items-center text-sm text-shadow-accent
-          hover:text-shadow-blue transition-colors
-        `}>
-          <span>Gérer les messages</span>
-          <svg className="ml-1 w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
-          </svg>
-        </Link>
-      </div>
-      
-      {/* Messages récents */}
-      <div className="mt-8">
-        <h2 className="text-shadow-text text-xl font-semibold mb-4">Messages récents</h2>
-        
-        {stats.recentMessages.length > 0 ? (
-          <div className={`
-            grid grid-cols-1 gap-4
-            bg-shadow-system/50 rounded-lg p-4
-          `}>
-            {stats.recentMessages.map(message => (
-              <div key={message.id} className={`
-                p-4 rounded-md
-                ${message.status === 'unread' 
-                  ? 'bg-shadow-blue/10 border-l-4 border-shadow-blue'
-                  : 'bg-shadow-surface'}
-              `}>
-                <div className="flex justify-between items-center mb-2">
-                  <h3 className="font-medium text-shadow-text">{message.name}</h3>
-                  <span className="text-xs text-shadow-text/60">
-                    {new Date(message.createdAt).toLocaleDateString()}
-                  </span>
-                </div>
-                <p className="text-sm text-shadow-text/80 mb-2">{message.subject}</p>
-                <div className="flex justify-between items-center">
-                  <span className="text-xs text-shadow-text/60">{message.email}</span>
-                  <span className={`
-                    px-2 py-0.5 text-xs rounded-full
-                    ${message.status === 'unread'
-                      ? 'bg-shadow-blue/20 text-shadow-blue'
-                      : message.status === 'replied'
-                        ? 'bg-shadow-accent/20 text-shadow-accent'
-                        : 'bg-shadow-text/20 text-shadow-text'}
-                  `}>
-                    {message.status === 'unread' 
-                      ? 'Non lu' 
-                      : message.status === 'replied'
-                        ? 'Répondu'
-                        : 'Lu'}
-                  </span>
-                </div>
-              </div>
-            ))}
-            
-            <Link href="/admin/messages" className={`
-              mt-2 text-center py-2 text-sm text-shadow-accent
-              hover:text-shadow-blue transition-colors
-            `}>
-              Voir tous les messages
-            </Link>
-          </div>
-        ) : (
-          <p className="text-shadow-text/60">Aucun message récent</p>
-        )}
-      </div>
       
       {/* Raccourcis rapides */}
       <motion.div 
@@ -475,18 +279,6 @@ export default function AdminDashboard() {
             </div>
             <span className="text-shadow-text font-medium">Voir le portfolio</span>
           </Link>
-          
-          <button 
-            onClick={handleLogout}
-            className="bg-shadow-surface border border-shadow-system hover:border-shadow-monarch rounded-lg p-6 flex flex-col items-center justify-center transition-colors duration-200"
-          >
-            <div className="w-12 h-12 rounded-full bg-shadow-monarch/20 flex items-center justify-center mb-3">
-              <svg className="w-6 h-6 text-shadow-monarch" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </div>
-            <span className="text-shadow-text font-medium">Déconnexion</span>
-          </button>
         </div>
       </motion.div>
 
@@ -684,6 +476,194 @@ export default function AdminDashboard() {
             </span>
           </div>
         </Link>
+
+        {/* Projets récents */}
+        {!loading && (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="mb-8"
+          >
+          <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold text-shadow-text">Projets récents</h2>
+            <Link 
+              href="/admin/projects" 
+                className="text-shadow-blue hover:text-shadow-blue/80 text-sm font-medium"
+            >
+                Voir tous les projets
+            </Link>
+          </div>
+          
+            <div className="bg-shadow-surface border border-shadow-system rounded-lg overflow-hidden">
+              {stats.recentProjects && stats.recentProjects.length > 0 ? (
+          <div className="overflow-x-auto">
+                  <table className="w-full text-left">
+                    <thead className="bg-shadow-dark/30 text-shadow-text/80 text-sm">
+                      <tr>
+                        <th className="px-6 py-3 font-medium">Projet</th>
+                        <th className="px-6 py-3 font-medium">Statut</th>
+                        <th className="px-6 py-3 font-medium">Rang</th>
+                        <th className="px-6 py-3 font-medium">Vues</th>
+                        <th className="px-6 py-3 font-medium">Dernière mise à jour</th>
+                        <th className="px-6 py-3 font-medium w-20"></th>
+                </tr>
+              </thead>
+                    <tbody className="divide-y divide-shadow-system/30">
+                      {stats.recentProjects.map((project) => (
+                        <tr key={project.id} className="hover:bg-shadow-system/10">
+                          <td className="px-6 py-4 font-medium text-shadow-text">
+                        {project.title}
+                          </td>
+                          <td className="px-6 py-4">
+                            <span className={`px-2 py-1 text-xs font-medium rounded ${
+                              project.status === 'published' 
+                                ? 'bg-double-awakening/20 text-double-awakening' 
+                                : 'bg-shadow-system/30 text-shadow-text'
+                            }`}>
+                              {project.status === 'published' ? 'Publié' : 'Brouillon'}
+                            </span>
+                    </td>
+                          <td className="px-6 py-4 text-shadow-text/70">
+                            {project.viewCount}
+                    </td>
+                          <td className="px-6 py-4 text-shadow-text/70">
+                      {new Date(project.updatedAt).toLocaleDateString()}
+                    </td>
+                          <td className="px-6 py-4">
+                            <div className="flex justify-end gap-2">
+                              <Link 
+                                href={`/admin/projects/${project.id}`}
+                                className="p-1.5 text-shadow-text/70 hover:text-shadow-blue rounded hover:bg-shadow-system/30"
+                              >
+                                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                  <path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                </svg>
+                              </Link>
+                              <Link 
+                                href={`/projects/${project.id}`}
+                                className="p-1.5 text-shadow-text/70 hover:text-shadow-blue rounded hover:bg-shadow-system/30"
+                                target="_blank"
+                              >
+                                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                  <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                  <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                </svg>
+                              </Link>
+                            </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-8">
+                  <svg className="w-12 h-12 text-shadow-text/30 mb-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M19 11H5M19 11C20.1046 11 21 11.8954 21 13V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V13C3 11.8954 3.89543 11 5 11M19 11V9C19 7.89543 18.1046 7 17 7M5 11V9C5 7.89543 5.89543 7 7 7M7 7V5C7 3.89543 7.89543 3 9 3H15C16.1046 3 17 3.89543 17 5V7M7 7H17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  <p className="text-shadow-text/70">Aucun projet trouvé</p>
+                  <Link 
+                    href="/admin/projects/new" 
+                    className="mt-4 px-4 py-2 bg-gradient-to-r from-double-awakening to-shadow-blue text-white font-medium rounded-lg hover:opacity-90 transition-opacity"
+                  >
+                    Créer un projet
+                  </Link>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      
+        {/* Messages */}
+        <div className={`
+          bg-shadow-system border border-shadow-system
+          rounded-lg p-6 transition-transform hover:scale-105
+        `}>
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h3 className="text-shadow-text text-lg font-semibold">Messages</h3>
+              <p className="text-shadow-text/60 text-sm">
+                {stats.contactCount} au total
+              </p>
+            </div>
+            <div className="p-3 bg-shadow-primary/10 rounded-full">
+              <svg className="w-7 h-7 text-shadow-primary" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M8 12H8.01M12 12H12.01M16 12H16.01M21 12C21 16.4183 16.9706 20 12 20C10.4607 20 9.01172 19.6565 7.74467 19.0511L3 20L4.39499 16.28C3.51156 15.0423 3 13.5743 3 12C3 7.58172 7.02944 4 12 4C16.9706 4 21 7.58172 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+          </div>
+          
+          <div className="flex items-baseline">
+            <h2 className="text-3xl font-bold text-shadow-text mr-2">{stats.unreadMessages}</h2>
+            <p className="text-shadow-text/70">non lus</p>
+          </div>
+          
+          <Link href="/admin/messages" className={`
+            mt-4 inline-flex items-center text-sm text-shadow-accent
+            hover:text-shadow-blue transition-colors
+          `}>
+            <span>Gérer les messages</span>
+            <svg className="ml-1 w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+            </svg>
+          </Link>
+        </div>
+      
+        {/* Messages récents */}
+        <div className="mt-8">
+          <h2 className="text-shadow-text text-xl font-semibold mb-4">Messages récents</h2>
+          
+          {stats.recentMessages.length > 0 ? (
+            <div className={`
+              grid grid-cols-1 gap-4
+              bg-shadow-system/50 rounded-lg p-4
+            `}>
+              {stats.recentMessages.map(message => (
+                <div key={message.id} className={`
+                  p-4 rounded-md
+                  ${message.status === 'unread' 
+                    ? 'bg-shadow-blue/10 border-l-4 border-shadow-blue'
+                    : 'bg-shadow-surface'}
+                `}>
+                  <div className="flex justify-between items-center mb-2">
+                    <h3 className="font-medium text-shadow-text">{message.name}</h3>
+                    <span className="text-xs text-shadow-text/60">
+                      {new Date(message.createdAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                  <p className="text-sm text-shadow-text/80 mb-2">{message.subject}</p>
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-shadow-text/60">{message.email}</span>
+                    <span className={`
+                      px-2 py-0.5 text-xs rounded-full
+                      ${message.status === 'unread'
+                        ? 'bg-shadow-blue/20 text-shadow-blue'
+                        : message.status === 'replied'
+                          ? 'bg-shadow-accent/20 text-shadow-accent'
+                          : 'bg-shadow-text/20 text-shadow-text'}
+                    `}>
+                      {message.status === 'unread' 
+                        ? 'Non lu' 
+                        : message.status === 'replied'
+                          ? 'Répondu'
+                          : 'Lu'}
+                    </span>
+                  </div>
+                </div>
+              ))}
+              
+              <Link href="/admin/messages" className={`
+                mt-2 text-center py-2 text-sm text-shadow-accent
+                hover:text-shadow-blue transition-colors
+              `}>
+                Voir tous les messages
+              </Link>
+            </div>
+          ) : (
+            <p className="text-shadow-text/60">Aucun message récent</p>
+          )}
+        </div>
       </div>
     </div>
   );

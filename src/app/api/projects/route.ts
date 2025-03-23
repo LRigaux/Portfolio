@@ -15,7 +15,6 @@ export async function GET(request: NextRequest) {
     const featured = searchParams.get('featured');
     const category = searchParams.get('category');
     const technology = searchParams.get('technology');
-    const rank = searchParams.get('rank');
     const page = searchParams.get('page') ? parseInt(searchParams.get('page')!) : 1;
     const limit = searchParams.get('limit') ? parseInt(searchParams.get('limit')!) : 10;
     const skip = (page - 1) * limit;
@@ -24,7 +23,6 @@ export async function GET(request: NextRequest) {
       featured, 
       category, 
       technology, 
-      rank, 
       page, 
       limit 
     });
@@ -34,10 +32,6 @@ export async function GET(request: NextRequest) {
     
     if (featured === 'true') {
       where.featured = true;
-    }
-
-    if (rank) {
-      where.rank = rank;
     }
     
     if (category) {
@@ -69,7 +63,6 @@ export async function GET(request: NextRequest) {
     const projects = await prisma.project.findMany({
       where,
       orderBy: [
-        { rank: 'asc' },
         { createdAt: 'desc' }
       ],
       skip,

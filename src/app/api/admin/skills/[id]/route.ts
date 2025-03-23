@@ -1,24 +1,28 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
 
 // Schéma de validation pour la mise à jour d'une compétence
-const skillSchema = z.object({
-  name: z.string().min(1, 'Le nom est requis'),
-  description: z.string().optional(),
-  level: z.number().min(0).max(100),
-  category: z.string().min(1, 'La catégorie est requise'),
-  icon: z.string().optional()
+const skillUpdateSchema = z.object({
+  name: z.string().min(1, 'Le nom est requis').optional(),
+  category: z.string().min(1, 'La catégorie est requise').optional(),
+  iconUrl: z.string().optional().nullable(),
+  technologyId: z.string().optional().nullable()
 });
 
-// GET - Récupérer une compétence par ID
+// GET - Récupérer une compétence spécifique
 export async function GET(
-  request: Request,
+  _: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
+    const { id } = params;
+    
     const skill = await prisma.skill.findUnique({
-      where: { id: params.id }
+      where: { id },
+      include: {
+        technology: true
+      }
     });
     
     if (!skill) {
@@ -40,45 +44,44 @@ export async function GET(
 
 // PUT - Mettre à jour une compétence
 export async function PUT(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
+    const { id } = params;
     const body = await request.json();
     
-    // Valider les données
-    const validation = skillSchema.safeParse(body);
-    if (!validation.success) {
+    // Validation des données
+    const validationResult = skillUpdateSchema.safeParse(body);
+    if (!validationResult.success) {
       return NextResponse.json(
-        { error: 'Données invalides', details: validation.error.format() },
+        { error: 'Données invalides', details: validationResult.error.format() },
         { status: 400 }
       );
     }
     
-    // Vérifier si la compétence existe
-    const existingSkill = await prisma.skill.findUnique({
-      where: { id: params.id }
+    const { name, category, iconUrl, technologyId } = validationResult.data;
+    
+    // Vérifier que la compétence existe
+    const skill = await prisma.skill.findUnique({
+      where: { id }
     });
     
-    if (!existingSkill) {
+    if (!skill) {
       return NextResponse.json(
         { error: 'Compétence non trouvée' },
         { status: 404 }
       );
     }
     
-    // Extraire les données validées
-    const { name, description, level, category, icon } = validation.data;
-    
     // Mettre à jour la compétence
     const updatedSkill = await prisma.skill.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         name,
-        description,
-        level,
         category,
-        icon
+        iconUrl,
+        technologyId: technologyId === null ? null : technologyId || undefined
       }
     });
     
@@ -94,16 +97,18 @@ export async function PUT(
 
 // DELETE - Supprimer une compétence
 export async function DELETE(
-  request: Request,
+  _: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    // Vérifier si la compétence existe
-    const existingSkill = await prisma.skill.findUnique({
-      where: { id: params.id }
+    const { id } = params;
+    
+    // Vérifier que la compétence existe
+    const skill = await prisma.skill.findUnique({
+      where: { id }
     });
     
-    if (!existingSkill) {
+    if (!skill) {
       return NextResponse.json(
         { error: 'Compétence non trouvée' },
         { status: 404 }
@@ -112,10 +117,12 @@ export async function DELETE(
     
     // Supprimer la compétence
     await prisma.skill.delete({
-      where: { id: params.id }
+      where: { id }
     });
     
-    return NextResponse.json({ success: true });
+    return NextResponse.json(
+      { success: true, message: 'Compétence supprimée avec succès' }
+    );
   } catch (error) {
     console.error('Erreur lors de la suppression de la compétence:', error);
     return NextResponse.json(

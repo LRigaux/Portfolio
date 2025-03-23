@@ -23,7 +23,6 @@ model Project {
   imageUrl      String?
   githubUrl     String?
   liveUrl       String?
-  rank          String   // S, A, B, C
   featured      Boolean  @default(false)
   status        String   @default("draft") // draft, published
   viewCount     Int      @default(0)
@@ -36,7 +35,6 @@ model Project {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  @@index([rank])
   @@index([status])
   @@index([featured])
 }
@@ -91,8 +89,6 @@ model ProjectCategory {
 model Skill {
   id          String   @id @default(cuid())
   name        String
-  level       Int      // 0-100
-  rank        String   // S, A, B, C
   category    String   // Frontend, Backend, Data Science, etc.
   iconUrl     String?
   
@@ -104,7 +100,6 @@ model Skill {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  @@index([rank])
   @@index([category])
 }
 

@@ -119,7 +119,7 @@ export default function TechnologiesPage() {
     setEditMode(tech.id);
     setEditData({
       name: tech.name,
-      iconUrl: tech.imageUrl || ''
+      iconUrl: tech.iconUrl || ''
     });
   };
   
