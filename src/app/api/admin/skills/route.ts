@@ -5,7 +5,7 @@ import { z } from 'zod';
 // Schéma de validation pour la création d'une compétence
 const skillSchema = z.object({
   name: z.string().min(1, 'Le nom est requis'),
-  category: z.string().min(1, 'La catégorie est requise'),
+  category: z.string().optional(),
   iconUrl: z.string().optional(),
   technologyId: z.string().optional().nullable()
 });
@@ -41,7 +41,8 @@ export async function POST(request: NextRequest) {
     // Normaliser le champ technologyId
     const normalizedBody = {
       ...body,
-      technologyId: body.technologyId === '' ? null : body.technologyId
+      technologyId: body.technologyId === '' ? null : body.technologyId,
+      category: body.category || 'Autres'
     };
     
     // Validation des données
@@ -68,9 +69,10 @@ export async function POST(request: NextRequest) {
     }
     
     // Création de la compétence avec une approche simplifiée
+    const defaultCategory = category || 'Autres';
     const skill = await prisma.$executeRaw`
       INSERT INTO Skill (id, name, category, iconUrl, technologyId, createdAt, updatedAt)
-      VALUES (${crypto.randomUUID()}, ${name}, ${category}, ${iconUrl || null}, ${technologyId || null}, ${new Date().toISOString()}, ${new Date().toISOString()})
+      VALUES (${crypto.randomUUID()}, ${name}, ${defaultCategory}, ${iconUrl || null}, ${technologyId || null}, ${new Date().toISOString()}, ${new Date().toISOString()})
     `;
     
     // Récupérer la compétence nouvellement créée

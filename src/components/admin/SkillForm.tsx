@@ -6,7 +6,7 @@ import { Technology } from '@/types';
 
 interface SkillFormData {
   name: string;
-  category: string;
+  category?: string;
   iconUrl?: string;
   technologyId?: string;
 }
@@ -22,7 +22,7 @@ export default function SkillForm({
   onSubmit,
   initialData = {
     name: '',
-    category: '',
+    category: 'Autres',
     iconUrl: '',
     technologyId: ''
   },
@@ -58,10 +58,6 @@ export default function SkillForm({
 
     if (!formData.name.trim()) {
       newErrors.name = 'Le nom est requis';
-    }
-
-    if (!formData.category.trim()) {
-      newErrors.category = 'La catégorie est requise';
     }
 
     setErrors(newErrors);
@@ -103,23 +99,22 @@ export default function SkillForm({
 
       <div>
         <label htmlFor="category" className="block text-shadow-text font-medium mb-2">
-          Catégorie
+          Catégorie (optionnelle - "Autres" par défaut)
         </label>
         <select
           id="category"
           name="category"
-          value={formData.category}
+          value={formData.category || 'Autres'}
           onChange={handleChange}
           className="w-full p-2 rounded bg-shadow-surface border border-shadow-system focus:border-shadow-blue outline-none text-shadow-text"
         >
-          <option value="" disabled>Sélectionner une catégorie</option>
+          <option value="Autres">Autres</option>
           <option value="Frontend">Frontend</option>
           <option value="Backend">Backend</option>
           <option value="DevOps">DevOps</option>
           <option value="Database">Base de données</option>
           <option value="Mobile">Mobile</option>
           <option value="Machine Learning">Machine Learning</option>
-          <option value="Autres">Autres</option>
         </select>
         {errors.category && <p className="mt-1 text-red-500 text-sm">{errors.category}</p>}
       </div>

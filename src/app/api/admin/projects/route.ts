@@ -169,6 +169,22 @@ export async function POST(request: NextRequest) {
             technologyId: technology.id
           }
         });
+        
+        // Vérifier si une compétence liée à cette technologie existe déjà
+        const existingSkill = await tx.skill.findFirst({
+          where: { 
+            technologyId: technology.id 
+          }
+        });
+        
+        // Si aucune compétence n'existe pour cette technologie, en créer une avec catégorie "Autres"
+        if (!existingSkill) {
+          // Utiliser SQL brut pour contourner les problèmes de type
+          await tx.$executeRaw`
+            INSERT INTO Skill (id, name, category, technologyId, createdAt, updatedAt)
+            VALUES (${crypto.randomUUID()}, ${techName}, ${'Autres'}, ${technology.id}, ${new Date().toISOString()}, ${new Date().toISOString()})
+          `;
+        }
       }
       
       // Ajouter les catégories
